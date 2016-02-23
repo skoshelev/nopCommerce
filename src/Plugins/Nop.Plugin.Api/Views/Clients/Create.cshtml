@@ -1,0 +1,27 @@
+@{
+    Layout = ViewNames.ViewAdminLayout;
+}
+
+@using Nop.Plugin.Api.Models
+@using Nop.Plugin.Api.MVC
+
+@model ClientModel
+
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(model => model.Id)
+    @Html.AntiForgeryToken()
+
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-catalog.png")" alt="Catalog Icon" />
+            @T("Admin.Common.AddNew") @Html.ActionLink("(" + T("Plugins.Api.Admin.Client.BackToList") + ")", "List")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+        </div>
+    </div>
+    
+    @Html.Partial(ViewNames.ViewAdminApiClientsCreateOrUpdate, Model)
+}

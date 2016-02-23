@@ -13,9 +13,6 @@
     @Html.Action("StoreScopeConfiguration", "Setting", new { area = "Admin" })
 
     <div class="adminGroup">
-        <div class="controlTitle">
-            <a class="toggleControl">@T("Plugins.Api.Admin.GeneralSettings")</a>
-        </div>
         <div id="adminGroupPanel1" class="adminGroupPanel">
             <table class="adminContent">
                 <tr class="apiSettings">
@@ -35,7 +32,8 @@
                 </tr>
                 <tr>
                     <td colspan="2">
-                        <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+                        <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")"/>
+                        @Html.ActionLink("Manage Clients", "List", "ManageClientsAdmin", null, new { @class = "k-button" })
                     </td>
                 </tr>
             </table>
