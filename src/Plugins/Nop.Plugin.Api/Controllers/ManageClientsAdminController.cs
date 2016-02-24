@@ -30,7 +30,7 @@ namespace Nop.Plugin.Api.Controllers
         [HttpGet]
         public ActionResult List()
         {
-            return View(ViewNames.ViewAdminApiClientsList);
+            return View(ViewNames.AdminApiClientsList);
         }
 
         [HttpPost]
@@ -51,7 +51,7 @@ namespace Nop.Plugin.Api.Controllers
         {
             ClientModel clientModel = PrepareClientModel();
 
-            return View(ViewNames.ViewAdminApiClientsCreate, clientModel);
+            return View(ViewNames.AdminApiClientsCreate, clientModel);
         }
 
         [HttpPost, ParameterBasedOnFormNameAttribute("save-continue", "continueEditing")]
@@ -81,7 +81,7 @@ namespace Nop.Plugin.Api.Controllers
                 clientModel = client.ToModel();
             }
 
-            return View(ViewNames.ViewAdminApiClientsEdit, clientModel);
+            return View(ViewNames.AdminApiClientsEdit, clientModel);
         }
 
         [HttpPost, ParameterBasedOnFormNameAttribute("save-continue", "continueEditing")]

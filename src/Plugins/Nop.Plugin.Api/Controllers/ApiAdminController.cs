@@ -54,7 +54,7 @@ namespace Nop.Plugin.Api.Controllers
             //now clear settings cache
             _settingService.ClearCache();
 
-            return View(ViewNames.ViewAdminApiSettings, model);
+            return View(ViewNames.AdminApiSettings, model);
         }
 
         [HttpPost]
@@ -79,7 +79,7 @@ namespace Nop.Plugin.Api.Controllers
 
             SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
 
-            return View(ViewNames.ViewAdminApiSettings, configurationModel);
+            return View(ViewNames.AdminApiSettings, configurationModel);
         }
     }
 }
