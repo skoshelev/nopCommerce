@@ -1,7 +1,7 @@
 ﻿using System.Web.Routing;
 using Nop.Core.Plugins;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Data;
-using Nop.Plugin.Api.MVC;
 using Nop.Services.Common;
 using Nop.Web.Framework.Menu;
 using Nop.Services.Localization;
@@ -10,6 +10,8 @@ namespace Nop.Plugin.Api.Plugin
 {
     public class ApiPlugin : BasePlugin, IAdminMenuPlugin, IMiscPlugin
     {
+        private const string ControllersNamespace = "Nop.Plugin.Payments.PayPalDirect.Controllers";
+
         private readonly ApiObjectContext _objectContext;
 
         public ApiPlugin(ApiObjectContext objectContext)
@@ -96,7 +98,7 @@ namespace Nop.Plugin.Api.Plugin
         {
             actionName = "Configure";
             controllerName = "ApiAdmin";
-            routeValues = new RouteValueDictionary { { "Namespaces", PluginNames.ControllersNamespace }, { "area", null } };
+            routeValues = new RouteValueDictionary { { "Namespaces", ControllersNamespace }, { "area", null } };
         }
     }
 }

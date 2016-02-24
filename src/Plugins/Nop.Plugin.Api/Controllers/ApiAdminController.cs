@@ -1,10 +1,10 @@
 ﻿using System.Web.Mvc;
 using Nop.Admin.Controllers;
 using Nop.Core;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Domain;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models;
-using Nop.Plugin.Api.MVC;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
