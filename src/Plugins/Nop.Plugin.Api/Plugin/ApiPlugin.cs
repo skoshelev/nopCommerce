@@ -43,7 +43,6 @@ namespace Nop.Plugin.Api.Plugin
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.ClientId", "Client Id is required");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.ClientSecret", "Client Secret is required");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.CallbackUrl", "Callback Url is required");
-            this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.IsActive", "Is Active option is reqired");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Settings.GeneralSettingsTitle", "General Settings");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Edit", "Edit");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.BackToList", "Back To List");
@@ -75,7 +74,6 @@ namespace Nop.Plugin.Api.Plugin
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.ClientId");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.ClientSecret");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.CallbackUrl");
-            this.DeletePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.IsActive");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Settings.GeneralSettingsTitle");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Edit");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Client.BackToList");
