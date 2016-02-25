@@ -26,7 +26,7 @@ namespace Nop.Plugin.Api.Plugin
             //locales
             this.AddOrUpdatePluginLocaleResource("Plugins.Api", "Api plugin");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.ManageClients", "Manage Api Clients");
-            this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Configure", "Configure Web API");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Configure", "Configure Web Api");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.GeneralSettings", "General Settings");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.EnableApi", "Enable Api");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.EnableApi.Hint", "By checking this settings you can Enable/Disable the Web Api");
