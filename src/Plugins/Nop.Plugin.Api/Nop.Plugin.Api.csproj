@@ -115,12 +115,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ApiAdminController.cs" />
+    <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\ManageClientsAdminController.cs" />
     <Compile Include="Controllers\OAuthController.cs" />
     <Compile Include="DataMappings\ClientMap.cs" />
     <Compile Include="Data\ApiObjectContext.cs" />
     <Compile Include="Domain\ApiSettings.cs" />
     <Compile Include="Domain\Client.cs" />
+    <Compile Include="DTOs\AddressDto.cs" />
+    <Compile Include="DTOs\Customers\BaseCustomerDto.cs" />
+    <Compile Include="DTOs\Customers\CustomerAttributeMappingDto.cs" />
+    <Compile Include="DTOs\Customers\CustomerDto.cs" />
+    <Compile Include="DTOs\Customers\CustomerForShoppingCartItemDto.cs" />
+    <Compile Include="DTOs\Customers\CustomersCountRootObject.cs" />
+    <Compile Include="DTOs\Customers\CustomersRootObject.cs" />
+    <Compile Include="DTOs\Customers\OrderCustomerDto.cs" />
+    <Compile Include="DTOs\ProductDto.cs" />
+    <Compile Include="DTOs\ShoppingCartItemDto.cs" />
     <Compile Include="Infrastructure\DependencyRegister.cs" />
     <Compile Include="MappingExtensions\ClientMappings.cs" />
     <Compile Include="MappingExtensions\ConfigurationMappings.cs" />
@@ -136,7 +147,13 @@
     <Compile Include="Plugin\ApiPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ClientService.cs" />
+    <Compile Include="Services\CountryApiService.cs" />
+    <Compile Include="Services\CustomerApiService.cs" />
     <Compile Include="Services\IClientService.cs" />
+    <Compile Include="Services\ICountryApiService.cs" />
+    <Compile Include="Services\ICustomerApiService.cs" />
+    <Compile Include="Services\IStateProvinceApiService.cs" />
+    <Compile Include="Services\StateProvinceApiService.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Validators\ClientValidator.cs" />
   </ItemGroup>
