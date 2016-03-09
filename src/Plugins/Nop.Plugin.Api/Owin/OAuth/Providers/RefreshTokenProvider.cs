@@ -5,7 +5,7 @@ using Nop.Plugin.Api.MVC;
 
 namespace Nop.Plugin.Api.Owin.OAuth.Providers
 {
-    public class RefreshTokenProvider7Spikes : IAuthenticationTokenProvider
+    public class RefreshTokenProvider : IAuthenticationTokenProvider
     {
         public void Create(AuthenticationTokenCreateContext context)
         {

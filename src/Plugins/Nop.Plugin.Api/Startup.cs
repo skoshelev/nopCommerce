@@ -33,9 +33,9 @@ namespace Nop.Plugin.Api
                 TokenEndpointPath = new PathString("/api/token"),
                 AuthorizeEndpointPath = new PathString("/OAuth/Authorize"),
                 AccessTokenExpireTimeSpan = TimeSpan.FromMinutes(Configurations.AccessTokenExpiration),
-                Provider = new AuthorisationServerProvider7Spikes(),
-                AuthorizationCodeProvider = new AuthenticationTokenProvider7Spikes(),
-                RefreshTokenProvider = new RefreshTokenProvider7Spikes(),
+                Provider = new AuthorisationServerProvider(),
+                AuthorizationCodeProvider = new AuthenticationTokenProvider(),
+                RefreshTokenProvider = new RefreshTokenProvider(),
                 ApplicationCanDisplayErrors = true
             };
             app.UseOAuthAuthorizationServer(oAuthServerOptions);
@@ -62,12 +62,7 @@ namespace Nop.Plugin.Api
                 routeTemplate: "OAuth/Authorize",
                 defaults: new { controller = "OAuth", action = "Authorize" });
 
-            config.Routes.MapHttpRoute(
-                name: "ping",
-                routeTemplate: "api/authenticate/ping",
-                defaults: new { controller = "ApiAuthenticate", action = "Ping" });
-
-            app.UseWebApi(config);
+           app.UseWebApi(config);
         }
     }
 }

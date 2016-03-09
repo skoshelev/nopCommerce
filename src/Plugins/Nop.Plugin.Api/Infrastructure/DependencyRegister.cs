@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System.Web.Configuration;
+using Autofac;
 using Autofac.Core;
 using AutoMapper;
 using Nop.Core.Configuration;
@@ -8,8 +9,8 @@ using Nop.Core.Infrastructure.DependencyManagement;
 using Nop.Data;
 using Nop.Plugin.Api.Data;
 using Nop.Plugin.Api.Domain;
+using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.Models;
-using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Services;
 using Nop.Web.Framework.Mvc;
 
@@ -17,13 +18,15 @@ namespace Nop.Plugin.Api.Infrastructure
 {
     public class DependencyRegister : IDependencyRegistrar
     {
+        private const string ObjectContextName = "nop_object_context_web_api";
+
         public void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
         {
-            this.RegisterPluginDataContext<ApiObjectContext>(builder, PluginNames.ObjectContextName);
+            this.RegisterPluginDataContext<ApiObjectContext>(builder, ObjectContextName);
 
             builder.RegisterType<EfRepository<Client>>()
                .As<IRepository<Client>>()
-               .WithParameter(ResolvedParameter.ForNamed<IDbContext>(PluginNames.ObjectContextName))
+               .WithParameter(ResolvedParameter.ForNamed<IDbContext>(ObjectContextName))
                .InstancePerLifetimeScope();
 
             CreateModelMappings();
@@ -43,6 +46,8 @@ namespace Nop.Plugin.Api.Infrastructure
         private void RegisterPluginServices(ContainerBuilder builder)
         {
             builder.RegisterType<ClientService>().As<IClientService>().InstancePerLifetimeScope();
+
+            builder.RegisterType<WebConfigMangerHelper>().As<IWebConfigMangerHelper>().InstancePerLifetimeScope();
         }
 
         public int Order { get; }

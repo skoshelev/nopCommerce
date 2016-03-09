@@ -1,10 +1,10 @@
 @{
-    Layout = ViewNames.ViewAdminLayout;
+    Layout = ViewNames.AdminLayout;
 }
 
+@using Nop.Plugin.Api.Constants
 @using Nop.Web.Framework
 @using Nop.Plugin.Api.Models
-@using Nop.Plugin.Api.MVC
 
 @model ClientModel
 
@@ -24,7 +24,7 @@
         </div>
     </div>
     
-    @Html.Partial(ViewNames.ViewAdminApiClientsCreateOrUpdate, Model)  
+    @Html.Partial(ViewNames.AdminApiClientsCreateOrUpdate, Model)  
 }
 
 @Html.DeleteConfirmation("client-delete")

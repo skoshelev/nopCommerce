@@ -1,7 +1,8 @@
 ﻿using System.Web.Routing;
 using Nop.Core.Plugins;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Data;
-using Nop.Plugin.Api.MVC;
+using Nop.Plugin.Api.Helpers;
 using Nop.Services.Common;
 using Nop.Web.Framework.Menu;
 using Nop.Services.Localization;
@@ -10,11 +11,15 @@ namespace Nop.Plugin.Api.Plugin
 {
     public class ApiPlugin : BasePlugin, IAdminMenuPlugin, IMiscPlugin
     {
-        private readonly ApiObjectContext _objectContext;
+        private const string ControllersNamespace = "Nop.Plugin.Payments.PayPalDirect.Controllers";
 
-        public ApiPlugin(ApiObjectContext objectContext)
+        private readonly ApiObjectContext _objectContext;
+        private readonly IWebConfigMangerHelper _webConfigMangerHelper;
+
+        public ApiPlugin(ApiObjectContext objectContext, IWebConfigMangerHelper webConfigMangerHelper)
         {
             _objectContext = objectContext;
+            _webConfigMangerHelper = webConfigMangerHelper;
         }
 
         public override void Install()
@@ -23,7 +28,8 @@ namespace Nop.Plugin.Api.Plugin
 
             //locales
             this.AddOrUpdatePluginLocaleResource("Plugins.Api", "Api plugin");
-            this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Configure", "Configure Web API");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Menu.ManageClients", "Manage Api Clients");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Configure", "Configure Web Api");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.GeneralSettings", "General Settings");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.EnableApi", "Enable Api");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.EnableApi.Hint", "By checking this settings you can Enable/Disable the Web Api");
@@ -33,7 +39,7 @@ namespace Nop.Plugin.Api.Plugin
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.ClientSecret", "Client Secret");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.CallbackUrl", "Callback Url");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.IsActive", "Is Active");
-            this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.AddNew", "Add New");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.AddNew", "Add New Client");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.Edit", "Edit");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.Created", "Created");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.Deleted", "Deleted");
@@ -41,10 +47,11 @@ namespace Nop.Plugin.Api.Plugin
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.ClientId", "Client Id is required");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.ClientSecret", "Client Secret is required");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.CallbackUrl", "Callback Url is required");
-            this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.IsActive", "Is Active option is reqired");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Settings.GeneralSettingsTitle", "General Settings");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Edit", "Edit");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.BackToList", "Back To List");
+
+            _webConfigMangerHelper.AddConfiguration();
 
             base.Install();
         }
@@ -55,6 +62,7 @@ namespace Nop.Plugin.Api.Plugin
 
             //locales
             this.DeletePluginLocaleResource("Plugins.Api");
+            this.DeletePluginLocaleResource("Plugins.Api.Admin.Menu.ManageClients");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Configure");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.GeneralSettings");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.EnableApi");
@@ -73,10 +81,11 @@ namespace Nop.Plugin.Api.Plugin
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.ClientId");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.ClientSecret");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.CallbackUrl");
-            this.DeletePluginLocaleResource("Plugins.Api.Admin.Entities.Client.FieldValidationMessages.IsActive");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Settings.GeneralSettingsTitle");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Edit");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Client.BackToList");
+
+            _webConfigMangerHelper.RemoveConfiguration();
 
             base.Uninstall();
         }
@@ -96,7 +105,7 @@ namespace Nop.Plugin.Api.Plugin
         {
             actionName = "Configure";
             controllerName = "ApiAdmin";
-            routeValues = new RouteValueDictionary { { "Namespaces", PluginNames.ControllersNamespace }, { "area", null } };
+            routeValues = new RouteValueDictionary { { "Namespaces", ControllersNamespace }, { "area", null } };
         }
     }
 }

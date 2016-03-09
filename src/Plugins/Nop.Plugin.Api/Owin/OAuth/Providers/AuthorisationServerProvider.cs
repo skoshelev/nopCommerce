@@ -8,7 +8,7 @@ using Nop.Plugin.Api.Services;
 
 namespace Nop.Plugin.Api.Owin.OAuth.Providers
 {
-    public class AuthorisationServerProvider7Spikes : OAuthAuthorizationServerProvider
+    public class AuthorisationServerProvider : OAuthAuthorizationServerProvider
     {
         public override async Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
         {
