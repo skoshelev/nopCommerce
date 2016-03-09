@@ -50,10 +50,14 @@ namespace Nop.Plugin.Api.Plugin
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Settings.GeneralSettingsTitle", "General Settings");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Edit", "Edit");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.BackToList", "Back To List");
-
-            _webConfigMangerHelper.AddConfiguration();
-
+            
             base.Install();
+
+            // TODO: Check if this will cause a real restart of the application and suspend execution
+            // Since this changes the Web.config it could cause the application to be restarted and
+            // we need to make sure the plugin is marked as intalled before that.
+            // Otherwise nopCommerce may try to install the plugin again after the restart since it is not marked as installed
+            _webConfigMangerHelper.AddConfiguration();
         }
 
         public override void Uninstall()
@@ -85,9 +89,10 @@ namespace Nop.Plugin.Api.Plugin
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Edit");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Client.BackToList");
 
-            _webConfigMangerHelper.RemoveConfiguration();
-
             base.Uninstall();
+
+            //TODO: Check if this could be before the Uninstall
+            _webConfigMangerHelper.RemoveConfiguration();
         }
 
         public void ManageSiteMap(SiteMapNode rootNode)
