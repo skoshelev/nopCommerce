@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Routing;
+using Autofac.Integration.WebApi;
 using Microsoft.Owin;
 using Microsoft.Owin.Extensions;
 using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json;
+using Nop.Core.Infrastructure;
 using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Owin.Middleware;
 using Nop.Plugin.Api.Owin.OAuth.Providers;
@@ -62,7 +66,30 @@ namespace Nop.Plugin.Api
                 routeTemplate: "OAuth/Authorize",
                 defaults: new { controller = "OAuth", action = "Authorize" });
 
-           app.UseWebApi(config);
+            config.Routes.MapHttpRoute(
+              name: "customers",
+              routeTemplate: "api/customers",
+              defaults: new { controller = "Customers", action = "GetCustomers" });
+
+            config.Routes.MapHttpRoute(
+                name: "customersCount",
+                routeTemplate: "api/customers/count",
+                defaults: new { controller = "Customers", action = "GetCustomersCount" });
+
+            config.Routes.MapHttpRoute(
+                name: "customerSearch",
+                routeTemplate: "api/customers/search",
+                defaults: new { controller = "Customers", action = "Search" });
+
+            config.Routes.MapHttpRoute(
+                name: "customerById",
+                routeTemplate: "api/customers/{id}",
+                defaults: new { controller = "Customers", action = "GetCustomerById" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            app.UseWebApi(config);
+            
+            config.DependencyResolver = new AutofacWebApiDependencyResolver(EngineContext.Current.ContainerManager.Container);
         }
     }
 }

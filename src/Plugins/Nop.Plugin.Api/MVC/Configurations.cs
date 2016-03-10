@@ -7,5 +7,7 @@
         public const int RefreshTokenExpiration = 43200;
         public const int DefaultLimit = 50;
         public const int DefaultPageValue = 1;
+        public const int MaxLimit = 250;
+        public const int MinLimit = 0;
     }
 }

@@ -31,9 +31,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac">
-      <HintPath>..\..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Autofac.3.5.0\lib\net40\Autofac.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autofac.Integration.WebApi, Version=3.4.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Autofac.WebApi2.3.4.0\lib\net45\Autofac.Integration.WebApi.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="AutoMapper, Version=4.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
       <HintPath>..\..\packages\AutoMapper.4.1.1\lib\net45\AutoMapper.dll</HintPath>
@@ -110,18 +114,25 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\NopBearerTokenAuthorizeAttribute.cs" />
     <Compile Include="Constants\ViewNames.cs" />
+    <Compile Include="ContractResolvers\DynamicContractResolver.cs" />
     <Compile Include="Controllers\ApiAdminController.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\ManageClientsAdminController.cs" />
     <Compile Include="Controllers\OAuthController.cs" />
     <Compile Include="DataMappings\ClientMap.cs" />
+    <Compile Include="DataStructures\ApiList.cs" />
     <Compile Include="Data\ApiObjectContext.cs" />
     <Compile Include="Domain\ApiSettings.cs" />
     <Compile Include="Domain\Client.cs" />
     <Compile Include="DTOs\AddressDto.cs" />
     <Compile Include="DTOs\Customers\BaseCustomerDto.cs" />
+    <Compile Include="Helpers\AuthorizationHelper.cs" />
+    <Compile Include="Helpers\AutoMapperHelper.cs" />
+    <Compile Include="Helpers\IAuthorizationHelper.cs" />
     <Compile Include="Helpers\IWebConfigManagerHelper.cs" />
+    <Compile Include="Helpers\ReflectionHelper.cs" />
     <Compile Include="Helpers\WebConfigManagerHelper.cs" />
     <Compile Include="DTOs\Customers\CustomerAttributeMappingDto.cs" />
     <Compile Include="DTOs\Customers\CustomerDto.cs" />
@@ -132,10 +143,19 @@
     <Compile Include="DTOs\ProductDto.cs" />
     <Compile Include="DTOs\ShoppingCartItemDto.cs" />
     <Compile Include="Infrastructure\DependencyRegister.cs" />
+    <Compile Include="MappingExtensions\AddressDtoMappings.cs" />
+    <Compile Include="MappingExtensions\BaseMapping.cs" />
     <Compile Include="MappingExtensions\ClientMappings.cs" />
     <Compile Include="MappingExtensions\ConfigurationMappings.cs" />
+    <Compile Include="MappingExtensions\CustomerDtoMappings.cs" />
+    <Compile Include="MappingExtensions\Maps.cs" />
+    <Compile Include="MappingExtensions\ProductDtoMappings.cs" />
+    <Compile Include="MappingExtensions\ShoppingCartItemDtoMappings.cs" />
+    <Compile Include="ModelBinders\ParametersModelBinder.cs" />
     <Compile Include="Models\ClientModel.cs" />
     <Compile Include="Models\ConfigurationModel.cs" />
+    <Compile Include="Models\CustomersParameters\CustomersParametersModel.cs" />
+    <Compile Include="Models\CustomersParameters\CustomersSearchParametersModel.cs" />
     <Compile Include="MVC\Configurations.cs" />
     <Compile Include="Owin\Middleware\BearerTokenMiddleware.cs" />
     <Compile Include="Owin\OAuth\Providers\AuthenticationTokenProvider.cs" />
@@ -210,6 +230,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

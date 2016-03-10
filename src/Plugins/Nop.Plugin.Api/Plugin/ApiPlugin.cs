@@ -11,7 +11,7 @@ namespace Nop.Plugin.Api.Plugin
 {
     public class ApiPlugin : BasePlugin, IAdminMenuPlugin, IMiscPlugin
     {
-        private const string ControllersNamespace = "Nop.Plugin.Payments.PayPalDirect.Controllers";
+        private const string ControllersNamespace = "Nop.Plugin.Api.Controllers";
 
         private readonly ApiObjectContext _objectContext;
         private readonly IWebConfigMangerHelper _webConfigMangerHelper;

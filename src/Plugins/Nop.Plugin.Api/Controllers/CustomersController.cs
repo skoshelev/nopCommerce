@@ -1,59 +1,184 @@
-﻿using System.Web.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Web.Http;
 using System.Web.Http.Description;
+using Nop.Core.Domain.Customers;
+using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.DTOs.Customers;
+using Nop.Plugin.Api.Helpers;
+using Nop.Plugin.Api.MappingExtensions;
+using Nop.Plugin.Api.Models.CustomersParameters;
 using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Services;
-using Nop.Services.Common;
 using Nop.Services.Customers;
 
 namespace Nop.Plugin.Api.Controllers
 {
+    [NopBearerTokenAuthorize]
     public class CustomersController : ApiController
     {
         private readonly ICustomerService _customerService;
         private readonly ICustomerApiService _customerApiService;
-        private readonly IGenericAttributeService _genericAttributeService;
-        private readonly IStateProvinceApiService _stateProvinceApiService;
-        private readonly ICountryApiService _countryApiService;
 
         public CustomersController(ICustomerService customerService, 
-            ICustomerApiService customerApiService, 
-            IGenericAttributeService genericAttributeService, 
-            IStateProvinceApiService stateProvinceApiService, 
-            ICountryApiService countryApiService)
+            ICustomerApiService customerApiService)
         {
             _customerService = customerService;
             _customerApiService = customerApiService;
-            _genericAttributeService = genericAttributeService;
-            _stateProvinceApiService = stateProvinceApiService;
-            _countryApiService = countryApiService;
         }
 
         [HttpGet]
         [ResponseType(typeof(CustomersRootObject))]
-        public IHttpActionResult GetCustomers(byte limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int since_id = 0, string fields = "", string created_at_min = "", string created_at_max = "")
+        public IHttpActionResult GetCustomers(CustomersParametersModel parameters)
         {
-            return Ok();
+            if (parameters.Limit <= Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
+            {
+                return BadRequest("Invalid request parameters");
+            }
+
+            if (parameters.Page <= 0)
+            {
+                return BadRequest("Invalid request parameters");
+            }
+
+            IList<CustomerDto> allCustomers = _customerApiService.GetCustomersDtos(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.Limit, parameters.Page, parameters.SinceId);
+
+            var customersRootObject = new CustomersRootObject()
+            {
+                Customers = allCustomers
+            };
+
+            if (!String.IsNullOrEmpty(parameters.Fields))
+            {
+                var propertiesToSerialize = ReflectionHelper.GetPropertiesToSerialize(parameters.Fields);
+                if (!propertiesToSerialize.ContainsKey("customers"))
+                {
+                    propertiesToSerialize.Add("customers", true);
+                }
+
+                return ReflectionHelper.SerializeSpecificPropertiesOnly(customersRootObject, propertiesToSerialize, Request);
+            }
+
+            return Ok(customersRootObject);
         }
 
         [HttpGet]
         [ResponseType(typeof(CustomersCountRootObject))]
         public IHttpActionResult GetCustomersCount()
         {
-            return Ok();
+            var allCustomersCount = _customerApiService.GetCustomersCount();
+
+            var customersCountRootObject = new CustomersCountRootObject()
+            {
+                Count = allCustomersCount
+            };
+
+            return Ok(customersCountRootObject);
         }
 
         [HttpGet]
         [ResponseType(typeof(CustomersRootObject))]
         public IHttpActionResult GetCustomerById(int id, string fields = "")
         {
-            return Ok();
+            if (id <= 0)
+            {
+                return BadRequest("Invalid request parameters");
+            }
+
+            Customer customer = _customerService.GetCustomerById(id);
+
+            var customersRootObject = new CustomersRootObject();
+
+            if (customer != null)
+            {
+                customersRootObject.Customers.Add(customer.ToDto());
+            }
+
+            if (!String.IsNullOrEmpty(fields))
+            {
+                var propertiesToSerialize = ReflectionHelper.GetPropertiesToSerialize(fields);
+                if (!propertiesToSerialize.ContainsKey("customers"))
+                {
+                    propertiesToSerialize.Add("customers", true);
+                }
+
+                return ReflectionHelper.SerializeSpecificPropertiesOnly(customersRootObject, propertiesToSerialize, Request);
+            }
+
+            return Ok(customersRootObject);
         }
 
         [HttpGet]
-        public IHttpActionResult Search(string order = "Id", string query = "", int page = Configurations.DefaultPageValue, byte limit = Configurations.DefaultLimit, string fields = "")
+        public IHttpActionResult Search(CustomersSearchParametersModel parameters)
         {
-            return Ok();
+            Dictionary<string, string> parsedQuery = EnsureSearchQueryIsValid(parameters.Query, ParseSearchQuery);
+
+            if (parameters.Page <= 0)
+            {
+                return BadRequest("Invalid request parameters");
+            }
+
+            IList<CustomerDto> customerDto = _customerApiService.Search(parsedQuery, parameters.Order, parameters.Page, parameters.Limit).ToList();
+
+            var customersRootObject = new CustomersRootObject()
+            {
+                Customers = customerDto
+            };
+
+            if (!String.IsNullOrEmpty(parameters.Fields))
+            {
+                var propertiesToSerialize = ReflectionHelper.GetPropertiesToSerialize(parameters.Fields);
+                if (!propertiesToSerialize.ContainsKey("customers"))
+                {
+                    propertiesToSerialize.Add("customers", true);
+                }
+
+                return ReflectionHelper.SerializeSpecificPropertiesOnly(customersRootObject, propertiesToSerialize, Request);
+            }
+
+            return Ok(customersRootObject);
+        }
+        
+        [NonAction]
+        private Dictionary<string, string> EnsureSearchQueryIsValid(string query, Func<string, Dictionary<string, string>> parseSearchQuery)
+        {
+            if (!string.IsNullOrEmpty(query))
+            {
+                return parseSearchQuery(query);
+            }
+
+            return null;
+        }
+
+        [NonAction]
+        private Dictionary<string, string> ParseSearchQuery(string query)
+        {
+            var parsedQuery = new Dictionary<string, string>();
+
+            string splitPattern = @"(\w+):";
+
+            var fieldValueList = Regex.Split(query, splitPattern).Where(s => s != String.Empty).ToList();
+
+            if (fieldValueList.Count < 2)
+            {
+                return parsedQuery;
+            }
+
+            for (int i = 0; i < fieldValueList.Count; i += 2)
+            {
+                var field = fieldValueList[i];
+                var value = fieldValueList[i + 1];
+
+                if (!string.IsNullOrEmpty(field) && !string.IsNullOrEmpty(value))
+                {
+                    field = field.Replace("_", string.Empty);
+                    parsedQuery.Add(field.Trim(), value.Trim());
+                }
+            }
+
+            return parsedQuery;
         }
     }
 }

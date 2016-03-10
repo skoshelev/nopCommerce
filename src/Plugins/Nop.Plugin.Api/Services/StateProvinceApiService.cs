@@ -1,5 +1,7 @@
-﻿using Nop.Core.Data;
+﻿using System;
+using Nop.Core.Data;
 using Nop.Core.Domain.Directory;
+using System.Linq;
 
 namespace Nop.Plugin.Api.Services
 {
@@ -14,7 +16,11 @@ namespace Nop.Plugin.Api.Services
 
         public StateProvince GetStateProvinceByName(string name)
         {
-            throw new System.NotImplementedException();
+            StateProvince stateProvinceResult = (from stateProvince in _stateProvinceRepository.Table
+                                                 where (!string.IsNullOrEmpty(stateProvince.Name) && stateProvince.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                                                 select stateProvince).FirstOrDefault();
+
+            return stateProvinceResult;
         }
     }
 }
