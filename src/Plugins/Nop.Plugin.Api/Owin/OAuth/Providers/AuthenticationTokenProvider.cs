@@ -7,7 +7,7 @@ using Nop.Plugin.Api.Services;
 
 namespace Nop.Plugin.Api.Owin.OAuth.Providers
 {
-    public class AuthenticationTokenProvider7Spikes : IAuthenticationTokenProvider
+    public class AuthenticationTokenProvider : IAuthenticationTokenProvider
     {
         public Action<AuthenticationTokenCreateContext> OnCreate { get; set; }
         public Func<AuthenticationTokenCreateContext, Task> OnCreateAsync { get; set; }

@@ -19,6 +19,8 @@ namespace Nop.Plugin.Api.Data
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            Database.SetInitializer<ApiObjectContext>(null);
+
             modelBuilder.Configurations.Add(new ClientMap());
 
             //disable EdmMetadata generation
