@@ -94,7 +94,8 @@ namespace Nop.Plugin.Api
                 .EnableSwagger(c =>
                 {
                     c.SingleApiVersion("v1", "RESTful API documentation");
-                    c.DocumentFilter<FilterEnpointsDocumentFilter>();
+                    // We need this filter to exclude some of the API endpoints from the documentation i.e /OAuth/Authorize endpoint
+                    c.DocumentFilter<ExcludeEnpointsDocumentFilter>();
                 })
                 .EnableSwaggerUi();
 

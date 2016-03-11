@@ -184,7 +184,7 @@
     <Compile Include="Services\IStateProvinceApiService.cs" />
     <Compile Include="Services\StateProvinceApiService.cs" />
     <Compile Include="Startup.cs" />
-    <Compile Include="Swagger\FilterEnpointsDocumentFilter.cs" />
+    <Compile Include="Swagger\ExcludeEnpointsDocumentFilter.cs" />
     <Compile Include="Validators\ClientValidator.cs" />
   </ItemGroup>
   <ItemGroup>
