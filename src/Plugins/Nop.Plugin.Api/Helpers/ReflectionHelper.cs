@@ -36,6 +36,7 @@ namespace Nop.Plugin.Api.Helpers
         {
             var propertiesToSerialize = fields.ToLowerInvariant()
                 .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
                 .Distinct()
                 .ToDictionary(x => x, y => true);
 
