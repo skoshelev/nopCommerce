@@ -33,6 +33,7 @@ namespace Nop.Plugin.Api.Services
         {
             var query = GetCustomersQuery(createdAtMin, createdAtMax, sinceId);
 
+            // TODO: Check why this does not return some customers i.e Guests
             IList<CustomerDto> result = HandleCustomerGenericAttributes(null, query, limit, page);
 
             return result;
@@ -40,6 +41,8 @@ namespace Nop.Plugin.Api.Services
 
         public int GetCustomersCount()
         {
+            //TODO: Should we return all customers including Guests?
+            // Maybe we can have a filter by customer roles
             return _customerRepository.Table.Count();
         }
 
