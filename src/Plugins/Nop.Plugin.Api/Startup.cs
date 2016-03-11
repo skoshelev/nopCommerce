@@ -11,7 +11,9 @@ using Nop.Core.Infrastructure;
 using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Owin.Middleware;
 using Nop.Plugin.Api.Owin.OAuth.Providers;
+using Nop.Plugin.Api.Swagger;
 using Owin;
+using Swashbuckle.Application;
 
 namespace Nop.Plugin.Api
 {
@@ -86,6 +88,15 @@ namespace Nop.Plugin.Api
                 routeTemplate: "api/customers/{id}",
                 defaults: new { controller = "Customers", action = "GetCustomerById" },
                 constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            // The default route templates for the Swagger docs and swagger-ui are "swagger/docs/{apiVersion}" and "swagger/ui/index#/{assetPath}" respectively.
+            config
+                .EnableSwagger(c =>
+                {
+                    c.SingleApiVersion("v1", "RESTful API documentation");
+                    c.DocumentFilter<FilterEnpointsDocumentFilter>();
+                })
+                .EnableSwaggerUi();
 
             app.UseWebApi(config);
             

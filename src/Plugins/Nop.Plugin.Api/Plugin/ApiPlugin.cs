@@ -33,6 +33,8 @@ namespace Nop.Plugin.Api.Plugin
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.GeneralSettings", "General Settings");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.EnableApi", "Enable Api");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.EnableApi.Hint", "By checking this settings you can Enable/Disable the Web Api");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.AllowRequestsFromSwagger", "Allow Requests From Swagger");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.AllowRequestsFromSwagger.Hint", "Swagger is the documentation generation tool used for the API. It has a client that enables it to make requests to the api endpoints, so the users can try our certain point on place. By enabling this option you will allow all requests from the swagger client. Do Not Enable on live site, it is only for demo sites or local testing!!!");
 
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.Name", "Name");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.ClientId", "Client Id");
@@ -71,6 +73,8 @@ namespace Nop.Plugin.Api.Plugin
             this.DeletePluginLocaleResource("Plugins.Api.Admin.GeneralSettings");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.EnableApi");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.EnableApi.Hint");
+            this.DeletePluginLocaleResource("Plugins.Api.Admin.AllowRequestsFromSwagger");
+            this.DeletePluginLocaleResource("Plugins.Api.Admin.AllowRequestsFromSwagger.Hint");
 
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Client.Name");
             this.DeletePluginLocaleResource("Plugins.Api.Admin.Client.ClientId");

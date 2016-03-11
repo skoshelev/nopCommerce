@@ -50,6 +50,8 @@ namespace Nop.Plugin.Api.Controllers
 
             if (model.EnableApi_OverrideForStore || storeScope == 0)
                 _settingService.SaveSetting(apiSettings, x => x.EnableApi, storeScope, false);
+            if (model.AllowRequestsFromSwagger_OverrideForStore || storeScope == 0)
+                _settingService.SaveSetting(apiSettings, x => x.AllowRequestsFromSwagger, storeScope, false);
 
             //now clear settings cache
             _settingService.ClearCache();
@@ -71,7 +73,9 @@ namespace Nop.Plugin.Api.Controllers
 
             if (configurationModel.EnableApi_OverrideForStore || storeScope == 0)
                 _settingService.SaveSetting(settings, x => x.EnableApi, storeScope, false);
-            
+            if (configurationModel.AllowRequestsFromSwagger_OverrideForStore || storeScope == 0)
+                _settingService.SaveSetting(settings, x => x.AllowRequestsFromSwagger, storeScope, false);
+
             //now clear settings cache
             _settingService.ClearCache();
 

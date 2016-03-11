@@ -14,7 +14,12 @@ namespace Nop.Plugin.Api.Attributes
         protected override bool IsAuthorized(HttpActionContext actionContext)
         {
             ApiSettings settings = EngineContext.Current.Resolve<ApiSettings>();
-            
+
+            if (actionContext.Request.Headers.Referrer.ToString().Contains("swagger") && settings.AllowRequestsFromSwagger)
+            {
+                return true;
+            }
+
             // We need to make sure that the request to the server is not a regular request but only BearerToken requests
             // If we don't do this here, since the customer is already authenticated from the FormsAuthentication in Nop,  he 
             // will have access to this resource

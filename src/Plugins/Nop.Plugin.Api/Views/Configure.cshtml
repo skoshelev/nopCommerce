@@ -30,10 +30,27 @@
                         <p>@T("Plugins.Api.Admin.EnableApi.Hint")</p>
                     </td>
                 </tr>
+
+                <tr class="apiSettings">
+                    <td class="adminTitle">
+                        @Html.OverrideStoreCheckboxFor(model => model.AllowRequestsFromSwagger_OverrideForStore, model => model.AllowRequestsFromSwagger, Model.ActiveStoreScopeConfiguration)
+                        @Html.NopLabelFor(model => model.AllowRequestsFromSwagger):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.AllowRequestsFromSwagger)
+                        @Html.ValidationMessageFor(model => model.AllowRequestsFromSwagger)
+                    </td>
+                </tr>
+                <tr class="apiSettings">
+                    <td class="adminHint" colspan="2">
+                        <p>@T("Plugins.Api.Admin.AllowRequestsFromSwagger.Hint")</p>
+                    </td>
+                </tr>
+
                 <tr>
                     <td colspan="2">
                         <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")"/>
-                        @Html.ActionLink("Manage Clients", "List", "ManageClientsAdmin", null, new { @class = "k-button" })
+                        @Html.ActionLink("Manage Clients", "List", "ManageClientsAdmin", null, new {@class = "k-button"})
                     </td>
                 </tr>
             </table>
