@@ -1,20 +1,16 @@
 ﻿using Autofac;
 using Autofac.Core;
-using AutoMapper;
 using Nop.Core.Configuration;
 using Nop.Core.Data;
-using Nop.Core.Domain.Customers;
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
 using Nop.Data;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.Data;
 using Nop.Plugin.Api.Domain;
-using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models;
-using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Services;
 using Nop.Web.Framework.Mvc;
 

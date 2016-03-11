@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AutoMapper;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.DTOs.Customers;
 using System.Linq;
-using System.Text;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
-using Nop.Core.Domain.Payments;
-using Nop.Core.Domain.Shipping;
-using Nop.Plugin.Api.Domain;
 using Nop.Plugin.Api.DTOs;
-using Nop.Plugin.Api.Models;
 
 namespace Nop.Plugin.Api.MappingExtensions
 {
