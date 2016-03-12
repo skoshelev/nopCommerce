@@ -7,7 +7,7 @@ using Nop.Plugin.Api.Helpers;
 
 namespace Nop.Plugin.Api.Attributes
 {
-    public class NopBearerTokenAuthorizeAttribute : AuthorizeAttribute
+    public class BearerTokenAuthorizeAttribute : AuthorizeAttribute
     {
         private readonly IAuthorizationHelper _authorizationHelper = EngineContext.Current.Resolve<IAuthorizationHelper>();
 
@@ -24,12 +24,15 @@ namespace Nop.Plugin.Api.Attributes
                 return true;
             }
 
-            // Since we support only BearerToken authorization, we need to make sure that the request to the server is a BearerToken request.
-            // If we don't do this here, since the customer is already authenticated from the FormsAuthentication in Nop,  he 
-            // will have access to this resource
+            // At this point the customer making the request is already authorised by the nopCommerce FormsAuthentication, so
+            // we need to make sure several things before providing access to the requested resource:
+            // 1. The request is a BearerToken request - since we support only BearerToken authorization
+            // 2. The Api is enabled from the plugin settings
+            // 3. The provided BearerToken is valid and the corresponding client exists in the database and is active.
             var authorization = actionContext.Request.Headers.Authorization;
             if (authorization == null || authorization.Scheme != "Bearer" || !settings.EnableApi || !_authorizationHelper.ClientExistsAndActive())
             {
+                // don't authorize if any of the above is not true
                 return false;
             }
 
@@ -38,10 +41,10 @@ namespace Nop.Plugin.Api.Attributes
 
         protected override void HandleUnauthorizedRequest(HttpActionContext actionContext)
         {
-            // By default nopCommerce uses Forms authentication so it will redirect to the Login page any unauthorised requests. 
-            // But we don't want any unauthorised requests to the API endpoints to be redirected to the Login page.
-            // We ensure this won't happen by suppressing the forms authentication redirect.
-            // This way the client will just receive a message "Unauthorized request"
+            // By default nopCommerce uses Forms authentication so it redirects any unauthorised requests to the Login page.
+            // We don't want any unauthorised requests to the Api endpoints to be redirected to the Login page.
+            // To ensure this won't happen we need to suppress the forms authentication redirect.
+            // This way the client will just receive a message like this "Unauthorized request" and won't see the Login page.
             HttpContext.Current.Response.SuppressFormsAuthenticationRedirect = true;
 
             base.HandleUnauthorizedRequest(actionContext);

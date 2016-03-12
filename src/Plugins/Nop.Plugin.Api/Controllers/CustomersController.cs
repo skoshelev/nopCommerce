@@ -16,7 +16,7 @@ using Nop.Services.Customers;
 
 namespace Nop.Plugin.Api.Controllers
 {
-    [NopBearerTokenAuthorize]
+    [BearerTokenAuthorize]
     public class CustomersController : ApiController
     {
         private readonly ICustomerService _customerService;

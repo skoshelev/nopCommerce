@@ -126,7 +126,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\NopBearerTokenAuthorizeAttribute.cs" />
+    <Compile Include="Attributes\BearerTokenAuthorizeAttribute.cs" />
     <Compile Include="Constants\ViewNames.cs" />
     <Compile Include="ContractResolvers\DynamicContractResolver.cs" />
     <Compile Include="Controllers\ApiAdminController.cs" />
