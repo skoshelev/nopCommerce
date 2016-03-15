@@ -16,9 +16,9 @@ namespace Nop.Tests.Api.Services
         [SetUp]
         public new void SetUp()
         {
-            var stateProvinceRepository = MockRepository.GenerateMock<IRepository<StateProvince>>();
+            var stateProvinceRepositoryStub = MockRepository.GenerateStub<IRepository<StateProvince>>();
 
-            stateProvinceRepository.Expect(x => x.Table).Return((new List<StateProvince>()
+            stateProvinceRepositoryStub.Stub(x => x.Table).Return((new List<StateProvince>()
             {
                 new StateProvince()
                 {
@@ -30,7 +30,7 @@ namespace Nop.Tests.Api.Services
                 }
             }).AsQueryable());
 
-            _stateProvinceApiService = new StateProvinceApiService(stateProvinceRepository);
+            _stateProvinceApiService = new StateProvinceApiService(stateProvinceRepositoryStub);
         }
 
         [Test]

@@ -16,9 +16,9 @@ namespace Nop.Tests.Api.Services
         [SetUp]
         public new void SetUp()
         {
-            var countryRepository = MockRepository.GenerateMock<IRepository<Country>>();
+            var countryRepositoryStub = MockRepository.GenerateStub<IRepository<Country>>();
 
-            countryRepository.Expect(x => x.Table).Return((new List<Country>()
+            countryRepositoryStub.Stub(x => x.Table).Return((new List<Country>()
             {
 
                 new Country()
@@ -32,7 +32,7 @@ namespace Nop.Tests.Api.Services
 
             }).AsQueryable());
 
-            _countryApiService = new CountryApiService(countryRepository);
+            _countryApiService = new CountryApiService(countryRepositoryStub);
         }
 
         [Test]

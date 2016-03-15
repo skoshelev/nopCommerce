@@ -25,12 +25,12 @@ namespace Nop.Tests.Api.ControllersTests
         [SetUp]
         public void SetUp()
         {
-            var customersApiService = MockRepository.GenerateMock<ICustomerApiService>();
-            var customersService = MockRepository.GenerateMock<ICustomerService>();
+            var customersApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
+            var customersServiceStub = MockRepository.GenerateStub<ICustomerService>();
 
-            customersService.Expect(x => x.GetCustomerById(1)).Return(new Customer() {});
+            customersServiceStub.Stub(x => x.GetCustomerById(1)).Return(new Customer() {});
 
-            _customersController = new CustomersController(customersService, customersApiService);
+            _customersController = new CustomersController(customersServiceStub, customersApiServiceStub);
 
             // Needed because the tests don't invoke the dependency register and the type maps are never registered.
             Mapper.CreateMap<Customer, CustomerDto>();

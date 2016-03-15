@@ -19,10 +19,10 @@ namespace Nop.Tests.Api.Services
         [SetUp]
         public new void SetUp()
         {
-            var customerRepository = MockRepository.GenerateMock<IRepository<Customer>>();
-            var genericAttributeRepository = MockRepository.GenerateMock<IRepository<GenericAttribute>>();
+            var customerRepositoryStub = MockRepository.GenerateStub<IRepository<Customer>>();
+            var genericAttributeRepositoryStub = MockRepository.GenerateStub<IRepository<GenericAttribute>>();
 
-            customerRepository.Expect(x => x.Table).Return((new List<Customer>()
+            customerRepositoryStub.Stub(x => x.Table).Return((new List<Customer>()
             {
                 new Customer()
                 {
@@ -37,7 +37,7 @@ namespace Nop.Tests.Api.Services
 
             }).AsQueryable());
 
-            genericAttributeRepository.Expect(x => x.Table).Return((new List<GenericAttribute>()
+            genericAttributeRepositoryStub.Stub(x => x.Table).Return((new List<GenericAttribute>()
             {
                 new GenericAttribute()
                 {
@@ -75,7 +75,7 @@ namespace Nop.Tests.Api.Services
 
             }).AsQueryable());
 
-            _customerApiService = new CustomerApiService(customerRepository, genericAttributeRepository);
+            _customerApiService = new CustomerApiService(customerRepositoryStub, genericAttributeRepositoryStub);
 
             // Needed because the tests don't invoke the dependency register and the type maps are never registered.
             Mapper.CreateMap<Customer, CustomerDto>();
