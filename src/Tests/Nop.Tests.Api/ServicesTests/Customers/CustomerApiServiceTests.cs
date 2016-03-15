@@ -9,7 +9,7 @@ using Nop.Plugin.Api.Services;
 using NUnit.Framework;
 using Rhino.Mocks;
 
-namespace Nop.Tests.Api.Services
+namespace Nop.Plugin.Api.Tests.ServicesTests.Customers
 {
     [TestFixture]
     public class CustomerApiServiceTests

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web.Http;
+﻿using System.Web.Http;
 using System.Web.Http.Results;
 using AutoMapper;
 using Nop.Core.Domain.Customers;
@@ -15,7 +10,7 @@ using Nop.Services.Customers;
 using NUnit.Framework;
 using Rhino.Mocks;
 
-namespace Nop.Tests.Api.ControllersTests
+namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
 {
     [TestFixture]
     public class CustomersControllerTests

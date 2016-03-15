@@ -7,10 +7,11 @@
     <ProjectGuid>{CDC898F1-3606-4CDA-9AEB-BFD2522B82E3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Nop.Tests.Api</RootNamespace>
-    <AssemblyName>Nop.Tests.Api</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <RootNamespace>Nop.Plugin.Api.Tests</RootNamespace>
+    <AssemblyName>Nop.Plugin.Api.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -53,10 +54,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ControllersTests\CustomersControllerTests.cs" />
-    <Compile Include="Services\CountryApiServiceTests.cs" />
-    <Compile Include="Services\StateProvinceApiServiceTests.cs" />
-    <Compile Include="Services\CustomerApiServiceTests.cs" />
+    <Compile Include="ControllersTests\Customers\CustomersControllerTests.cs" />
+    <Compile Include="ServicesTests\CountryApiServiceTests.cs" />
+    <Compile Include="ServicesTests\StateProvinceApiServiceTests.cs" />
+    <Compile Include="ServicesTests\Customers\CustomerApiServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
