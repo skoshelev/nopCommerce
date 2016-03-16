@@ -9,6 +9,7 @@ namespace Nop.Plugin.Api.Services
         IList<CustomerDto> GetCustomersDtos(string createdAtMin = "", string createdAtMax = "",
           int limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0);
 
+        CustomerDto GetCustomerById(int id);
         int GetCustomersCount();
         IList<CustomerDto> Search(Dictionary<string, string> query = null, string order = "desc", int page = 1, int limit = Configurations.DefaultLimit);
     }

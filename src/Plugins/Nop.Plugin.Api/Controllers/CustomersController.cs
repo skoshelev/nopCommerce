@@ -1,32 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Description;
-using Nop.Core.Domain.Customers;
+using System.Web.Http.Results;
+using Nop.Plugin.Api.ActionResults;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.Helpers;
-using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models.CustomersParameters;
 using Nop.Plugin.Api.MVC;
+using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
-using Nop.Services.Customers;
 
 namespace Nop.Plugin.Api.Controllers
 {
     [BearerTokenAuthorize]
     public class CustomersController : ApiController
     {
-        private readonly ICustomerService _customerService;
         private readonly ICustomerApiService _customerApiService;
+        private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
 
-        public CustomersController(ICustomerService customerService, 
-            ICustomerApiService customerApiService)
+
+        public CustomersController(ICustomerApiService customerApiService, IJsonFieldsSerializer jsonFieldsSerializer)
         {
-            _customerService = customerService;
             _customerApiService = customerApiService;
+            _jsonFieldsSerializer = jsonFieldsSerializer;
         }
 
         [HttpGet]
@@ -65,6 +68,63 @@ namespace Nop.Plugin.Api.Controllers
         }
 
         [HttpGet]
+        [ResponseType(typeof(CustomersRootObject))]
+        public IHttpActionResult GetCustomerById(int id, string fields = "")
+        {
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            CustomerDto customer = _customerApiService.GetCustomerById(id);
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            //TODO: Would be nice to have fields validator against the CustomerDTO properties
+            // so that if none of the passed fields exist we could skip the serialization below.
+            // One possible solution is to build the available CustomDTO properties into a dictionary
+            // on startup and keep it in the static cache
+            // If not valid we simply return an empty Customers object
+            // new CustomersRootObject
+
+            // if (!string.IsNullOrEmpty(fields))
+            // {
+            // bool validFields = Validator.TryParse(fields, out validFields);
+            // if( !validFields )
+            // {
+            // return "{"customers" : {} }";
+            //  } else
+            // Code below
+
+            var customersRootObject = new CustomersRootObject();
+            customersRootObject.Customers.Add(customer);
+
+            //// TODO: Remove this check after implementing the code above
+            //if (!string.IsNullOrEmpty(fields))
+            //{
+                //TODO: Add "customers" to fields i.e fields = "customers," + fields
+                string json = _jsonFieldsSerializer.Serialize(customersRootObject, "customers,"+fields);
+
+               // return GetJsonResult(json);
+            //}
+
+            return new RawJsonActionResult(json);
+
+            //return Ok(customersRootObject);
+        }
+
+        private IHttpActionResult GetJsonResult(string json)
+        {
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            return new ResponseMessageResult(response);
+        }
+
+        [HttpGet]
         [ResponseType(typeof(CustomersCountRootObject))]
         public IHttpActionResult GetCustomersCount()
         {
@@ -78,37 +138,6 @@ namespace Nop.Plugin.Api.Controllers
             return Ok(customersCountRootObject);
         }
 
-        [HttpGet]
-        [ResponseType(typeof(CustomersRootObject))]
-        public IHttpActionResult GetCustomerById(int id, string fields = "")
-        {
-            if (id <= 0)
-            {
-                return BadRequest("Invalid request parameters");
-            }
-
-            Customer customer = _customerService.GetCustomerById(id);
-
-            var customersRootObject = new CustomersRootObject();
-
-            if (customer != null)
-            {
-                customersRootObject.Customers.Add(customer.ToDto());
-            }
-
-            if (!String.IsNullOrEmpty(fields))
-            {
-                var propertiesToSerialize = ReflectionHelper.GetPropertiesToSerialize(fields);
-                if (!propertiesToSerialize.ContainsKey("customers"))
-                {
-                    propertiesToSerialize.Add("customers", true);
-                }
-
-                return ReflectionHelper.SerializeSpecificPropertiesOnly(customersRootObject, propertiesToSerialize, Request);
-            }
-
-            return Ok(customersRootObject);
-        }
 
         [HttpGet]
         public IHttpActionResult Search(CustomersSearchParametersModel parameters)
@@ -140,7 +169,7 @@ namespace Nop.Plugin.Api.Controllers
 
             return Ok(customersRootObject);
         }
-        
+
         [NonAction]
         private Dictionary<string, string> EnsureSearchQueryIsValid(string query, Func<string, Dictionary<string, string>> parseSearchQuery)
         {

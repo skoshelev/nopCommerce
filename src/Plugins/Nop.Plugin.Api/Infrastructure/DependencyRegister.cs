@@ -11,6 +11,7 @@ using Nop.Plugin.Api.Domain;
 using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models;
+using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 using Nop.Web.Framework.Mvc;
 
@@ -65,6 +66,7 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<StateProvinceApiService>().As<IStateProvinceApiService>().InstancePerLifetimeScope();
             builder.RegisterType<CountryApiService>().As<ICountryApiService>().InstancePerLifetimeScope();
             builder.RegisterType<AuthorizationHelper>().As<IAuthorizationHelper>().InstancePerLifetimeScope();
+            builder.RegisterType<JsonFieldsSerializer>().As<IJsonFieldsSerializer>().InstancePerLifetimeScope();
         }
 
         public int Order { get; }

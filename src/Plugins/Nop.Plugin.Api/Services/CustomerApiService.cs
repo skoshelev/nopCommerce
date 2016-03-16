@@ -200,5 +200,19 @@ namespace Nop.Plugin.Api.Services
 
             return query;
         }
+
+        public CustomerDto GetCustomerById(int id)
+        {
+            if (id == 0)
+                return null;
+
+            Customer customer = _customerRepository.GetById(id);
+            if (customer != null)
+            {
+               return customer.ToDto();
+            }
+
+            return null;
+        }
     }
 }
