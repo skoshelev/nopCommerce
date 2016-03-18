@@ -87,7 +87,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.ExchangeRate.Ecb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Api", "Plugins\Nop.Plugin.Api\Nop.Plugin.Api.csproj", "{6A13D01B-5B1A-4932-9A9D-4117AC27011F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Api.Tests", "Tests\Nop.Tests.Api\Nop.Plugin.Api.Tests.csproj", "{CDC898F1-3606-4CDA-9AEB-BFD2522B82E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nop.Plugin.Api.Tests", "Tests\Nop.Plugin.Api.Tests\Nop.Plugin.Api.Tests.csproj", "{CDC898F1-3606-4CDA-9AEB-BFD2522B82E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
