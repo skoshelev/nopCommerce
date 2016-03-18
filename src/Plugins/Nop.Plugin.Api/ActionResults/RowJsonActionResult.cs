@@ -16,9 +16,14 @@ namespace Nop.Plugin.Api.ActionResults
             _jsonString = jsonString;
         }
 
+        public string JsonContent
+        {
+            get { return _jsonString; }
+        }
+
         public Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken)
         {
-            var content = new StringContent(_jsonString);
+            var content = new StringContent(JsonContent);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = content };
             return Task.FromResult(response);

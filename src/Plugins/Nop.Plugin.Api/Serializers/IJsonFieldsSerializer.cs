@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Nop.Plugin.Api.DTOs.Customers;
 
 namespace Nop.Plugin.Api.Serializers
 {
     public interface IJsonFieldsSerializer
     {
-        string Serialize(object objectToSerialize, string fieldsToSerialize);
+        string Serialize(ISerializableObject objectToSerialize, string fields);
     }
 }

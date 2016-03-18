@@ -19,7 +19,7 @@ namespace Nop.Plugin.Api.Models.CustomersParameters
         public string Order { get; set; }
         public string Query { get; set; }
         public int Page { get; set; }
-        public byte Limit { get; set; }
+        public int Limit { get; set; }
         public string Fields { get; set; }
     }
 }

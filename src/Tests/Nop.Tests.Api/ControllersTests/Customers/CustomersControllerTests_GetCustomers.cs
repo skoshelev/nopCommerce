@@ -1,83 +1,175 @@
-﻿using System.Web.Http;
+﻿using System.Collections.Generic;
+using System.Web.Http;
 using System.Web.Http.Results;
-using AutoMapper;
-using Nop.Core.Domain.Customers;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.Models.CustomersParameters;
+using Nop.Plugin.Api.MVC;
+using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
-using Nop.Services.Customers;
 using NUnit.Framework;
 using Rhino.Mocks;
 
 namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
 {
-    //[TestFixture]
-    //public class CustomersControllerTests_GetCustomers
-    //{
-    //    private CustomersController _customersController;
+    [TestFixture]
+    public class CustomersControllerTests_GetCustomers
+    {
+        [Test]
+        public void WhenNoParametersPassed_ShouldCallTheServiceWithDefaultParameters()
+        {
+            var defaultParametersModel = new CustomersParametersModel();
 
-    //    [SetUp]
-    //    public void SetUp()
-    //    {
-    //        var customersApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
-    //        var customersServiceStub = MockRepository.GenerateStub<ICustomerService>();
+            //Arange
+            ICustomerApiService customerApiServiceMock = MockRepository.GenerateMock<ICustomerApiService>();
+           
+            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-    //        customersServiceStub.Stub(x => x.GetCustomerById(1)).Return(new Customer() {});
+            CustomersController cut = new CustomersController(customerApiServiceMock, jsonFieldsSerializer);
 
-    //        _customersController = new CustomersController(customersServiceStub, customersApiServiceStub);
+            //Act
+            cut.GetCustomers(defaultParametersModel);
 
-    //        // Needed because the tests don't invoke the dependency register and the type maps are never registered.
-    //        Mapper.CreateMap<Customer, CustomerDto>();
-    //    }
+            //Assert
+            customerApiServiceMock.AssertWasCalled(x => x.GetCustomersDtos(defaultParametersModel.CreatedAtMin,
+                                                    defaultParametersModel.CreatedAtMax,
+                                                    defaultParametersModel.Limit,
+                                                    defaultParametersModel.Page,
+                                                    defaultParametersModel.SinceId));
+        }
 
-    //    [Test]
-    //    public void Get_customers_with_default_parameters_should_return_OK()
-    //    {
-    //        IHttpActionResult response = _customersController.GetCustomers(new CustomersParametersModel());
+        [Test]
+        public void WhenNoParametersPassedAndSomeCustomersExist_ShouldCallTheSerializer()
+        {
+            var expectedCustomersCollection = new List<CustomerDto>()
+            {
+                new CustomerDto(),
+                new CustomerDto()
+            };
 
-    //        Assert.IsInstanceOf<OkNegotiatedContentResult<CustomersRootObject>>(response);
-    //    }
+            var expectedRootObject = new CustomersRootObject()
+            {
+                Customers = expectedCustomersCollection
+            };
 
-    //    [Test]
-    //    public void Get_customers_with_negative_page_parameter_should_return_bad_request()
-    //    {
-    //        IHttpActionResult response = _customersController.GetCustomers(new CustomersParametersModel()
-    //        {
-    //            Page = -1
-    //        });
+            var defaultParameters = new CustomersParametersModel();
 
-    //        Assert.IsInstanceOf<BadRequestErrorMessageResult>(response);
-    //    }
+            //Arange
+            ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
+            customerApiServiceStub.Stub(x => x.GetCustomersDtos()).Return(expectedCustomersCollection);
 
-    //    [Test]
-    //    public void Get_customer_by_id_with_valid_parameters()
-    //    {
-    //        IHttpActionResult response = _customersController.GetCustomerById(1);
+            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
+            jsonFieldsSerializerMock.Expect(x => x.Serialize(expectedRootObject, defaultParameters.Fields));
 
-    //        //var contentResult = response as OkNegotiatedContentResult<CustomersRootObject>;
+            CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerMock);
 
-    //        Assert.IsInstanceOf<OkNegotiatedContentResult<CustomersRootObject>>(response);
-    //    }
+            //Act
+            cut.GetCustomers(defaultParameters);
 
-    //    [Test]
-    //    public void Get_customer_by_id_with_wrong_parameters()
-    //    {
-    //        IHttpActionResult response = _customersController.GetCustomerById(-1);
+            //Assert
+            jsonFieldsSerializerMock.AssertWasCalled(x => x.Serialize(Arg<CustomersRootObject>.Is.TypeOf,
+                Arg<string>.Is.Equal(defaultParameters.Fields)));
+        }
 
-    //        //var contentResult = response as OkNegotiatedContentResult<CustomersRootObject>;
+        [Test]
+        public void WhenNoParametersPassedAndNoCustomersExist_ShouldCallTheSerializer()
+        {
+            var expectedCustomersCollection = new List<CustomerDto>();
 
-    //        Assert.IsInstanceOf<BadRequestErrorMessageResult>(response);
-    //    }
+            var expectedRootObject = new CustomersRootObject()
+            {
+                Customers = expectedCustomersCollection
+            };
 
-    //    [Test]
-    //    public void Get_customers_count()
-    //    {
-    //        IHttpActionResult response = _customersController.GetCustomersCount();
+            var defaultParameters = new CustomersParametersModel();
 
-    //        //var contentResult = response as OkNegotiatedContentResult<CustomersRootObject>;
+            //Arange
+            ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
+            customerApiServiceStub.Stub(x => x.GetCustomersDtos()).Return(expectedCustomersCollection);
 
-    //        Assert.IsInstanceOf<OkNegotiatedContentResult<CustomersCountRootObject>>(response);
-    //    }
-    //}
+            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
+            jsonFieldsSerializerMock.Expect(x => x.Serialize(expectedRootObject, defaultParameters.Fields));
+
+            CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerMock);
+
+            //Act
+            cut.GetCustomers(defaultParameters);
+
+            //Assert
+            jsonFieldsSerializerMock.AssertWasCalled(x => x.Serialize(Arg<CustomersRootObject>.Is.TypeOf,
+                Arg<string>.Is.Equal(defaultParameters.Fields)));
+        }
+
+        [Test]
+        public void WhenFieldsParametersPassed_ShouldCallTheSerializerWithTheSameFields()
+        {
+            var defaultParametersModel = new CustomersParametersModel()
+            {
+                Fields = "id,email"
+            };
+
+            //Arange
+            ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
+           
+            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
+           
+            CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerMock);
+
+            //Act
+            cut.GetCustomers(defaultParametersModel);
+
+            //Assert
+            jsonFieldsSerializerMock.AssertWasCalled(
+                x => x.Serialize(Arg<CustomersRootObject>.Is.Anything, Arg<string>.Is.Equal(defaultParametersModel.Fields)));
+        }
+
+        [Test]
+        [TestCase(Configurations.MinLimit)]
+        [TestCase(Configurations.MinLimit - 1)]
+        [TestCase(Configurations.MaxLimit + 1)]
+        public void WhenInvalidLimitParameterPassed_ShouldReturnBadRequest(int invalidLimit)
+        {
+            var parametersModel = new CustomersParametersModel()
+            {
+                Limit = invalidLimit
+            };
+
+            //Arange
+            ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
+
+            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
+
+            CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerStub);
+
+            //Act
+            IHttpActionResult result = cut.GetCustomers(parametersModel);
+
+            //Assert
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+
+        [Test]
+        [TestCase(-1)]
+        [TestCase(0)]
+        public void WhenInvalidPageParameterPassed_ShouldReturnBadRequest(int invalidPage)
+        {
+            var parametersModel = new CustomersParametersModel()
+            {
+                Limit = invalidPage
+            };
+
+            //Arange
+            ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
+
+            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
+
+            CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerStub);
+
+            //Act
+            IHttpActionResult result = cut.GetCustomers(parametersModel);
+
+            //Assert
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+    }
 }

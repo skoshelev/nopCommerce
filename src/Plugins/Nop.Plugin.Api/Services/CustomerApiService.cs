@@ -5,6 +5,7 @@ using Nop.Core.Domain.Customers;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.MVC;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Nop.Core.Domain.Common;
 using Nop.Plugin.Api.DataStructures;
 using Nop.Plugin.Api.Helpers;
@@ -47,10 +48,12 @@ namespace Nop.Plugin.Api.Services
         }
 
         // Need to work with dto object so we can map the first and last name from generic attributes table.
-        public IList<CustomerDto> Search(Dictionary<string, string> searchParams = null, string order = "Id", int page = 1, int limit = Configurations.DefaultLimit)
+        public IList<CustomerDto> Search(string queryParams = "", string order = "Id", int page = 1, int limit = Configurations.DefaultLimit)
         {
             IList<CustomerDto> result = new List<CustomerDto>();
 
+            Dictionary<string, string> searchParams = EnsureSearchQueryIsValid(queryParams, ParseSearchQuery);
+            
             if (searchParams != null)
             {
                 IQueryable<Customer> query = _customerRepository.Table;
@@ -74,6 +77,44 @@ namespace Nop.Plugin.Api.Services
             }
 
             return result;
+        }
+
+        private Dictionary<string, string> EnsureSearchQueryIsValid(string query, Func<string, Dictionary<string, string>> parseSearchQuery)
+        {
+            if (!string.IsNullOrEmpty(query))
+            {
+                return parseSearchQuery(query);
+            }
+
+            return null;
+        }
+
+        private Dictionary<string, string> ParseSearchQuery(string query)
+        {
+            var parsedQuery = new Dictionary<string, string>();
+
+            string splitPattern = @"(\w+):";
+
+            var fieldValueList = Regex.Split(query, splitPattern).Where(s => s != String.Empty).ToList();
+
+            if (fieldValueList.Count < 2)
+            {
+                return parsedQuery;
+            }
+
+            for (int i = 0; i < fieldValueList.Count; i += 2)
+            {
+                var field = fieldValueList[i];
+                var value = fieldValueList[i + 1];
+
+                if (!string.IsNullOrEmpty(field) && !string.IsNullOrEmpty(value))
+                {
+                    field = field.Replace("_", string.Empty);
+                    parsedQuery.Add(field.Trim(), value.Trim());
+                }
+            }
+
+            return parsedQuery;
         }
 
         /// <summary>

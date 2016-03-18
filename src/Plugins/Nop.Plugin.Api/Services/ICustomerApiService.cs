@@ -11,6 +11,6 @@ namespace Nop.Plugin.Api.Services
 
         CustomerDto GetCustomerById(int id);
         int GetCustomersCount();
-        IList<CustomerDto> Search(Dictionary<string, string> query = null, string order = "desc", int page = 1, int limit = Configurations.DefaultLimit);
+        IList<CustomerDto> Search(string query = "", string order = "desc", int page = 1, int limit = Configurations.DefaultLimit);
     }
 }

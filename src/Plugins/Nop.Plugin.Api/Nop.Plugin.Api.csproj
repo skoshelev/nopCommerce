@@ -189,6 +189,8 @@
     <Compile Include="Startup.cs" />
     <Compile Include="Swagger\ExcludeEnpointsDocumentFilter.cs" />
     <Compile Include="Validators\ClientValidator.cs" />
+    <Compile Include="Validators\FieldsValidator.cs" />
+    <Compile Include="Validators\IFieldsValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Description.txt">

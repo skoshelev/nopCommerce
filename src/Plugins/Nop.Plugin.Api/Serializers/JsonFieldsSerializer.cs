@@ -1,30 +1,64 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Nop.Plugin.Api.ContractResolvers;
+using Nop.Plugin.Api.DTOs.Customers;
+using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.Serializers
 {
     public class JsonFieldsSerializer : IJsonFieldsSerializer
     {
-        private Dictionary<string, bool> GetPropertiesToSerialize(string fields)
-        {
-            var propertiesToSerialize = fields.ToLowerInvariant()
-                .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Trim())
-                .Distinct()
-                .ToDictionary(x => x, y => true);
+        private readonly IFieldsValidator _fieldsValidator;
 
-            return propertiesToSerialize;
+        public JsonFieldsSerializer(IFieldsValidator fieldsValidator)
+        {
+            _fieldsValidator = fieldsValidator;
+        }
+        //TODO: check the case: ,,,,mail, 545, ''"  email,
+        public string Serialize(ISerializableObject objectToSerialize, string fields)
+        {
+            string json = string.Empty;
+
+            // Always add the root manually
+            var validFields = new Dictionary<string, bool>();
+
+            if (!string.IsNullOrEmpty(fields))
+            {
+                string primaryPropertyName = objectToSerialize.GetPrimaryPropertyName();
+                validFields = _fieldsValidator.GetValidFields(fields, objectToSerialize.GetPrimaryPropertyType());
+
+                if (validFields.Count > 0)
+                {
+                    validFields.Add(primaryPropertyName, true);
+
+                    json = Serialize(objectToSerialize, validFields);
+                }
+                else
+                {
+                    json = string.Format("{{'{0}': []}}", primaryPropertyName);
+                }
+            }
+            else
+            {
+                json = Serialize(objectToSerialize);
+            }
+
+            return json;
         }
 
-        public string Serialize(object objectToSerialize, string fieldsToSerialize)
+        private string Serialize(object objectToSerialize, Dictionary<string, bool> fieldsToSerialize)
         {
-            DynamicContractResolver dynamicContractResolver = new DynamicContractResolver(GetPropertiesToSerialize(fieldsToSerialize));
+            DynamicContractResolver dynamicContractResolver = new DynamicContractResolver(fieldsToSerialize);
 
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(objectToSerialize,
                 Newtonsoft.Json.Formatting.Indented,
                 new Newtonsoft.Json.JsonSerializerSettings { ContractResolver = dynamicContractResolver });
+
+            return json;
+        }
+
+        private string Serialize(object objectToSerialize)
+        {
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(objectToSerialize, Newtonsoft.Json.Formatting.Indented);
 
             return json;
         }
