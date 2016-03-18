@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Nop.Plugin.Api.ContractResolvers;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.Validators;
@@ -13,9 +14,14 @@ namespace Nop.Plugin.Api.Serializers
         {
             _fieldsValidator = fieldsValidator;
         }
-        //TODO: check the case: ,,,,mail, 545, ''"  email,
+
         public string Serialize(ISerializableObject objectToSerialize, string fields)
         {
+            if (objectToSerialize == null)
+            {
+                throw new ArgumentNullException("objectToSerialize");
+            }
+
             string json = string.Empty;
 
             // Always add the root manually

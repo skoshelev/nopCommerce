@@ -20,6 +20,12 @@ namespace Nop.Plugin.Api.Validators
 
         public Dictionary<string, bool> GetValidFields(string fields, Type type)
         {
+            // This check ensures that the fields won't be null, because it can couse exception.
+            fields = fields ?? string.Empty;
+            // This is needed in case you pass the fields as you see them in the json representation of the objects.
+            // By specification if the property consists of several words, each word should be separetate from the others with underscore.
+            fields = fields.Replace("_", string.Empty);
+
             var validFields = new Dictionary<string, bool>();
             List<string> fieldsAsList = GetPropertiesIntoList(fields); 
             
