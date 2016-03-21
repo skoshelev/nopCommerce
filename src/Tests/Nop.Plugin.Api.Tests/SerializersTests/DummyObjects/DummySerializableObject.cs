@@ -5,9 +5,9 @@ using Nop.Plugin.Api.DTOs.Customers;
 
 namespace Nop.Plugin.Api.Tests.SerializersTests.DummyObjects
 {
-    public class SerializableObject : ISerializableObject
+    public class DummySerializableObject : ISerializableObject
     {
-        public SerializableObject()
+        public DummySerializableObject()
         {
             Items = new List<DummyObject>();    
         }

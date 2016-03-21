@@ -16,32 +16,54 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
         [Test]
         [TestCase("")]
         [TestCase(null)]
-        public void WhenEmptyFieldsParameterPassed_ShouldReturnJsonForThePassedObject(string emptyFieldsParameter)
+        public void WhenEmptyFieldsParametersPassed_ShouldNotCallTheValidator(string emptyFields)
+        {
+            ISerializableObject serializableObject = new DummySerializableObject();
+
+            //Arange
+            IFieldsValidator validator = MockRepository.GenerateMock<IFieldsValidator>();
+
+
+            IJsonFieldsSerializer cut = new JsonFieldsSerializer(validator);
+
+            //Act
+            cut.Serialize(serializableObject, emptyFields);
+
+            //Assert
+            validator.AssertWasNotCalled(x => x.GetValidFields(null, null), y => y.IgnoreArguments());
+        }
+
+        [Test]
+        [TestCase("")]
+        [TestCase(null)]
+        public void WhenEmptyFieldsParameterPassed_ShouldSerializeEverythingFromThePassedObject(string emptyFieldsParameter)
         {
             //Arange
             IFieldsValidator validator = MockRepository.GenerateStub<FieldsValidator>();
 
             IJsonFieldsSerializer cut = new JsonFieldsSerializer(validator);
 
-            var serializableObject = new SerializableObject();
+            var serializableObject = new DummySerializableObject();
             serializableObject.Items.Add(new DummyObject()
             {
                 FirstProperty = "first property value",
                 SecondProperty = "second property value"
             });
-            
+
             //Act
             string serializedObjectJson = cut.Serialize(serializableObject, emptyFieldsParameter);
 
-            SerializableObject serializableObjectFromJsonResult = JsonConvert.DeserializeObject<SerializableObject>(serializedObjectJson);
 
-            //Assert
-            Assert.AreEqual(serializableObject.Items.Count, serializableObjectFromJsonResult.Items.Count);
-            Assert.AreEqual(serializableObject.Items[0], serializableObjectFromJsonResult.Items[0]);
-            Assert.AreEqual(serializableObject.GetPrimaryPropertyName(), serializableObjectFromJsonResult.GetPrimaryPropertyName());
-            Assert.AreEqual(serializableObject.GetPrimaryPropertyType(), serializableObjectFromJsonResult.GetPrimaryPropertyType());
+            //Assert 
+            DummySerializableObject dummySerializableObjectFromJson =
+                JsonConvert.DeserializeObject<DummySerializableObject>(serializedObjectJson);
+
+            Assert.AreEqual(serializableObject.Items.Count, dummySerializableObjectFromJson.Items.Count);
+            Assert.AreEqual(serializableObject.Items[0], dummySerializableObjectFromJson.Items[0]);
+            Assert.AreEqual("first property value", dummySerializableObjectFromJson.Items[0].FirstProperty);
+            Assert.AreEqual("second property value", dummySerializableObjectFromJson.Items[0].SecondProperty);
         }
-
+        
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void WhenNullObjectToSerializePassed_ShouldThrowArgumentNullException()
@@ -54,63 +76,12 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
             //Act
             cut.Serialize(Arg<ISerializableObject>.Is.Null, Arg<string>.Is.Anything);
         }
-
+       
         [Test]
-        [TestCase("")]
-        [TestCase(null)]
-        public void WhenNoFieldsParametersPassed_ShouldReturnSerializedJsonStringForTheSerializableObject(string emptyFields)
-        {
-            SerializableObject serializableObject = new SerializableObject();
-            serializableObject.Items.Add(new DummyObject()
-            {
-                FirstProperty = "first property value",
-                SecondProperty = "second property value",
-            });
-
-            //Arange
-            IFieldsValidator validator = MockRepository.GenerateStub<IFieldsValidator>();
-           
-            IJsonFieldsSerializer cut = new JsonFieldsSerializer(validator);
-
-            //Act
-            string json = cut.Serialize(serializableObject, emptyFields);
-
-            SerializableObject serializableObjectFromResultJson = JsonConvert.DeserializeObject<SerializableObject>(json);
-
-            //Assert
-            Assert.AreEqual(serializableObject.Items.Count, serializableObjectFromResultJson.Items.Count);
-            Assert.AreEqual(serializableObject.Items[0], serializableObjectFromResultJson.Items[0]);
-            Assert.AreEqual(serializableObject.GetPrimaryPropertyName(), serializableObjectFromResultJson.GetPrimaryPropertyName());
-            Assert.AreEqual(serializableObject.GetPrimaryPropertyType(), serializableObjectFromResultJson.GetPrimaryPropertyType());
-        }
-
-        [Test]
-        public void WhenSomeFieldsParametersPassed_ShouldCallTheValidator()
+        public void WhenSomeFieldsParametersPassed_ShouldCallTheValidatorWithTheSameFields()
         {
             string someFields = "some,fields";
-            ISerializableObject serializableObject = new SerializableObject();
-
-            //Arange
-            IFieldsValidator validator = MockRepository.GenerateMock<IFieldsValidator>();
-            validator.Expect(
-                x =>
-                    x.GetValidFields(someFields, serializableObject.GetPrimaryPropertyType()))
-                        .Return(new Dictionary<string, bool>());
-            
-            IJsonFieldsSerializer cut = new JsonFieldsSerializer(validator);
-            
-            //Act
-            cut.Serialize(serializableObject, someFields);
-            
-            //Assert
-            validator.VerifyAllExpectations();
-        }
-
-        [Test]
-        public void WhenValidFieldsParametersPassed_ShouldCallTheValidator()
-        {
-            string someFields = "some,fields";
-            ISerializableObject serializableObject = new SerializableObject();
+            ISerializableObject serializableObject = new DummySerializableObject();
 
             //Arange
             IFieldsValidator validator = MockRepository.GenerateMock<IFieldsValidator>();
@@ -131,10 +102,15 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
         [Test]
         public void WhenNoValidFieldsPassedInTheFieldsParameter_ShouldReturnEmptyCollectionJson()
         {
-            ISerializableObject serializableObject = new SerializableObject();
-            string expectedJson = string.Format("{{\r\n  \"{0}\": []\r\n}}", serializableObject.GetPrimaryPropertyName());
+            DummySerializableObject dummySerializableObject = new DummySerializableObject();
+            dummySerializableObject.Items.Add(new DummyObject()
+            {
+                FirstProperty = "first property value",
+                SecondProperty = "second property value",
+            });
 
-            //Arange
+
+            // Arange
             IFieldsValidator validator = MockRepository.GenerateStub<IFieldsValidator>();
             validator.Stub(
                 x =>
@@ -143,11 +119,82 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
 
             IJsonFieldsSerializer cut = new JsonFieldsSerializer(validator);
 
-            //Act
-            string json = cut.Serialize(serializableObject, null);
+            // Act
+            string json = cut.Serialize(dummySerializableObject, "not valid fields");
 
-            //Assert
-            Assert.AreEqual(expectedJson, json);
+            // Assert
+            //string expectedJson = string.Format("{{\r\n  \"{0}\": []\r\n}}", dummySerializableObject.GetPrimaryPropertyName());
+            //Assert.AreEqual(expectedJson, json);
+            DummySerializableObject dummySerializableObjectFromJson =
+                JsonConvert.DeserializeObject<DummySerializableObject>(json);
+
+            Assert.AreEqual(0, dummySerializableObjectFromJson.Items.Count);
+        }
+
+        [Test]
+        public void WhenValidFieldsPassedParameter_ShouldSerializeTheseFieldsJson()
+        {
+            DummySerializableObject dummySerializableObject = new DummySerializableObject();
+            dummySerializableObject.Items.Add(new DummyObject()
+            {
+                FirstProperty = "first property value",
+                SecondProperty = "second property value",
+            });
+
+            var validatorDictionary = new Dictionary<string, bool>();
+            validatorDictionary.Add("firstproperty", true);
+
+            // Arange
+            IFieldsValidator validator = MockRepository.GenerateStub<IFieldsValidator>();
+            validator.Stub(
+                x =>
+                    x.GetValidFields(Arg<string>.Is.Anything, Arg<Type>.Is.Anything))
+                        .Return(validatorDictionary);
+
+            IJsonFieldsSerializer cut = new JsonFieldsSerializer(validator);
+
+            // Act
+            string json = cut.Serialize(dummySerializableObject, "firstproperty");
+
+            // Assert
+            DummySerializableObject dummySerializableObjectFromJson =
+                JsonConvert.DeserializeObject<DummySerializableObject>(json);
+
+            Assert.AreEqual(1, dummySerializableObjectFromJson.Items.Count);
+            Assert.AreEqual("first property value", dummySerializableObjectFromJson.Items[0].FirstProperty);
+        }
+
+        [Test]
+        public void WhenValidFieldsPassedParameter_ShouldNotSerializeOtherFieldsJson()
+        {
+            DummySerializableObject dummySerializableObject = new DummySerializableObject();
+            dummySerializableObject.Items.Add(new DummyObject()
+            {
+                FirstProperty = "first property value",
+                SecondProperty = "second property value",
+            });
+
+            var validatorDictionary = new Dictionary<string, bool>();
+            validatorDictionary.Add("firstproperty", true);
+
+            // Arange
+            IFieldsValidator validator = MockRepository.GenerateStub<IFieldsValidator>();
+            validator.Stub(
+                x =>
+                    x.GetValidFields(Arg<string>.Is.Anything, Arg<Type>.Is.Anything))
+                        .Return(validatorDictionary);
+
+            IJsonFieldsSerializer cut = new JsonFieldsSerializer(validator);
+
+            // Act
+            string json = cut.Serialize(dummySerializableObject, "firstproperty");
+
+            // Assert
+            DummySerializableObject dummySerializableObjectFromJson =
+                JsonConvert.DeserializeObject<DummySerializableObject>(json);
+
+            Assert.AreEqual(1, dummySerializableObjectFromJson.Items.Count);
+            Assert.IsNull(dummySerializableObjectFromJson.Items[0].SecondProperty);
         }
     }
 }

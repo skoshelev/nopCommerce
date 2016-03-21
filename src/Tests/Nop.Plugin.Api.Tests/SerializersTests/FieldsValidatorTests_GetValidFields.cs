@@ -14,22 +14,25 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
         public void WhenEmptyFieldsParameterPassed_ShouldReturnEmptyDictionary(string emptyFields)
         {
             //Arange
-            IFieldsValidator cut = MockRepository.GenerateStub<FieldsValidator>();
+            var cut = new FieldsValidator();
             
             //Act
-            Dictionary<string, bool> result = cut.GetValidFields(emptyFields, typeof(SerializableObject));
+            Dictionary<string, bool> result = cut.GetValidFields(emptyFields, typeof(DummyObject));
             
+            // Assert
             Assert.IsEmpty(result);
         }
 
         [Test]
+        [TestCase("first_property")]
+        [TestCase("second_property")]
         [TestCase("first_property,second_property")]
         [TestCase("firstproperty,secondproperty")]
-        [TestCase("firstProperty,Secondproperty")]
-        public void WhenValidFieldsParameterPassed_ShouldReturnNonEmptyDictionary(string validFields)
+        [TestCase("firstProperty,secondproperty")]
+        public void WhenOnlyValidFieldsParameterPassed_ShouldReturnNonEmptyDictionary(string validFields)
         {
             //Arange
-            IFieldsValidator cut = MockRepository.GenerateStub<FieldsValidator>();
+            var cut = new FieldsValidator();
 
             //Act
             Dictionary<string, bool> result = cut.GetValidFields(validFields, typeof(DummyObject));
@@ -41,10 +44,10 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
         [TestCase("first_property,second_property")]
         [TestCase("firstproperty,secondproperty")]
         [TestCase("firstProperty,Secondproperty")]
-        public void WhenValidFieldsParameterPassed_ShouldReturnDictionaryWithValidFields(string validFields)
+        public void WhenValidFieldsParameterPassed_ShouldReturnDictionaryContainingEachValidField(string validFields)
         {
             //Arange
-            IFieldsValidator cut = MockRepository.GenerateStub<FieldsValidator>();
+            var cut = new FieldsValidator();
 
             //Act
             Dictionary<string, bool> result = cut.GetValidFields(validFields, typeof(DummyObject));
@@ -52,7 +55,36 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
             Assert.True(result.ContainsKey("firstproperty"));
             Assert.True(result.ContainsKey("secondproperty"));
         }
-        
+
+        [Test]
+        [TestCase("FiRst_PropertY,second_property")]
+        [TestCase("firstproperty,SecondProPerty")]
+        [TestCase("firstProperty,Secondproperty")]
+        public void WhenValidFieldsParameterPassed_ShouldReturnDictionaryContainingEachValidFieldWithLowercase(string validFields)
+        {
+            //Arange
+            var cut = new FieldsValidator();
+
+            //Act
+            Dictionary<string, bool> result = cut.GetValidFields(validFields, typeof(DummyObject));
+
+            Assert.True(result.ContainsKey("firstproperty"));
+            Assert.True(result.ContainsKey("secondproperty"));
+        }
+
+        [Test]
+        [TestCase("first_property")]
+        public void WhenValidFieldParameterPassed_ShouldReturnDictionaryContainingTheFieldWithoutUnderscores(string validField)
+        {
+            //Arange
+            var cut = new FieldsValidator();
+
+            //Act
+            Dictionary<string, bool> result = cut.GetValidFields(validField, typeof(DummyObject));
+
+            Assert.True(result.ContainsKey("firstproperty"));
+        }
+
         [Test]
         [TestCase("first_property,second_property,invalid")]
         [TestCase("firstproperty,secondproperty,invalid")]
@@ -60,7 +92,7 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
         public void WhenValidAndInvalidFieldsParameterPassed_ShouldReturnDictionaryWithValidFieldsOnly(string mixedFields)
         {
             //Arange
-            IFieldsValidator cut = MockRepository.GenerateStub<FieldsValidator>();
+            var cut = new FieldsValidator();
 
             //Act
             Dictionary<string, bool> result = cut.GetValidFields(mixedFields, typeof(DummyObject));
@@ -76,7 +108,7 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
         public void WhenInvalidFieldsParameterPassed_ShouldReturnEmptyDictionary(string invalidFields)
         {
             //Arange
-            IFieldsValidator cut = MockRepository.GenerateStub<FieldsValidator>();
+            var cut = new FieldsValidator();
 
             //Act
             Dictionary<string, bool> result = cut.GetValidFields(invalidFields, typeof(DummyObject));
@@ -95,7 +127,7 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
         public void WhenInvalidFieldsWithSpecialSymbolsParameterPassed_ShouldReturnEmptyDictionary(string invalidFields)
         {
             //Arange
-            IFieldsValidator cut = MockRepository.GenerateStub<FieldsValidator>();
+            var cut = new FieldsValidator();
 
             //Act
             Dictionary<string, bool> result = cut.GetValidFields(invalidFields, typeof(DummyObject));

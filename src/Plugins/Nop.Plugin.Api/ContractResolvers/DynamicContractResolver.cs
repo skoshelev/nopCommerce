@@ -18,7 +18,7 @@ namespace Nop.Plugin.Api.ContractResolvers
         {
             var jsonProperty = base.CreateProperty(member, memberSerialization);
 
-            jsonProperty.ShouldSerialize = o => _propertiesToSerialize.ContainsKey(jsonProperty.PropertyName);
+            jsonProperty.ShouldSerialize = o => _propertiesToSerialize.ContainsKey(jsonProperty.PropertyName.ToLower());
 
             return jsonProperty;
         }
