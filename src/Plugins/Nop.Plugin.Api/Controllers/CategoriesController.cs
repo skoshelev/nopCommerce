@@ -85,18 +85,20 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest();
+                return NotFound();
             }
 
             Category category = _categoryApiService.GetCategoryById(id);
 
-            var categoriesRootObject = new CategoriesRootObject();
-
-            if (category != null)
+            if (category == null)
             {
-                categoriesRootObject.Categories.Add(category.ToDto(fields));
+                return NotFound();
             }
 
+            var categoriesRootObject = new CategoriesRootObject();
+            
+            categoriesRootObject.Categories.Add(category.ToDto(fields));
+        
             var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, fields);
 
             return new RawJsonActionResult(json);
