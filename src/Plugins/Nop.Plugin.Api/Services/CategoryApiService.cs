@@ -21,7 +21,7 @@ namespace Nop.Plugin.Api.Services
         }
 
         public IList<Category> GetCategories(IList<int> ids = null, string createdAtMin = "", string createdAtMax = "", string updatedAtMin = "",
-             string updatedAtMax = "", byte limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, int productId = 0, string publishedStatus = Configurations.PublishedStatus)
+             string updatedAtMax = "", int limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, int productId = 0, string publishedStatus = Configurations.PublishedStatus)
         {
 
             var query = GetCategoriesQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax,

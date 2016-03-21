@@ -18,7 +18,7 @@ namespace Nop.Plugin.Api.Models.CategoriesParameters
 
         public string Ids { get; set; }
 
-        public byte Limit { get; set; }
+        public int Limit { get; set; }
 
         public int Page { get; set; }
 

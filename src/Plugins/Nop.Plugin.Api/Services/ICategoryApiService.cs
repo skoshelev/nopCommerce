@@ -7,7 +7,7 @@ namespace Nop.Plugin.Api.Services
     public interface ICategoryApiService
     {
         IList<Category> GetCategories(IList<int> ids = null, string createdAtMin = "", string createdAtMax = "", string updatedAtMin = "", string updatedAtMax = "",
-            byte limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, int productId = 0, string publishedStatus = Configurations.PublishedStatus);
+            int limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, int productId = 0, string publishedStatus = Configurations.PublishedStatus);
 
         Category GetCategoryById(int categoryId);
 
