@@ -45,8 +45,8 @@ namespace Nop.Plugin.Api.Services
             return category;
         }
 
-        public int GetCategoriesCount(string createdAtMin, string createdAtMax, string updatedAtMin, string updatedAtMax,
-            string publishedStatus, int productId = 0)
+        public int GetCategoriesCount(string createdAtMin = "", string createdAtMax = "", string updatedAtMin = "", string updatedAtMax = "",
+            string publishedStatus = "", int productId = 0)
         {
             var query = GetCategoriesQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax,
                                            publishedStatus, productId: productId);

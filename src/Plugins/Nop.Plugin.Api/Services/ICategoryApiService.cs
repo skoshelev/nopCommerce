@@ -11,6 +11,6 @@ namespace Nop.Plugin.Api.Services
 
         Category GetCategoryById(int categoryId);
 
-        int GetCategoriesCount(string createdAtMin, string createdAtMax, string updatedAtMin, string updatedAtMax, string publishedStatus, int productId = 0);
+        int GetCategoriesCount(string createdAtMin = "", string createdAtMax = "", string updatedAtMin = "", string updatedAtMax = "", string publishedStatus = "", int productId = 0);
     }
 }
