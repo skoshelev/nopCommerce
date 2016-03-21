@@ -10,6 +10,7 @@ using Rhino.Mocks;
 
 namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 {
+    [TestFixture]
     public class CategoriesControllerTests_GetCategoriesCount
     {
         [Test]
