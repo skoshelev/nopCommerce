@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
+using Nop.Plugin.Api.DTOs.Customers;
 
 namespace Nop.Plugin.Api.DTOs.Categories
 {
-    public class CategoriesRootObject
+    public class CategoriesRootObject : ISerializableObject
     {
         public CategoriesRootObject()
         {
@@ -12,5 +14,15 @@ namespace Nop.Plugin.Api.DTOs.Categories
 
         [JsonProperty("categories")]
         public IList<CategoryDto> Categories { get; set; }
+
+        public string GetPrimaryPropertyName()
+        {
+            return "categories";
+        }
+
+        public Type GetPrimaryPropertyType()
+        {
+            return typeof (CategoryDto);
+        }
     }
 }

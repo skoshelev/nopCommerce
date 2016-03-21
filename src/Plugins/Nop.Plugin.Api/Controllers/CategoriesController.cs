@@ -3,62 +3,48 @@ using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
 using Nop.Core.Domain.Catalog;
-using Nop.Core.Infrastructure;
+using Nop.Plugin.Api.ActionResults;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.DTOs.Categories;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models.CategoriesParameters;
 using Nop.Plugin.Api.MVC;
+using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
-using Nop.Services.Catalog;
 
 namespace Nop.Plugin.Api.Controllers
 {
     [BearerTokenAuthorize]
     public class CategoriesController : ApiController
     {
-        private ICategoryApiService _categoryApiService;
-        private ICategoryApiService CategoryApiService
+        private readonly ICategoryApiService _categoryApiService;
+        private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
+
+        public CategoriesController(ICategoryApiService categoryApiService, IJsonFieldsSerializer jsonFieldsSerializer)
         {
-            get
-            {
-                if (_categoryApiService == null)
-                {
-                    _categoryApiService = EngineContext.Current.Resolve<ICategoryApiService>();
-                }
-
-                return _categoryApiService;
-            }
-        }
-
-        // nopCommerce's
-        private ICategoryService _categoryService;
-        private ICategoryService CategoryService
-        {
-            get
-            {
-                if (_categoryService == null)
-                {
-                    _categoryService = EngineContext.Current.Resolve<ICategoryService>();
-                }
-
-                return _categoryService;
-            }
+            _categoryApiService = categoryApiService;
+            _jsonFieldsSerializer = jsonFieldsSerializer;
         }
 
         [HttpGet]
         [ResponseType(typeof(CategoriesRootObject))]
         public IHttpActionResult GetCategories(CategoriesParametersModel parameters)
         {
+            if (parameters.Limit <= Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
+            {
+                return BadRequest("Invalid request parameters");
+            }
+
+            if (parameters.Page <= 0)
+            {
+                return BadRequest("Invalid request parameters");
+            }
+
             IList<int> idsAsListOfInts = IdsAsListOfInts(parameters.Ids);
-
-            parameters.Limit = EnsureLimitIsValid(parameters.Limit);
-
-            parameters.Page = EnsurePageIsValid(parameters.Page);
 
             parameters.PublishedStatus = EnsurePublishedStatusIsValid(parameters.PublishedStatus);
 
-            IList<Category> allCategories = CategoryApiService.GetCategories(idsAsListOfInts, parameters.CreatedAtMin, parameters.CreatedAtMax,
+            IList<Category> allCategories = _categoryApiService.GetCategories(idsAsListOfInts, parameters.CreatedAtMin, parameters.CreatedAtMax,
                                                                              parameters.UpdatedAtMin, parameters.UpdatedAtMax,
                                                                              parameters.Limit, parameters.Page, parameters.SinceId,
                                                                              parameters.ProductId, parameters.PublishedStatus);
@@ -70,7 +56,9 @@ namespace Nop.Plugin.Api.Controllers
                 Categories = categoriesAsDtos
             };
 
-            return Ok(categoriesRootObject);
+            var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, parameters.Fields);
+
+            return new RawJsonActionResult(json);
         }
 
         [HttpGet]
@@ -79,9 +67,9 @@ namespace Nop.Plugin.Api.Controllers
         {
             parameters.PublishedStatus = EnsurePublishedStatusIsValid(parameters.PublishedStatus);
 
-            var allCategoriesCount = CategoryApiService.GetCategoriesCount(parameters.CreatedAtMin, parameters.CreatedAtMax,
-                                                                           parameters.UpdatedAtMin, parameters.UpdatedAtMax,
-                                                                           parameters.PublishedStatus, parameters.ProductId);
+            var allCategoriesCount = _categoryApiService.GetCategoriesCount(parameters.CreatedAtMin, parameters.CreatedAtMax,
+                                                                            parameters.UpdatedAtMin, parameters.UpdatedAtMax,
+                                                                            parameters.PublishedStatus, parameters.ProductId);
 
             var categoriesCountRootObject = new CategoriesCountRootObject()
             {
@@ -100,7 +88,7 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest();
             }
 
-            Category category = CategoryService.GetCategoryById(id);
+            Category category = _categoryApiService.GetCategoryById(id);
 
             var categoriesRootObject = new CategoriesRootObject();
 
@@ -109,7 +97,9 @@ namespace Nop.Plugin.Api.Controllers
                 categoriesRootObject.Categories.Add(category.ToDto(fields));
             }
 
-            return Ok(categoriesRootObject);
+            var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, fields);
+
+            return new RawJsonActionResult(json);
         }
 
         [NonAction]
@@ -121,28 +111,6 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             return null;
-        }
-
-        [NonAction]
-        private byte EnsureLimitIsValid(byte limit)
-        {
-            if (limit <= Configurations.MinLimit || limit > Configurations.MaxLimit)
-            {
-                limit = Configurations.DefaultLimit;
-            }
-
-            return limit;
-        }
-
-        [NonAction]
-        private int EnsurePageIsValid(int page)
-        {
-            if (page <= 0)
-            {
-                page = Configurations.DefaultPageValue;
-            }
-
-            return page;
         }
 
         [NonAction]

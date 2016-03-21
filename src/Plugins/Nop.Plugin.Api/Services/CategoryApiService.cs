@@ -12,6 +12,7 @@ namespace Nop.Plugin.Api.Services
     {
         private readonly IRepository<Category> _categoryRepository;
         private readonly IRepository<ProductCategory> _productCategoryMappingRepository;
+
         public CategoryApiService(IRepository<Category> categoryRepository,
             IRepository<ProductCategory> productCategoryMappingRepository)
         {
@@ -32,6 +33,16 @@ namespace Nop.Plugin.Api.Services
             }
 
             return new ApiList<Category>(query, page - 1, limit);
+        }
+
+        public Category GetCategoryById(int id)
+        {
+            if (id == 0)
+                return null;
+
+            Category category = _categoryRepository.GetById(id);
+
+            return category;
         }
 
         public int GetCategoriesCount(string createdAtMin, string createdAtMax, string updatedAtMin, string updatedAtMax,

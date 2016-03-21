@@ -24,10 +24,4 @@ namespace Nop.Plugin.Api.DTOs.Customers
             return typeof (CustomerDto);
         }
     }
-
-    public interface ISerializableObject
-    {
-        string GetPrimaryPropertyName();
-        Type GetPrimaryPropertyType();
-    }
 }

@@ -9,6 +9,8 @@ namespace Nop.Plugin.Api.Services
         IList<Category> GetCategories(IList<int> ids = null, string createdAtMin = "", string createdAtMax = "", string updatedAtMin = "", string updatedAtMax = "",
             byte limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, int productId = 0, string publishedStatus = Configurations.PublishedStatus);
 
+        Category GetCategoryById(int categoryId);
+
         int GetCategoriesCount(string createdAtMin, string createdAtMax, string updatedAtMin, string updatedAtMax, string publishedStatus, int productId = 0);
     }
 }

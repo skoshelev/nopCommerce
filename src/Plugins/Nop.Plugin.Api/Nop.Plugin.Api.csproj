@@ -145,6 +145,7 @@
     <Compile Include="DTOs\Categories\CategoriesRootObject.cs" />
     <Compile Include="DTOs\Categories\CategoryDto.cs" />
     <Compile Include="DTOs\Customers\BaseCustomerDto.cs" />
+    <Compile Include="DTOs\Customers\ISerializableObject.cs" />
     <Compile Include="Helpers\AuthorizationHelper.cs" />
     <Compile Include="Helpers\AutoMapperHelper.cs" />
     <Compile Include="Helpers\IAuthorizationHelper.cs" />
