@@ -2,12 +2,14 @@
 using Autofac.Core;
 using Nop.Core.Configuration;
 using Nop.Core.Data;
+using Nop.Core.Domain.Catalog;
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
 using Nop.Data;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.Data;
 using Nop.Plugin.Api.Domain;
+using Nop.Plugin.Api.DTOs.Categories;
 using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models;
@@ -50,6 +52,8 @@ namespace Nop.Plugin.Api.Infrastructure
 
             Maps.CreateMap<Client, ClientModel>();
             Maps.CreateMap<ClientModel, Client>();
+
+            Maps.CreateMap<Category, CategoryDto>();
 
             Maps.CreateAddressMap();
             Maps.CreateShoppingCartItemMap();
