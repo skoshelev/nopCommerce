@@ -61,6 +61,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ControllersTests\Categories\CategoriesControllerTests_GetCategories.cs" />
+    <Compile Include="ControllersTests\Categories\CategoriesControllerTests_GetCategoriesById.cs" />
+    <Compile Include="ControllersTests\Categories\CategoriesControllerTests_GetCategoriesCount.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomerById.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomersCount.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomers.cs" />
