@@ -37,7 +37,7 @@ namespace Nop.Plugin.Api.Services
 
         public Category GetCategoryById(int id)
         {
-            if (id == 0)
+            if (id <= 0)
                 return null;
 
             Category category = _categoryRepository.GetById(id);
@@ -57,7 +57,7 @@ namespace Nop.Plugin.Api.Services
         private IQueryable<Category> GetCategoriesQuery(string createdAtMin = "", string createdAtMax = "", string updatedAtMin = "",
              string updatedAtMax = "", string publishedStatus = Configurations.PublishedStatus, IList<int> ids = null, int productId = 0)
         {
-            var query = _categoryRepository.Table;
+            var query = _categoryRepository.TableNoTracking;
 
             if (ids != null && ids.Count > 0)
             {
