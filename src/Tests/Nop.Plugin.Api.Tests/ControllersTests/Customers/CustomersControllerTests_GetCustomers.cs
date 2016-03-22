@@ -39,27 +39,52 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
         }
 
         [Test]
-        public void WhenNoParametersPassedAndSomeCustomersExist_ShouldCallTheSerializer()
+        public void WhenValidAndDifferentThanDefaultParametersPassed_ShouldCallTheServiceWithTheseParameters()
         {
-            var expectedCustomersCollection = new List<CustomerDto>()
+            var parametersModel = new CustomersParametersModel()
+            {
+                SinceId = Configurations.DefaultSinceId + 1, // some different than default since id
+                CreatedAtMin = "some valid date",
+                CreatedAtMax = "some valid date",
+                Page = Configurations.DefaultPageValue + 1, // some different than default page
+                Limit = Configurations.MinLimit + 1 // some different than default limit
+            };
+
+            //Arange
+            ICustomerApiService customerApiServiceMock = MockRepository.GenerateMock<ICustomerApiService>();
+
+            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
+
+            CustomersController cut = new CustomersController(customerApiServiceMock, jsonFieldsSerializer);
+
+            //Act
+            cut.GetCustomers(parametersModel);
+
+            //Assert
+            customerApiServiceMock.AssertWasCalled(x => x.GetCustomersDtos(parametersModel.CreatedAtMin,
+                                                    parametersModel.CreatedAtMax,
+                                                    parametersModel.Limit,
+                                                    parametersModel.Page,
+                                                    parametersModel.SinceId));
+        }
+
+        [Test]
+        public void WhenNoParametersPassedAndSomeCustomersExist_ShouldCallTheSerializerWithTheseCustomers()
+        {
+            var returnedCustomersDtoCollection = new List<CustomerDto>()
             {
                 new CustomerDto(),
                 new CustomerDto()
             };
 
-            var expectedRootObject = new CustomersRootObject()
-            {
-                Customers = expectedCustomersCollection
-            };
-
             var defaultParameters = new CustomersParametersModel();
 
             //Arange
             ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
-            customerApiServiceStub.Stub(x => x.GetCustomersDtos()).Return(expectedCustomersCollection);
+            customerApiServiceStub.Stub(x => x.GetCustomersDtos()).Return(returnedCustomersDtoCollection);
 
             IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-            jsonFieldsSerializerMock.Expect(x => x.Serialize(expectedRootObject, defaultParameters.Fields));
+            
 
             CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerMock);
 
@@ -67,28 +92,24 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             cut.GetCustomers(defaultParameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(x => x.Serialize(Arg<CustomersRootObject>.Is.TypeOf,
+            jsonFieldsSerializerMock.AssertWasCalled(
+                x => x.Serialize(Arg<CustomersRootObject>.Matches(r => r.Customers.Count == returnedCustomersDtoCollection.Count),
                 Arg<string>.Is.Equal(defaultParameters.Fields)));
         }
 
         [Test]
-        public void WhenNoParametersPassedAndNoCustomersExist_ShouldCallTheSerializer()
+        public void WhenNoParametersPassedAndNoCustomersExist_ShouldCallTheSerializerWithNoCustomers()
         {
-            var expectedCustomersCollection = new List<CustomerDto>();
-
-            var expectedRootObject = new CustomersRootObject()
-            {
-                Customers = expectedCustomersCollection
-            };
+            var returnedCustomersDtoCollection = new List<CustomerDto>();
 
             var defaultParameters = new CustomersParametersModel();
 
             //Arange
             ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
-            customerApiServiceStub.Stub(x => x.GetCustomersDtos()).Return(expectedCustomersCollection);
+            customerApiServiceStub.Stub(x => x.GetCustomersDtos()).Return(returnedCustomersDtoCollection);
 
             IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-            jsonFieldsSerializerMock.Expect(x => x.Serialize(expectedRootObject, defaultParameters.Fields));
+
 
             CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerMock);
 
@@ -96,7 +117,8 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             cut.GetCustomers(defaultParameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(x => x.Serialize(Arg<CustomersRootObject>.Is.TypeOf,
+            jsonFieldsSerializerMock.AssertWasCalled(
+                x => x.Serialize(Arg<CustomersRootObject>.Matches(r => r.Customers.Count == returnedCustomersDtoCollection.Count),
                 Arg<string>.Is.Equal(defaultParameters.Fields)));
         }
 
@@ -124,7 +146,6 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
         }
 
         [Test]
-        [TestCase(Configurations.MinLimit)]
         [TestCase(Configurations.MinLimit - 1)]
         [TestCase(Configurations.MaxLimit + 1)]
         public void WhenInvalidLimitParameterPassed_ShouldReturnBadRequest(int invalidLimit)
@@ -147,7 +168,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             //Assert
             Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
         }
-
+        
         [Test]
         [TestCase(-1)]
         [TestCase(0)]

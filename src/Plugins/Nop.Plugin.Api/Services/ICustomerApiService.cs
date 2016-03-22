@@ -7,10 +7,10 @@ namespace Nop.Plugin.Api.Services
     public interface ICustomerApiService
     {
         IList<CustomerDto> GetCustomersDtos(string createdAtMin = "", string createdAtMax = "",
-          int limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0);
+        int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId);
 
         CustomerDto GetCustomerById(int id);
         int GetCustomersCount();
-        IList<CustomerDto> Search(string query = "", string order = "desc", int page = 1, int limit = Configurations.DefaultLimit);
+        IList<CustomerDto> Search(string query = "", string order = "desc", int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit);
     }
 }

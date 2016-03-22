@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -30,12 +31,12 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(CategoriesRootObject))]
         public IHttpActionResult GetCategories(CategoriesParametersModel parameters)
         {
-            if (parameters.Limit <= Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
+            if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
             {
                 return BadRequest("Invalid request parameters");
             }
 
-            if (parameters.Page <= 0)
+            if (parameters.Page < Configurations.DefaultPageValue)
             {
                 return BadRequest("Invalid request parameters");
             }
@@ -109,7 +110,20 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (!string.IsNullOrEmpty(ids))
             {
-                return ids.Split(',').Select(int.Parse).ToList();
+                List<string> stringIds = ids.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries).ToList();
+                List<int> intIds = new List<int>();
+
+                foreach (var id in stringIds)
+                {
+                    int intId;
+                    if (int.TryParse(id, out intId))
+                    {
+                        intIds.Add(intId);
+                    }
+                }
+
+               intIds = intIds.Distinct().ToList();
+                return intIds.Count > 0 ? intIds : null;
             }
 
             return null;

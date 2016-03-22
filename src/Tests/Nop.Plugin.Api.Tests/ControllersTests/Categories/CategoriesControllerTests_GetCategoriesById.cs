@@ -94,9 +94,12 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             // Assert
             jsonFieldsSerializer.AssertWasCalled(
                 x => x.Serialize(
-                    Arg<CategoriesRootObject>.Matches(objectToSerialize => objectToSerialize.Categories[0].Id == existingCategory.Id.ToString() &&
-                                                                           objectToSerialize.Categories[0].Name == existingCategory.Name),
-                    Arg<string>.Matches(fields => fields == "")));
+                    Arg<CategoriesRootObject>.Matches(
+                        objectToSerialize =>
+                               objectToSerialize.Categories.Count == 1 &&
+                               objectToSerialize.Categories[0].Id == existingCategory.Id.ToString() &&
+                               objectToSerialize.Categories[0].Name == existingCategory.Name),
+                    Arg<string>.Is.Equal("")));
         }
 
         [Test]
@@ -105,7 +108,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             Maps.CreateMap<Category, CategoryDto>();
 
             int existingCategoryId = 5;
-            var existingCategory = new Category() { Id = existingCategoryId };
+            var existingCategory = new Category() { Id = existingCategoryId, Name = "some category name" };
             string fields = "id,name";
 
             // Arange

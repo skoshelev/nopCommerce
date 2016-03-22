@@ -31,7 +31,7 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(CustomersRootObject))]
         public IHttpActionResult GetCustomers(CustomersParametersModel parameters)
         {
-            if (parameters.Limit <= Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
+            if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
             {
                 return BadRequest("Invalid request parameters");
             }

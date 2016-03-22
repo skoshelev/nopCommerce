@@ -23,8 +23,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(0);
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            jsonFieldsSerializer.Stub(x => x.Serialize(null, null)).Return(string.Empty);
-
+            
             var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
 
             // act
@@ -45,8 +44,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(1);
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            jsonFieldsSerializer.Stub(x => x.Serialize(null, null)).Return(string.Empty);
-
+            
             var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
 
             // act
@@ -61,14 +59,14 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         public void WhenCertainNumberOfCategoriesExist_ShouldReturnOKWithCountEqualToSameNumberOfCategories()
         {
             var categoriesCountParametersModel = new CategoriesCountParametersModel();
+            int categoriesCount = 20;
 
             // arrange
             var categoriesApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
-            categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(20000);
+            categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(categoriesCount);
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            jsonFieldsSerializer.Stub(x => x.Serialize(null, null)).Return(string.Empty);
-
+            
             var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
 
             // act
@@ -76,7 +74,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<CategoriesCountRootObject>>(result);
-            Assert.AreEqual(20000, ((OkNegotiatedContentResult<CategoriesCountRootObject>)result).Content.Count);
+            Assert.AreEqual(categoriesCount, ((OkNegotiatedContentResult<CategoriesCountRootObject>)result).Content.Count);
         }
     }
 }

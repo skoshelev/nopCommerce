@@ -58,8 +58,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             // Arange
             ICustomerApiService customerApiServiceMock = MockRepository.GenerateMock<ICustomerApiService>();
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            jsonFieldsSerializer.Stub(x => x.Serialize(null, null)).Return(string.Empty);
-
+            
             CustomersController cut = new CustomersController(customerApiServiceMock, jsonFieldsSerializer);
 
             // Act
