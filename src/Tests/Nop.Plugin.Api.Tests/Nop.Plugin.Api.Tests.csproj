@@ -69,7 +69,7 @@
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomers.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_Search.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummyObject.cs" />
-    <Compile Include="SerializersTests\FieldsValidatorTests_GetValidFields.cs" />
+    <Compile Include="ValidatorTests\FieldsValidatorTests_GetValidFields.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummySerializableObject.cs" />
     <Compile Include="SerializersTests\JsonFieldsSerializerTests_Serialize.cs" />
     <Compile Include="ServicesTests\CountryApiServiceTests.cs" />
@@ -103,6 +103,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

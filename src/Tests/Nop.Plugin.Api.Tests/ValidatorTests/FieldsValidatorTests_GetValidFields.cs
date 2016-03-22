@@ -4,7 +4,7 @@ using Nop.Plugin.Api.Validators;
 using NUnit.Framework;
 using Rhino.Mocks;
 
-namespace Nop.Plugin.Api.Tests.SerializersTests
+namespace Nop.Plugin.Api.Tests.ValidatorTests
 {
     public class FieldsValidatorTests_GetValidFields
     {
