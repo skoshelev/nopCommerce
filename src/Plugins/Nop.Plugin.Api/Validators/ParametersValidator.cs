@@ -7,6 +7,7 @@ namespace Nop.Plugin.Api.Validators
 {
     public class ParametersValidator : IParametersValidator
     {
+        // TODO: remove this method because it is available in the string extensions.
         public IList<int> GetIdsAsListOfInts(string ids)
         {
             if (!string.IsNullOrEmpty(ids))

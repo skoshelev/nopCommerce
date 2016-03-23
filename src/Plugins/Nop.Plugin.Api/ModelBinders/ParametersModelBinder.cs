@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using System.Web.Http.Controllers;
 using System.Web.Http.ModelBinding;
+using Nop.Plugin.Api.Extensions;
 
 namespace Nop.Plugin.Api.ModelBinders
 {
@@ -25,30 +24,6 @@ namespace Nop.Plugin.Api.ModelBinders
             }
 
             return true;
-        }
-    }
-
-    public static class ObjectExtensions
-    {
-        public static T ToObject<T>(this ICollection<KeyValuePair<string, string>> source)
-            where T : class, new()
-        {
-            T someObject = new T();
-            Type someObjectType = someObject.GetType();
-
-            foreach (KeyValuePair<string, string> item in source)
-            {
-                var itemKey = item.Key.Replace("_", string.Empty);
-                var currentProperty = someObjectType.GetProperty(itemKey,
-                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-
-                if (currentProperty != null)
-                {
-                    currentProperty.SetValue(someObject, Convert.ChangeType(item.Value, currentProperty.PropertyType), null);
-                }
-            }
-
-            return someObject;
         }
     }
 }

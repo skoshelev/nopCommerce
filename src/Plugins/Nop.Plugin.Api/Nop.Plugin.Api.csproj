@@ -149,6 +149,8 @@
     <Compile Include="DTOs\Customers\ISerializableObject.cs" />
     <Compile Include="DTOs\Products\ProductsCountRootObject.cs" />
     <Compile Include="DTOs\Products\ProductsRootObjectDto.cs" />
+    <Compile Include="Extensions\ObjectExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Helpers\AuthorizationHelper.cs" />
     <Compile Include="Helpers\AutoMapperHelper.cs" />
     <Compile Include="Helpers\IAuthorizationHelper.cs" />
