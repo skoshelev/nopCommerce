@@ -135,6 +135,7 @@
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\ManageClientsAdminController.cs" />
     <Compile Include="Controllers\OAuthController.cs" />
+    <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="DataMappings\ClientMap.cs" />
     <Compile Include="DataStructures\ApiList.cs" />
     <Compile Include="Data\ApiObjectContext.cs" />
@@ -146,6 +147,8 @@
     <Compile Include="DTOs\Categories\CategoryDto.cs" />
     <Compile Include="DTOs\Customers\BaseCustomerDto.cs" />
     <Compile Include="DTOs\Customers\ISerializableObject.cs" />
+    <Compile Include="DTOs\Products\ProductsCountRootObject.cs" />
+    <Compile Include="DTOs\Products\ProductsRootObjectDto.cs" />
     <Compile Include="Helpers\AuthorizationHelper.cs" />
     <Compile Include="Helpers\AutoMapperHelper.cs" />
     <Compile Include="Helpers\IAuthorizationHelper.cs" />
@@ -158,7 +161,7 @@
     <Compile Include="DTOs\Customers\CustomersCountRootObject.cs" />
     <Compile Include="DTOs\Customers\CustomersRootObject.cs" />
     <Compile Include="DTOs\Customers\OrderCustomerDto.cs" />
-    <Compile Include="DTOs\ProductDto.cs" />
+    <Compile Include="DTOs\Products\ProductDto.cs" />
     <Compile Include="DTOs\ShoppingCartItemDto.cs" />
     <Compile Include="Infrastructure\DependencyRegister.cs" />
     <Compile Include="MappingExtensions\AddressDtoMappings.cs" />
@@ -178,6 +181,9 @@
     <Compile Include="Models\ConfigurationModel.cs" />
     <Compile Include="Models\CustomersParameters\CustomersParametersModel.cs" />
     <Compile Include="Models\CustomersParameters\CustomersSearchParametersModel.cs" />
+    <Compile Include="Models\ProductsParameters\BaseProductsParametersModel.cs" />
+    <Compile Include="Models\ProductsParameters\ProductsCountParametersModel.cs" />
+    <Compile Include="Models\ProductsParameters\ProductsParametersModel.cs" />
     <Compile Include="MVC\Configurations.cs" />
     <Compile Include="Owin\Middleware\BearerTokenMiddleware.cs" />
     <Compile Include="Owin\OAuth\Providers\AuthenticationTokenProvider.cs" />
@@ -195,13 +201,17 @@
     <Compile Include="Services\IClientService.cs" />
     <Compile Include="Services\ICountryApiService.cs" />
     <Compile Include="Services\ICustomerApiService.cs" />
+    <Compile Include="Services\IProductApiService.cs" />
     <Compile Include="Services\IStateProvinceApiService.cs" />
+    <Compile Include="Services\ProductApiService.cs" />
     <Compile Include="Services\StateProvinceApiService.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Swagger\ExcludeEnpointsDocumentFilter.cs" />
     <Compile Include="Validators\ClientValidator.cs" />
     <Compile Include="Validators\FieldsValidator.cs" />
     <Compile Include="Validators\IFieldsValidator.cs" />
+    <Compile Include="Validators\IParametersValidator.cs" />
+    <Compile Include="Validators\ParametersValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Description.txt">

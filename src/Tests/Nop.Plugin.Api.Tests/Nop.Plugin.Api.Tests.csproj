@@ -68,14 +68,15 @@
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomersCount.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomers.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_Search.cs" />
+    <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProducts.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummyObject.cs" />
-    <Compile Include="ValidatorTests\FieldsValidatorTests_GetValidFields.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummySerializableObject.cs" />
     <Compile Include="SerializersTests\JsonFieldsSerializerTests_Serialize.cs" />
     <Compile Include="ServicesTests\CountryApiServiceTests.cs" />
     <Compile Include="ServicesTests\StateProvinceApiServiceTests.cs" />
     <Compile Include="ServicesTests\Customers\CustomerApiServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ValidatorTests\FieldsValidatorTests_GetValidFields.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Libraries\Nop.Core\Nop.Core.csproj">

@@ -44,6 +44,7 @@ namespace Nop.Plugin.Api.Infrastructure
         {
             builder.RegisterType<CustomersController>().InstancePerLifetimeScope();
             builder.RegisterType<CategoriesController>().InstancePerLifetimeScope();
+            builder.RegisterType<ProductsController>().InstancePerLifetimeScope();
         }
 
         private void CreateModelMappings()
@@ -62,6 +63,8 @@ namespace Nop.Plugin.Api.Infrastructure
             Maps.CreateCustomerToDTOMap();
             Maps.CreateCustomerToOrderCustomerDTOMap();
             Maps.CreateCustomerForShoppingCartItemMapFromCustomer();
+
+            Maps.CreateProductMap();
         }
 
         private void RegisterPluginServices(ContainerBuilder builder)
@@ -72,9 +75,11 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<StateProvinceApiService>().As<IStateProvinceApiService>().InstancePerLifetimeScope();
             builder.RegisterType<CountryApiService>().As<ICountryApiService>().InstancePerLifetimeScope();
             builder.RegisterType<CategoryApiService>().As<ICategoryApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<ProductApiService>().As<IProductApiService>().InstancePerLifetimeScope();
             builder.RegisterType<AuthorizationHelper>().As<IAuthorizationHelper>().InstancePerLifetimeScope();
             builder.RegisterType<JsonFieldsSerializer>().As<IJsonFieldsSerializer>().InstancePerLifetimeScope();
             builder.RegisterType<FieldsValidator>().As<IFieldsValidator>().InstancePerLifetimeScope();
+            builder.RegisterType<ParametersValidator>().As<IParametersValidator>().InstancePerLifetimeScope();
         }
 
         public int Order { get; }

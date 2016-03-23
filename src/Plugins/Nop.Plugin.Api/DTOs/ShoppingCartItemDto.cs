@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.DTOs.Customers;
+using Nop.Plugin.Api.DTOs.Products;
 
 namespace Nop.Plugin.Api.DTOs
 {

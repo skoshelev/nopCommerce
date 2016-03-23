@@ -5,9 +5,11 @@ using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.DTOs.Customers;
 using System.Linq;
+using System.Web;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
 using Nop.Plugin.Api.DTOs;
+using Nop.Plugin.Api.DTOs.Products;
 
 namespace Nop.Plugin.Api.MappingExtensions
 {
@@ -73,5 +75,13 @@ namespace Nop.Plugin.Api.MappingExtensions
                 .ForMember(x => x.Customer, y => y.MapFrom(src => src.Customer.GetWithDefault(x => x, new Customer()).ToCustomerForShoppingCartItemDto()))
                 .ForMember(x => x.Product, y => y.MapFrom(src => src.Product.GetWithDefault(x => x, new Product()).ToDto(null)));
         }
+
+        public static void CreateProductMap()
+        {
+            Mapper.CreateMap<Product, ProductDto>()
+               .IgnoreAllNonExisting()
+               .ForMember(x => x.FullDescription, y => y.MapFrom(src => HttpUtility.HtmlEncode(src.FullDescription)));
+        }
+
     }
 }

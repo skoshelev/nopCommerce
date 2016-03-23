@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Results;
 using Nop.Core.Domain.Catalog;
@@ -10,6 +9,7 @@ using Nop.Plugin.Api.Models.CategoriesParameters;
 using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
+using Nop.Plugin.Api.Validators;
 using NUnit.Framework;
 using Rhino.Mocks;
 
@@ -46,7 +46,9 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer);
+            var parametersValidator = new ParametersValidator();
+
+            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
 
             //Act
             cut.GetCategories(parametersModel);
@@ -79,7 +81,9 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer);
+            var parametersValidator = new ParametersValidator();
+
+            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
 
             //Act
             cut.GetCategories(parametersModel);
@@ -112,7 +116,9 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer);
+            var parametersValidator = new ParametersValidator();
+
+            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
 
             //Act
             cut.GetCategories(parametersModel);
@@ -148,7 +154,9 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer);
+            var parametersValidator = new ParametersValidator();
+
+            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
 
             //Act
             cut.GetCategories(parametersModel);
@@ -184,7 +192,9 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer);
+            var parametersValidator = new ParametersValidator();
+
+            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
 
             //Act
             cut.GetCategories(parametersModel);
@@ -214,7 +224,9 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer);
+            var parametersValidator = new ParametersValidator();
+
+            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
 
             //Act
             cut.GetCategories(defaultParametersModel);
@@ -242,7 +254,9 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
 
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock);
+            var parametersValidator = new ParametersValidator();
+
+            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock, parametersValidator);
 
             //Act
             cut.GetCategories(defaultParameters);
@@ -264,8 +278,9 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
 
+            var parametersValidator = new ParametersValidator();
 
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock);
+            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock, parametersValidator);
 
             //Act
             cut.GetCategories(defaultParameters);
@@ -290,7 +305,9 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
 
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock);
+            var parametersValidator = new ParametersValidator();
+
+            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock, parametersValidator);
 
             //Act
             cut.GetCategories(defaultParametersModel);
@@ -315,7 +332,9 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-            CategoriesController cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub);
+            IParametersValidator parametersValidator = MockRepository.GenerateMock<IParametersValidator>();
+
+            CategoriesController cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub, parametersValidator);
 
             //Act
             IHttpActionResult result = cut.GetCategories(parametersModel);
@@ -339,7 +358,9 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub);
+            IParametersValidator parametersValidator = MockRepository.GenerateMock<IParametersValidator>();
+
+            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub, parametersValidator);
 
             //Act
             IHttpActionResult result = cut.GetCategories(parametersModel);

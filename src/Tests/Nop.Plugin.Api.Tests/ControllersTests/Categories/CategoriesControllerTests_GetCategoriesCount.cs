@@ -5,6 +5,7 @@ using Nop.Plugin.Api.DTOs.Categories;
 using Nop.Plugin.Api.Models.CategoriesParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
+using Nop.Plugin.Api.Validators;
 using NUnit.Framework;
 using Rhino.Mocks;
 
@@ -23,8 +24,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(0);
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            
-            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
+
+            IParametersValidator parametersValidator = MockRepository.GenerateStub<IParametersValidator>();
+
+            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer, parametersValidator);
 
             // act
             IHttpActionResult result = cut.GetCategoriesCount(categoriesCountParametersModel);
@@ -44,8 +47,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(1);
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            
-            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
+
+            IParametersValidator parametersValidator = MockRepository.GenerateStub<IParametersValidator>();
+
+            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer, parametersValidator);
 
             // act
             IHttpActionResult result = cut.GetCategoriesCount(categoriesCountParametersModel);
@@ -66,8 +71,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(categoriesCount);
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            
-            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
+
+            IParametersValidator parametersValidator = MockRepository.GenerateStub<IParametersValidator>();
+
+            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer, parametersValidator);
 
             // act
             IHttpActionResult result = cut.GetCategoriesCount(categoriesCountParametersModel);

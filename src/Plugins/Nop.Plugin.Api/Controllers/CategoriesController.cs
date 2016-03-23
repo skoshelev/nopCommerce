@@ -12,6 +12,7 @@ using Nop.Plugin.Api.Models.CategoriesParameters;
 using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
+using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.Controllers
 {
@@ -20,11 +21,15 @@ namespace Nop.Plugin.Api.Controllers
     {
         private readonly ICategoryApiService _categoryApiService;
         private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
+        private readonly IParametersValidator _parametersValidator;
 
-        public CategoriesController(ICategoryApiService categoryApiService, IJsonFieldsSerializer jsonFieldsSerializer)
+        public CategoriesController(ICategoryApiService categoryApiService, 
+                                    IJsonFieldsSerializer jsonFieldsSerializer, 
+                                    IParametersValidator parametersValidator)
         {
             _categoryApiService = categoryApiService;
             _jsonFieldsSerializer = jsonFieldsSerializer;
+            _parametersValidator = parametersValidator;
         }
 
         [HttpGet]
@@ -41,9 +46,9 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest("Invalid request parameters");
             }
 
-            IList<int> idsAsListOfInts = IdsAsListOfInts(parameters.Ids);
+            IList<int> idsAsListOfInts = _parametersValidator.GetIdsAsListOfInts(parameters.Ids);
 
-            parameters.PublishedStatus = EnsurePublishedStatusIsValid(parameters.PublishedStatus);
+            parameters.PublishedStatus = _parametersValidator.EnsurePublishedStatusIsValid(parameters.PublishedStatus);
 
             IList<Category> allCategories = _categoryApiService.GetCategories(idsAsListOfInts, parameters.CreatedAtMin, parameters.CreatedAtMax,
                                                                              parameters.UpdatedAtMin, parameters.UpdatedAtMax,
@@ -66,7 +71,7 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(CategoriesCountRootObject))]
         public IHttpActionResult GetCategoriesCount(CategoriesCountParametersModel parameters)
         {
-            parameters.PublishedStatus = EnsurePublishedStatusIsValid(parameters.PublishedStatus);
+            parameters.PublishedStatus = _parametersValidator.EnsurePublishedStatusIsValid(parameters.PublishedStatus);
 
             var allCategoriesCount = _categoryApiService.GetCategoriesCount(parameters.CreatedAtMin, parameters.CreatedAtMax,
                                                                             parameters.UpdatedAtMin, parameters.UpdatedAtMax,
@@ -103,42 +108,6 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, fields);
 
             return new RawJsonActionResult(json);
-        }
-
-        [NonAction]
-        private IList<int> IdsAsListOfInts(string ids)
-        {
-            if (!string.IsNullOrEmpty(ids))
-            {
-                List<string> stringIds = ids.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries).ToList();
-                List<int> intIds = new List<int>();
-
-                foreach (var id in stringIds)
-                {
-                    int intId;
-                    if (int.TryParse(id, out intId))
-                    {
-                        intIds.Add(intId);
-                    }
-                }
-
-               intIds = intIds.Distinct().ToList();
-                return intIds.Count > 0 ? intIds : null;
-            }
-
-            return null;
-        }
-
-        [NonAction]
-        private string EnsurePublishedStatusIsValid(string publishedStatus)
-        {
-            if (publishedStatus != Configurations.PublishedStatus && publishedStatus != Configurations.UnpublishedStatus &&
-                publishedStatus != Configurations.AnyStatus)
-            {
-                publishedStatus = Configurations.AnyStatus;
-            }
-
-            return publishedStatus;
         }
     }
 }
