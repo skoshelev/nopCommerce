@@ -70,6 +70,9 @@
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_Search.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProducts.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummyObject.cs" />
+    <Compile Include="ServicesTests\Categories\CategoryApiServiceTests_GetCategoriesCount.cs" />
+    <Compile Include="ServicesTests\Categories\CategoryApiServiceTests_GetCategoryById.cs" />
+    <Compile Include="ValidatorTests\FieldsValidatorTests_GetValidFields.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummySerializableObject.cs" />
     <Compile Include="SerializersTests\JsonFieldsSerializerTests_Serialize.cs" />
     <Compile Include="ServicesTests\CountryApiServiceTests.cs" />

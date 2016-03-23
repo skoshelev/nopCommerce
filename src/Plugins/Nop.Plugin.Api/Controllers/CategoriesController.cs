@@ -65,6 +65,8 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, parameters.Fields);
 
             return new RawJsonActionResult(json);
+
+            return null;
         }
 
         [HttpGet]
@@ -83,6 +85,8 @@ namespace Nop.Plugin.Api.Controllers
             };
 
             return Ok(categoriesCountRootObject);
+
+            return null;
         }
 
         [HttpGet]
