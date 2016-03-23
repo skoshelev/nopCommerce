@@ -11,6 +11,9 @@ using Rhino.Mocks;
 
 namespace Nop.Plugin.Api.Tests.ServicesTests.Customers
 {
+    // Possible tests
+    // 
+
     //[TestFixture]
     //public class CustomerApiServiceTests
     //{

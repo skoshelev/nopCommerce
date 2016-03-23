@@ -1,4 +1,5 @@
-﻿using System.Web.Http.ModelBinding;
+﻿using System.Collections.Generic;
+using System.Web.Http.ModelBinding;
 using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.MVC;
 
@@ -9,14 +10,14 @@ namespace Nop.Plugin.Api.Models.CategoriesParameters
     {
         public CategoriesParametersModel()
         {
-            Ids = string.Empty;
+            Ids = null;
             Limit = Configurations.DefaultLimit;
             Page = Configurations.DefaultPageValue;
             SinceId = 0;
             Fields = string.Empty;
         }
 
-        public string Ids { get; set; }
+        public List<int> Ids { get; set; }
 
         public int Limit { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.MVC;
 
@@ -6,11 +7,13 @@ namespace Nop.Plugin.Api.Services
 {
     public interface ICustomerApiService
     {
-        IList<CustomerDto> GetCustomersDtos(string createdAtMin = "", string createdAtMax = "",
-        int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId);
+        int GetCustomersCount();
 
         CustomerDto GetCustomerById(int id);
-        int GetCustomersCount();
+
+        IList<CustomerDto> GetCustomersDtos(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
+        int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId);
+        
         IList<CustomerDto> Search(string query = "", string order = "desc", int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit);
     }
 }

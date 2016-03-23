@@ -73,7 +73,5 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories
             // Assert
             Assert.AreEqual(2, countResult);
         }
-
-        
     }
 }

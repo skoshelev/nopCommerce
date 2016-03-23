@@ -41,16 +41,12 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest("Invalid request parameters");
             }
 
-            IList<int> idsAsListOfInts = IdsAsListOfInts(parameters.Ids);
-
-            parameters.PublishedStatus = EnsurePublishedStatusIsValid(parameters.PublishedStatus);
-
-            IList<Category> allCategories = _categoryApiService.GetCategories(idsAsListOfInts, parameters.CreatedAtMin, parameters.CreatedAtMax,
+            IList<Category> allCategories = _categoryApiService.GetCategories(parameters.Ids, parameters.CreatedAtMin, parameters.CreatedAtMax,
                                                                              parameters.UpdatedAtMin, parameters.UpdatedAtMax,
                                                                              parameters.Limit, parameters.Page, parameters.SinceId,
                                                                              parameters.ProductId, parameters.PublishedStatus);
 
-            IList<CategoryDto> categoriesAsDtos = allCategories.Select(x => x.ToDto(parameters.Fields)).ToList();
+            IList<CategoryDto> categoriesAsDtos = allCategories.Select(x => x.ToDto()).ToList();
 
             var categoriesRootObject = new CategoriesRootObject()
             {
@@ -66,8 +62,6 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(CategoriesCountRootObject))]
         public IHttpActionResult GetCategoriesCount(CategoriesCountParametersModel parameters)
         {
-            parameters.PublishedStatus = EnsurePublishedStatusIsValid(parameters.PublishedStatus);
-
             var allCategoriesCount = _categoryApiService.GetCategoriesCount(parameters.CreatedAtMin, parameters.CreatedAtMax,
                                                                             parameters.UpdatedAtMin, parameters.UpdatedAtMax,
                                                                             parameters.PublishedStatus, parameters.ProductId);
@@ -98,47 +92,11 @@ namespace Nop.Plugin.Api.Controllers
 
             var categoriesRootObject = new CategoriesRootObject();
             
-            categoriesRootObject.Categories.Add(category.ToDto(fields));
+            categoriesRootObject.Categories.Add(category.ToDto());
         
             var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, fields);
 
             return new RawJsonActionResult(json);
-        }
-
-        [NonAction]
-        private IList<int> IdsAsListOfInts(string ids)
-        {
-            if (!string.IsNullOrEmpty(ids))
-            {
-                List<string> stringIds = ids.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries).ToList();
-                List<int> intIds = new List<int>();
-
-                foreach (var id in stringIds)
-                {
-                    int intId;
-                    if (int.TryParse(id, out intId))
-                    {
-                        intIds.Add(intId);
-                    }
-                }
-
-               intIds = intIds.Distinct().ToList();
-                return intIds.Count > 0 ? intIds : null;
-            }
-
-            return null;
-        }
-
-        [NonAction]
-        private string EnsurePublishedStatusIsValid(string publishedStatus)
-        {
-            if (publishedStatus != Configurations.PublishedStatus && publishedStatus != Configurations.UnpublishedStatus &&
-                publishedStatus != Configurations.AnyStatus)
-            {
-                publishedStatus = Configurations.AnyStatus;
-            }
-
-            return publishedStatus;
         }
     }
 }

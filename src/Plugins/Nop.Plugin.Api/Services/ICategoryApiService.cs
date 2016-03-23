@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.MVC;
 
@@ -6,11 +7,14 @@ namespace Nop.Plugin.Api.Services
 {
     public interface ICategoryApiService
     {
-        IList<Category> GetCategories(IList<int> ids = null, string createdAtMin = "", string createdAtMax = "", string updatedAtMin = "", string updatedAtMax = "",
-            int limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, int productId = 0, string publishedStatus = Configurations.PublishedStatus);
-
         Category GetCategoryById(int categoryId);
 
-        int GetCategoriesCount(string createdAtMin = "", string createdAtMax = "", string updatedAtMin = "", string updatedAtMax = "", string publishedStatus = "", int productId = 0);
+        IList<Category> GetCategories(IList<int> ids = null,
+            DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
+            int limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, int productId = 0, 
+            bool? publishedStatus = null);
+
+        int GetCategoriesCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
+            bool? publishedStatus = null, int productId = 0);
     }
 }
