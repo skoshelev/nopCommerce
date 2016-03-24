@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\Presentation\Nop.Web\Plugins\Nop.Plugin.Api\Nop.Plugin.Api.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -209,6 +210,7 @@
     <Compile Include="Services\StateProvinceApiService.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Swagger\ExcludeEnpointsDocumentFilter.cs" />
+    <Compile Include="Swagger\RemovePrefixesOperationFilter.cs" />
     <Compile Include="Validators\ClientValidator.cs" />
     <Compile Include="Validators\FieldsValidator.cs" />
     <Compile Include="Validators\IFieldsValidator.cs" />

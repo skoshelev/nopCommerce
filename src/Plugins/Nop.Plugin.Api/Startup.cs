@@ -109,8 +109,10 @@ namespace Nop.Plugin.Api
                 .EnableSwagger(c =>
                 {
                     c.SingleApiVersion("v1", "RESTful API documentation");
+                    c.IncludeXmlComments(string.Format(@"{0}\Plugins\Nop.Plugin.Api\Nop.Plugin.Api.XML", AppDomain.CurrentDomain.BaseDirectory));
                     // We need this filter to exclude some of the API endpoints from the documentation i.e /OAuth/Authorize endpoint
                     c.DocumentFilter<ExcludeEnpointsDocumentFilter>();
+                    c.OperationFilter<RemovePrefixesOperationFilter>();
                 })
                 .EnableSwaggerUi();
 

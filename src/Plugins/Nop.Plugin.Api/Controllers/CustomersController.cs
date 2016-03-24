@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Description;
 using Nop.Plugin.Api.ActionResults;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.DTOs.Customers;
-using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.Models.CustomersParameters;
 using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Serializers;
@@ -27,6 +23,12 @@ namespace Nop.Plugin.Api.Controllers
             _jsonFieldsSerializer = jsonFieldsSerializer;
         }
 
+        /// <summary>
+        /// Retrieve all customers of a shop
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(CustomersRootObject))]
         public IHttpActionResult GetCustomers(CustomersParametersModel parameters)
