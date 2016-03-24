@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Results;
 using Nop.Plugin.Api.Controllers;
@@ -44,8 +45,8 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             var parametersModel = new CustomersParametersModel()
             {
                 SinceId = Configurations.DefaultSinceId + 1, // some different than default since id
-                CreatedAtMin = "some valid date",
-                CreatedAtMax = "some valid date",
+                CreatedAtMin = DateTime.Now,
+                CreatedAtMax = DateTime.Now,
                 Page = Configurations.DefaultPageValue + 1, // some different than default page
                 Limit = Configurations.MinLimit + 1 // some different than default limit
             };

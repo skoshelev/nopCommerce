@@ -24,10 +24,8 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(0);
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            IParametersValidator parametersValidator = MockRepository.GenerateStub<IParametersValidator>();
-
-            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer, parametersValidator);
+            
+            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
 
             // act
             IHttpActionResult result = cut.GetCategoriesCount(categoriesCountParametersModel);
@@ -47,10 +45,8 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(1);
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            IParametersValidator parametersValidator = MockRepository.GenerateStub<IParametersValidator>();
-
-            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer, parametersValidator);
+            
+            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
 
             // act
             IHttpActionResult result = cut.GetCategoriesCount(categoriesCountParametersModel);
@@ -71,10 +67,8 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(categoriesCount);
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            IParametersValidator parametersValidator = MockRepository.GenerateStub<IParametersValidator>();
-
-            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer, parametersValidator);
+            
+            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
 
             // act
             IHttpActionResult result = cut.GetCategoriesCount(categoriesCountParametersModel);

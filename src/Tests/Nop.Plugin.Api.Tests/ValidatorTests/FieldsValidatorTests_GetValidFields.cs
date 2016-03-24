@@ -2,7 +2,6 @@
 using Nop.Plugin.Api.Tests.SerializersTests.DummyObjects;
 using Nop.Plugin.Api.Validators;
 using NUnit.Framework;
-using Rhino.Mocks;
 
 namespace Nop.Plugin.Api.Tests.ValidatorTests
 {
@@ -15,10 +14,10 @@ namespace Nop.Plugin.Api.Tests.ValidatorTests
         {
             //Arange
             var cut = new FieldsValidator();
-            
+
             //Act
             Dictionary<string, bool> result = cut.GetValidFields(emptyFields, typeof(DummyObject));
-            
+
             // Assert
             Assert.IsEmpty(result);
         }

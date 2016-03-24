@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Results;
 using Nop.Core.Domain.Catalog;
@@ -9,7 +11,6 @@ using Nop.Plugin.Api.Models.CategoriesParameters;
 using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
-using Nop.Plugin.Api.Validators;
 using NUnit.Framework;
 using Rhino.Mocks;
 
@@ -18,190 +19,44 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
     [TestFixture]
     public class CategoriesControllerTests_GetCategories
     {
-        [Test]
-        [TestCase("bbb")]
-        [TestCase(",,,,")]
-        [TestCase("asd,asda")]
-        [TestCase("1234323232323223")]
-        public void WhenNonNumericIdsParameterPassed_ShouldCallTheServiceWithNullIds(string ids)
-        {
-            var parametersModel = new CategoriesParametersModel()
-            {
-                Ids = ids
-            };
+        // TODO: Move these tests when the specific module is ready
+        //[TestCase("bbb")]
+        //[TestCase(",,,,")]
+        //[TestCase("asd,asda")]
+        //[TestCase("1234323232323223")]
+        // The cases above should be used for the tests of the module that converts the ids from string to list<int>
+        // WhenNonNumericIdsParameterPassed_ShouldCallTheServiceWithNullIds(string ids)
 
-            //Arange
-            ICategoryApiService categoryApiServiceMock = MockRepository.GenerateMock<ICategoryApiService>();
+        // TODO: Move these tests when the specific module is ready
+        //[TestCase("1")]
+        //[TestCase("1,1")]
+        //[TestCase("1,sasa")]
+        //[TestCase("asda,1,sasa,aa")]
+        // The cases above should be used for the tests of the module that converts the ids from string to list<int>
+        // WhenSigleValidNumericIdParameterPassed_ShouldCallTheServiceWithThatId(List<int> ids)
+        
+        // TODO: Move these tests when the specific module is ready
+        //[TestCase("1,2")]
+        //[TestCase("1, 2,1, 2 ")]
+        //[TestCase("1,sasa, 2")]
+        //[TestCase("asda,1,sasa, 2, aa,2 , 1")]
+        // The cases above should be used for the tests of the module that converts the ids from string to list<int>
+        // WhenSeveralNumericIdsParameterPassed_ShouldCallTheServiceWithTheseIds(string ids)
 
-            categoryApiServiceMock.Expect(x => x.GetCategories(null,
-                                                    parametersModel.CreatedAtMin,
-                                                    parametersModel.CreatedAtMax,
-                                                    parametersModel.UpdatedAtMin,
-                                                    parametersModel.UpdatedAtMax,
-                                                    parametersModel.Limit,
-                                                    parametersModel.Page,
-                                                    parametersModel.SinceId,
-                                                    parametersModel.ProductId,
-                                                    parametersModel.PublishedStatus)).Return(new List<Category>());
+        // TODO: Move these tests when the specific module is ready
+        //[TestCase("somestatus")]
+        //[TestCase("Published")]
+        //[TestCase("Unpublished")]
+        // The cases above should be used for the tests of the module that converts the status from string to bool?
+        // WhenInvalidStatusParameterPassed_ShouldCallTheServiceWithAnyStatus(string status)
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var parametersValidator = new ParametersValidator();
-
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
-
-            //Act
-            cut.GetCategories(parametersModel);
-
-            //Assert
-            categoryApiServiceMock.VerifyAllExpectations();
-        }
-
-        [Test]
-        [TestCase("1")]
-        [TestCase("1,1")]
-        [TestCase("1,sasa")]
-        [TestCase("asda,1,sasa,aa")]
-        public void WhenSigleValidNumericIdParameterPassed_ShouldCallTheServiceWithThatId(string ids)
-        {
-            var parametersModel = new CategoriesParametersModel()
-            {
-                Ids = ids
-            };
-
-            //Arange
-            ICategoryApiService categoryApiServiceMock = MockRepository.GenerateMock<ICategoryApiService>();
-
-            categoryApiServiceMock.Expect(x =>
-                    x.GetCategories(Arg<IList<int>>.Matches(l => l.Contains(1) && l.Count == 1),
-                    Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything,
-                    Arg<int>.Is.Anything, Arg<int>.Is.Anything, Arg<int>.Is.Anything, Arg<int>.Is.Anything,
-                    Arg<string>.Is.Anything))
-                        .Return(new List<Category>());
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var parametersValidator = new ParametersValidator();
-
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
-
-            //Act
-            cut.GetCategories(parametersModel);
-
-            //Assert
-            categoryApiServiceMock.VerifyAllExpectations();
-        }
-
-        [Test]
-        [TestCase("1,2")]
-        [TestCase("1, 2,1, 2 ")]
-        [TestCase("1,sasa, 2")]
-        [TestCase("asda,1,sasa, 2, aa,2 , 1")]
-        public void WhenSeveralNumericIdsParameterPassed_ShouldCallTheServiceWithTheseIds(string ids)
-        {
-            var parametersModel = new CategoriesParametersModel()
-            {
-                Ids = ids
-            };
-
-            //Arange
-            ICategoryApiService categoryApiServiceMock = MockRepository.GenerateMock<ICategoryApiService>();
-
-            categoryApiServiceMock.Expect(x =>
-                    x.GetCategories(Arg<IList<int>>.Matches(l => l.Contains(1) && l.Contains(2) && l.Count == 2),
-                    Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything,
-                    Arg<int>.Is.Anything, Arg<int>.Is.Anything, Arg<int>.Is.Anything, Arg<int>.Is.Anything,
-                    Arg<string>.Is.Anything))
-                        .Return(new List<Category>());
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var parametersValidator = new ParametersValidator();
-
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
-
-            //Act
-            cut.GetCategories(parametersModel);
-
-            //Assert
-            categoryApiServiceMock.VerifyAllExpectations();
-        }
-
-        [Test]
-        [TestCase("somestatus")]
-        [TestCase("Published")]
-        [TestCase("Unpublished")]
-        public void WhenInvalidStatusParameterPassed_ShouldCallTheServiceWithAnyStatus(string status)
-        {
-            var parametersModel = new CategoriesParametersModel()
-            {
-                PublishedStatus = status
-            };
-
-            //Arange
-            ICategoryApiService categoryApiServiceMock = MockRepository.GenerateMock<ICategoryApiService>();
-
-            categoryApiServiceMock.Expect(x => x.GetCategories(null,
-                                                    parametersModel.CreatedAtMin,
-                                                    parametersModel.CreatedAtMax,
-                                                    parametersModel.UpdatedAtMin,
-                                                    parametersModel.UpdatedAtMax,
-                                                    parametersModel.Limit,
-                                                    parametersModel.Page,
-                                                    parametersModel.SinceId,
-                                                    parametersModel.ProductId,
-                                                    Configurations.AnyStatus)).Return(new List<Category>());
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var parametersValidator = new ParametersValidator();
-
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
-
-            //Act
-            cut.GetCategories(parametersModel);
-
-            //Assert
-            categoryApiServiceMock.VerifyAllExpectations();
-        }
-
-        [Test]
-        [TestCase("published")]
-        [TestCase("unpublished")]
-        [TestCase("any")]
-        public void WhenValidStatusParameterPassed_ShouldCallTheServiceWithSameStatus(string validStatus)
-        {
-            var parametersModel = new CategoriesParametersModel()
-            {
-                PublishedStatus = validStatus
-            };
-
-            //Arange
-            ICategoryApiService categoryApiServiceMock = MockRepository.GenerateMock<ICategoryApiService>();
-
-            categoryApiServiceMock.Expect(x => x.GetCategories(null,
-                                                    parametersModel.CreatedAtMin,
-                                                    parametersModel.CreatedAtMax,
-                                                    parametersModel.UpdatedAtMin,
-                                                    parametersModel.UpdatedAtMax,
-                                                    parametersModel.Limit,
-                                                    parametersModel.Page,
-                                                    parametersModel.SinceId,
-                                                    parametersModel.ProductId,
-                                                    validStatus)).Return(new List<Category>());
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var parametersValidator = new ParametersValidator();
-
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
-
-            //Act
-            cut.GetCategories(parametersModel);
-
-            //Assert
-            categoryApiServiceMock.VerifyAllExpectations();
-        }
+        // TODO: Move these tests when the specific module is ready
+        //[TestCase("published")]
+        //[TestCase("unpublished")]
+        //[TestCase("any")]
+        // The cases above should be used for the tests of the module that converts the status from string to bool?
+        // WhenValidStatusParameterPassed_ShouldCallTheServiceWithSameStatus(string validStatus)
+       
 
         [Test]
         public void WhenNoParametersPassed_ShouldCallTheServiceWithDefaultParameters()
@@ -224,9 +79,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-            var parametersValidator = new ParametersValidator();
-
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer, parametersValidator);
+            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer);
 
             //Act
             cut.GetCategories(defaultParametersModel);
@@ -254,9 +107,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
 
-            var parametersValidator = new ParametersValidator();
-
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock, parametersValidator);
+            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock);
 
             //Act
             cut.GetCategories(defaultParameters);
@@ -278,9 +129,8 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
 
-            var parametersValidator = new ParametersValidator();
 
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock, parametersValidator);
+            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock);
 
             //Act
             cut.GetCategories(defaultParameters);
@@ -305,9 +155,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
 
-            var parametersValidator = new ParametersValidator();
-
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock, parametersValidator);
+            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock);
 
             //Act
             cut.GetCategories(defaultParametersModel);
@@ -332,9 +180,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-            IParametersValidator parametersValidator = MockRepository.GenerateMock<IParametersValidator>();
-
-            CategoriesController cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub, parametersValidator);
+            CategoriesController cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub);
 
             //Act
             IHttpActionResult result = cut.GetCategories(parametersModel);
@@ -358,9 +204,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
-            IParametersValidator parametersValidator = MockRepository.GenerateMock<IParametersValidator>();
-
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub, parametersValidator);
+            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub);
 
             //Act
             IHttpActionResult result = cut.GetCategories(parametersModel);

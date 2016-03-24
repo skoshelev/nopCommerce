@@ -29,7 +29,7 @@ namespace Nop.Plugin.Api.Services
             _genericAttributeRepository = genericAttributeRepository;
         }
 
-        public IList<CustomerDto> GetCustomersDtos(string createdAtMin = "", string createdAtMax = "", int limit = Configurations.DefaultLimit,
+        public IList<CustomerDto> GetCustomersDtos(DateTime? createdAtMin = null, DateTime? createdAtMax = null, int limit = Configurations.DefaultLimit,
             int page = 1, int sinceId = 0)
         {
             var query = GetCustomersQuery(createdAtMin, createdAtMax, sinceId);
@@ -217,19 +217,17 @@ namespace Nop.Plugin.Api.Services
             return customerAttributesMapping;
         }
 
-        private IQueryable<Customer> GetCustomersQuery(string createdAtMin = "", string createdAtMax = "", int sinceId = 0)
+        private IQueryable<Customer> GetCustomersQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, int sinceId = 0)
         {
             var query = _customerRepository.Table;
-            if (!string.IsNullOrEmpty(createdAtMin))
+            if (createdAtMin != null)
             {
-                var createAtMin = DateTime.Parse(createdAtMin).ToUniversalTime();
-                query = query.Where(c => c.CreatedOnUtc > createAtMin);
+                query = query.Where(c => c.CreatedOnUtc > createdAtMin.Value);
             }
 
-            if (!string.IsNullOrEmpty(createdAtMax))
+            if (createdAtMax != null)
             {
-                var createAtMax = DateTime.Parse(createdAtMax).ToUniversalTime();
-                query = query.Where(c => c.CreatedOnUtc < createAtMax);
+                query = query.Where(c => c.CreatedOnUtc < createdAtMax.Value);
             }
 
             query = query.OrderBy(customer => customer.Id);

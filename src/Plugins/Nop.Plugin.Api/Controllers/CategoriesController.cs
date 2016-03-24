@@ -12,7 +12,6 @@ using Nop.Plugin.Api.Models.CategoriesParameters;
 using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
-using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.Controllers
 {
@@ -21,15 +20,11 @@ namespace Nop.Plugin.Api.Controllers
     {
         private readonly ICategoryApiService _categoryApiService;
         private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
-        private readonly IParametersValidator _parametersValidator;
 
-        public CategoriesController(ICategoryApiService categoryApiService, 
-                                    IJsonFieldsSerializer jsonFieldsSerializer, 
-                                    IParametersValidator parametersValidator)
+        public CategoriesController(ICategoryApiService categoryApiService, IJsonFieldsSerializer jsonFieldsSerializer)
         {
             _categoryApiService = categoryApiService;
             _jsonFieldsSerializer = jsonFieldsSerializer;
-            _parametersValidator = parametersValidator;
         }
 
         [HttpGet]
@@ -46,16 +41,12 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest("Invalid request parameters");
             }
 
-            IList<int> idsAsListOfInts = _parametersValidator.GetIdsAsListOfInts(parameters.Ids);
-
-            parameters.PublishedStatus = _parametersValidator.EnsurePublishedStatusIsValid(parameters.PublishedStatus);
-
-            IList<Category> allCategories = _categoryApiService.GetCategories(idsAsListOfInts, parameters.CreatedAtMin, parameters.CreatedAtMax,
+            IList<Category> allCategories = _categoryApiService.GetCategories(parameters.Ids, parameters.CreatedAtMin, parameters.CreatedAtMax,
                                                                              parameters.UpdatedAtMin, parameters.UpdatedAtMax,
                                                                              parameters.Limit, parameters.Page, parameters.SinceId,
                                                                              parameters.ProductId, parameters.PublishedStatus);
 
-            IList<CategoryDto> categoriesAsDtos = allCategories.Select(x => x.ToDto(parameters.Fields)).ToList();
+            IList<CategoryDto> categoriesAsDtos = allCategories.Select(x => x.ToDto()).ToList();
 
             var categoriesRootObject = new CategoriesRootObject()
             {
@@ -65,16 +56,12 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, parameters.Fields);
 
             return new RawJsonActionResult(json);
-
-            return null;
         }
 
         [HttpGet]
         [ResponseType(typeof(CategoriesCountRootObject))]
         public IHttpActionResult GetCategoriesCount(CategoriesCountParametersModel parameters)
         {
-            parameters.PublishedStatus = _parametersValidator.EnsurePublishedStatusIsValid(parameters.PublishedStatus);
-
             var allCategoriesCount = _categoryApiService.GetCategoriesCount(parameters.CreatedAtMin, parameters.CreatedAtMax,
                                                                             parameters.UpdatedAtMin, parameters.UpdatedAtMax,
                                                                             parameters.PublishedStatus, parameters.ProductId);
@@ -85,8 +72,6 @@ namespace Nop.Plugin.Api.Controllers
             };
 
             return Ok(categoriesCountRootObject);
-
-            return null;
         }
 
         [HttpGet]
@@ -107,7 +92,7 @@ namespace Nop.Plugin.Api.Controllers
 
             var categoriesRootObject = new CategoriesRootObject();
             
-            categoriesRootObject.Categories.Add(category.ToDto(fields));
+            categoriesRootObject.Categories.Add(category.ToDto());
         
             var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, fields);
 
