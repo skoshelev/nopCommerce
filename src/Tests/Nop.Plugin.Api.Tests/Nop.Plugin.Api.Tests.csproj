@@ -69,6 +69,10 @@
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomers.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_Search.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProducts.cs" />
+    <Compile Include="ExtensionsTests\StringExtensions\StringExtensionsTests_IsListOfInts.cs" />
+    <Compile Include="ExtensionsTests\StringExtensions\StringExtensionsTests_ToDateTimeNullable.cs" />
+    <Compile Include="ExtensionsTests\StringExtensions\StringExtensionsTests_ToInt.cs" />
+    <Compile Include="ExtensionsTests\StringExtensions\StringExtensionsTests_ToStatus.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummyObject.cs" />
     <Compile Include="ServicesTests\Categories\CategoryApiServiceTests_GetCategoriesCount.cs" />
     <Compile Include="ServicesTests\Categories\CategoryApiServiceTests_GetCategoryById.cs" />
