@@ -149,6 +149,7 @@
     <Compile Include="DTOs\Categories\CategoryDto.cs" />
     <Compile Include="DTOs\Customers\BaseCustomerDto.cs" />
     <Compile Include="DTOs\Customers\ISerializableObject.cs" />
+    <Compile Include="DTOs\Products\ProductDto.cs" />
     <Compile Include="DTOs\Products\ProductsCountRootObject.cs" />
     <Compile Include="DTOs\Products\ProductsRootObjectDto.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
@@ -165,7 +166,6 @@
     <Compile Include="DTOs\Customers\CustomersCountRootObject.cs" />
     <Compile Include="DTOs\Customers\CustomersRootObject.cs" />
     <Compile Include="DTOs\Customers\OrderCustomerDto.cs" />
-    <Compile Include="DTOs\Products\ProductDto.cs" />
     <Compile Include="DTOs\ShoppingCartItemDto.cs" />
     <Compile Include="Infrastructure\DependencyRegister.cs" />
     <Compile Include="MappingExtensions\AddressDtoMappings.cs" />
@@ -210,6 +210,7 @@
     <Compile Include="Services\ProductApiService.cs" />
     <Compile Include="Services\StateProvinceApiService.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="Swagger\ChangeParameterTypeOperationFilter.cs" />
     <Compile Include="Swagger\ExcludeEnpointsDocumentFilter.cs" />
     <Compile Include="Swagger\RemovePrefixesOperationFilter.cs" />
     <Compile Include="Validators\ClientValidator.cs" />
@@ -276,7 +277,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
