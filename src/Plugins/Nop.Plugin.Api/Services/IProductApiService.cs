@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.MVC;
 
@@ -6,11 +7,12 @@ namespace Nop.Plugin.Api.Services
 {
     public interface IProductApiService
     {
-        IList<Product> GetProducts(IList<int> ids = null, string createdAtMin = "", string createdAtMax = "", string updatedAtMin = "", string updatedAtMax = "",
+        IList<Product> GetProducts(IList<int> ids = null,
+            DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId, 
-           int categoryId = 0, string vendorName = "", string publishedStatus = Configurations.PublishedStatus);
+           int categoryId = 0, string vendorName = "", bool? publishedStatus = null);
 
-        int GetProductsCount(string createdAtMin, string createdAtMax, string updatedAtMin, string updatedAtMax, string publishedStatus, string vendorName, int categoryId = 0);
+        int GetProductsCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, bool? publishedStatus = null, string vendorName = "", int categoryId = 0);
 
         Product GetProductById(int productId);
     }

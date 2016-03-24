@@ -20,15 +20,12 @@ namespace Nop.Plugin.Api.Controllers
     {
         private readonly IProductApiService _productApiService;
         private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
-        private readonly IParametersValidator _parametersValidator;
 
         public ProductsController(IProductApiService productApiService, 
-                                  IJsonFieldsSerializer jsonFieldsSerializer, 
-                                  IParametersValidator parametersValidator)
+                                  IJsonFieldsSerializer jsonFieldsSerializer)
         {
             _productApiService = productApiService;
             _jsonFieldsSerializer = jsonFieldsSerializer;
-            _parametersValidator = parametersValidator;
         }
 
         [HttpGet]
@@ -45,11 +42,7 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest("Invalid request parameters");
             }
 
-            IList<int> idsAsListOfInts = _parametersValidator.GetIdsAsListOfInts(parameters.Ids);
-
-            parameters.PublishedStatus = _parametersValidator.EnsurePublishedStatusIsValid(parameters.PublishedStatus);
-
-            IList<Product> allProducts = _productApiService.GetProducts(idsAsListOfInts, parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.UpdatedAtMin,
+            IList<Product> allProducts = _productApiService.GetProducts(parameters.Ids, parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.UpdatedAtMin,
                                                                         parameters.UpdatedAtMax, parameters.Limit, parameters.Page, parameters.SinceId, parameters.CategoryId,
                                                                         parameters.VendorName, parameters.PublishedStatus);
 

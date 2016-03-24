@@ -1,4 +1,5 @@
-﻿using Nop.Plugin.Api.MVC;
+﻿using System;
+using Nop.Plugin.Api.MVC;
 
 namespace Nop.Plugin.Api.Models.ProductsParameters
 {
@@ -6,20 +7,20 @@ namespace Nop.Plugin.Api.Models.ProductsParameters
     {
         public BaseProductsParametersModel()
         {
-            CreatedAtMin = string.Empty;
-            CreatedAtMax = string.Empty;
-            UpdatedAtMin = string.Empty;
-            UpdatedAtMax = string.Empty;
-            PublishedStatus = Configurations.PublishedStatus;
+            CreatedAtMin = null;
+            CreatedAtMax = null;
+            UpdatedAtMin = null;
+            UpdatedAtMax = null;
+            PublishedStatus = null;
             VendorName = string.Empty;
             CategoryId = Configurations.DefaultCategoryId;
         }
 
-        public string CreatedAtMin { get; set; }
-        public string CreatedAtMax { get; set; }
-        public string UpdatedAtMin { get; set; }
-        public string UpdatedAtMax { get; set; }
-        public string PublishedStatus { get; set; }
+        public DateTime? CreatedAtMin { get; set; }
+        public DateTime? CreatedAtMax { get; set; }
+        public DateTime? UpdatedAtMin { get; set; }
+        public DateTime? UpdatedAtMax { get; set; }
+        public bool? PublishedStatus { get; set; }
         public string VendorName { get; set; }
         public int CategoryId { get; set; }
     }

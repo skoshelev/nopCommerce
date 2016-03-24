@@ -36,9 +36,10 @@ namespace Nop.Plugin.Api.Services
             _cacheManager = cacheManager;
         }
 
-        public IList<Product> GetProducts(IList<int> ids = null, string createdAtMin = "", string createdAtMax = "", string updatedAtMin = "",
-             string updatedAtMax = "", int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, 
-             int sinceId = Configurations.DefaultSinceId, int categoryId = 0, string vendorName = "", string publishedStatus = Configurations.PublishedStatus)
+        public IList<Product> GetProducts(IList<int> ids = null,
+            DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
+           int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId,
+           int categoryId = 0, string vendorName = "", bool? publishedStatus = null)
         {
 
             var query = GetProductsQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax, vendorName,
@@ -52,8 +53,7 @@ namespace Nop.Plugin.Api.Services
             return new ApiList<Product>(query, page - 1, limit);
         }
         
-        public int GetProductsCount(string createdAtMin, string createdAtMax, string updatedAtMin, string updatedAtMax,
-            string publishedStatus, string vendorName = "", int categoryId = 0)
+        public int GetProductsCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, bool? publishedStatus = null, string vendorName = "", int categoryId = 0)
         {
             var query = GetProductsQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax, vendorName,
                                          publishedStatus, categoryId: categoryId);
@@ -70,8 +70,9 @@ namespace Nop.Plugin.Api.Services
             return _cacheManager.Get(key, () => _productRepository.GetById(productId));
         }
 
-        private IQueryable<Product> GetProductsQuery(string createdAtMin = "", string createdAtMax = "", string updatedAtMin = "",
-             string updatedAtMax = "", string vendorName = "", string publishedStatus = Configurations.PublishedStatus, IList<int> ids = null, int categoryId = 0)
+        private IQueryable<Product> GetProductsQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
+             string vendorName = "", bool? publishedStatus = null, IList<int> ids = null, int categoryId = 0)
+            
         {
             var query = _productRepository.Table;
 
@@ -80,39 +81,32 @@ namespace Nop.Plugin.Api.Services
                 query = query.Where(c => ids.Contains(c.Id));
             }
 
-            if (publishedStatus == Configurations.PublishedStatus)
+            if (publishedStatus != null)
             {
-                query = query.Where(c => c.Published);
-            }
-            else if (publishedStatus == Configurations.UnpublishedStatus)
-            {
-                query = query.Where(c => !c.Published);
+                query = query.Where(c => c.Published == publishedStatus.Value);
             }
 
+            // always return categories that are not deleted!!!
             query = query.Where(c => !c.Deleted);
 
-            if (!string.IsNullOrEmpty(createdAtMin))
+            if (createdAtMin != null)
             {
-                var createAtMin = DateTime.Parse(createdAtMin).ToUniversalTime();
-                query = query.Where(c => c.CreatedOnUtc > createAtMin);
+                query = query.Where(c => c.CreatedOnUtc > createdAtMin.Value);
             }
 
-            if (!string.IsNullOrEmpty(createdAtMax))
+            if (createdAtMax != null)
             {
-                var createAtMax = DateTime.Parse(createdAtMax).ToUniversalTime();
-                query = query.Where(c => c.CreatedOnUtc < createAtMax);
+                query = query.Where(c => c.CreatedOnUtc < createdAtMax.Value);
             }
 
-            if (!string.IsNullOrEmpty(updatedAtMin))
+            if (updatedAtMin != null)
             {
-                var updatedAtMinAsDateTime = DateTime.Parse(updatedAtMin).ToUniversalTime();
-                query = query.Where(c => c.UpdatedOnUtc > updatedAtMinAsDateTime);
+               query = query.Where(c => c.UpdatedOnUtc > updatedAtMin.Value);
             }
 
-            if (!string.IsNullOrEmpty(updatedAtMax))
+            if (updatedAtMax != null)
             {
-                var updatedAtMaxAsDateTime = DateTime.Parse(updatedAtMax).ToUniversalTime();
-                query = query.Where(c => c.UpdatedOnUtc < updatedAtMaxAsDateTime);
+                query = query.Where(c => c.UpdatedOnUtc < updatedAtMax.Value);
             }
 
             if (!string.IsNullOrEmpty(vendorName))
