@@ -4,7 +4,6 @@ using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.Models.ProductsParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
-using Nop.Plugin.Api.Validators;
 using NUnit.Framework;
 using Rhino.Mocks;
 
