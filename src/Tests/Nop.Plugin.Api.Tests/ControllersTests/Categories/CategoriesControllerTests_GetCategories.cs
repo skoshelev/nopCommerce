@@ -34,7 +34,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         //[TestCase("asda,1,sasa,aa")]
         // The cases above should be used for the tests of the module that converts the ids from string to list<int>
         // WhenSigleValidNumericIdParameterPassed_ShouldCallTheServiceWithThatId(List<int> ids)
-        
+
         // TODO: Move these tests when the specific module is ready
         //[TestCase("1,2")]
         //[TestCase("1, 2,1, 2 ")]
@@ -56,40 +56,87 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         //[TestCase("any")]
         // The cases above should be used for the tests of the module that converts the status from string to bool?
         // WhenValidStatusParameterPassed_ShouldCallTheServiceWithSameStatus(string validStatus)
-       
 
         [Test]
-        public void WhenNoParametersPassed_ShouldCallTheServiceWithDefaultParameters()
+        [TestCase(Configurations.MinLimit - 1)]
+        [TestCase(Configurations.MaxLimit + 1)]
+        public void WhenInvalidLimitParameterPassed_ShouldReturnBadRequest(int invalidLimit)
         {
-            var defaultParametersModel = new CategoriesParametersModel();
+            var parameters = new CategoriesParametersModel()
+            {
+                Limit = invalidLimit
+            };
+
+            //Arange
+            ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
+
+            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
+
+            CategoriesController cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub);
+
+            //Act
+            IHttpActionResult result = cut.GetCategories(parameters);
+
+            //Assert
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+
+        [Test]
+        [TestCase(-1)]
+        [TestCase(0)]
+        public void WhenInvalidPageParameterPassed_ShouldReturnBadRequest(int invalidPage)
+        {
+            var parameters = new CategoriesParametersModel()
+            {
+                Page = invalidPage
+            };
+
+            //Arange
+            ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
+
+            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
+
+            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub);
+
+            //Act
+            IHttpActionResult result = cut.GetCategories(parameters);
+
+            //Assert
+            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+        }
+
+        [Test]
+        public void WhenSomeValidParametersPassed_ShouldCallTheServiceWithTheSameParameters()
+        {
+            var parameters = new CategoriesParametersModel();
 
             //Arange
             ICategoryApiService categoryApiServiceMock = MockRepository.GenerateMock<ICategoryApiService>();
 
-            categoryApiServiceMock.Expect(x => x.GetCategories(null,
-                                                    defaultParametersModel.CreatedAtMin,
-                                                    defaultParametersModel.CreatedAtMax,
-                                                    defaultParametersModel.UpdatedAtMin,
-                                                    defaultParametersModel.UpdatedAtMax,
-                                                    defaultParametersModel.Limit,
-                                                    defaultParametersModel.Page,
-                                                    defaultParametersModel.SinceId,
-                                                    defaultParametersModel.ProductId,
-                                                    defaultParametersModel.PublishedStatus)).Return(new List<Category>());
+            categoryApiServiceMock.Expect(x => x.GetCategories(parameters.Ids,
+                                                    parameters.CreatedAtMin,
+                                                    parameters.CreatedAtMax,
+                                                    parameters.UpdatedAtMin,
+                                                    parameters.UpdatedAtMax,
+                                                    parameters.Limit,
+                                                    parameters.Page,
+                                                    parameters.SinceId,
+                                                    parameters.ProductId,
+                                                    parameters.PublishedStatus)).Return(new List<Category>());
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
 
             var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer);
 
             //Act
-            cut.GetCategories(defaultParametersModel);
+            cut.GetCategories(parameters);
 
             //Assert
             categoryApiServiceMock.VerifyAllExpectations();
         }
 
         [Test]
-        public void WhenNoParametersPassedAndSomeCategoriesExist_ShouldCallTheSerializerWithTheseCategories()
+        public void WhenSomeCategoriesExist_ShouldCallTheSerializerWithTheseCategories()
         {
             Maps.CreateMap<Category, CategoryDto>();
 
@@ -99,7 +146,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
                 new Category()
             };
 
-            var defaultParameters = new CategoriesParametersModel();
+            var parameters = new CategoriesParametersModel();
 
             //Arange
             ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
@@ -110,41 +157,18 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock);
 
             //Act
-            cut.GetCategories(defaultParameters);
+            cut.GetCategories(parameters);
 
             //Assert
             jsonFieldsSerializerMock.AssertWasCalled(
                 x => x.Serialize(Arg<CategoriesRootObject>.Matches(r => r.Categories.Count == 2),
-                Arg<string>.Is.Equal(defaultParameters.Fields)));
-        }
-
-        [Test]
-        public void WhenNoParametersPassedAndNoCategoriesExist_ShouldCallTheSerializerWithRootObjectWithoutCategories()
-        {
-            var defaultParameters = new CategoriesParametersModel();
-
-            //Arange
-            ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
-            categoryApiServiceStub.Stub(x => x.GetCategories()).Return(new List<Category>());
-
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock);
-
-            //Act
-            cut.GetCategories(defaultParameters);
-
-            //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(
-                x => x.Serialize(Arg<CategoriesRootObject>.Matches(r => r.Categories.Count == 0),
-                Arg<string>.Is.Equal(defaultParameters.Fields)));
+                Arg<string>.Is.Equal(parameters.Fields)));
         }
 
         [Test]
         public void WhenAnyFieldsParametersPassed_ShouldCallTheSerializerWithTheSameFields()
         {
-            var defaultParametersModel = new CategoriesParametersModel()
+            var parameters = new CategoriesParametersModel()
             {
                 Fields = "id,name"
             };
@@ -158,59 +182,36 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock);
 
             //Act
-            cut.GetCategories(defaultParametersModel);
+            cut.GetCategories(parameters);
 
             //Assert
             jsonFieldsSerializerMock.AssertWasCalled(
-                x => x.Serialize(Arg<CategoriesRootObject>.Is.Anything, Arg<string>.Is.Equal(defaultParametersModel.Fields)));
+                x => x.Serialize(Arg<CategoriesRootObject>.Is.Anything, Arg<string>.Is.Equal(parameters.Fields)));
         }
 
         [Test]
-        [TestCase(Configurations.MinLimit - 1)]
-        [TestCase(Configurations.MaxLimit + 1)]
-        public void WhenInvalidLimitParameterPassed_ShouldReturnBadRequest(int invalidLimit)
+        public void WhenNoCategoriesExist_ShouldCallTheSerializerWithRootObjectWithoutCategories()
         {
-            var parametersModel = new CategoriesParametersModel()
-            {
-                Limit = invalidLimit
-            };
+            var parameters = new CategoriesParametersModel();
 
             //Arange
             ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
+            categoryApiServiceStub.Stub(x => x.GetCategories()).Return(new List<Category>());
 
-            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
+            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
 
-            CategoriesController cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub);
 
-            //Act
-            IHttpActionResult result = cut.GetCategories(parametersModel);
-
-            //Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
-        }
-
-        [Test]
-        [TestCase(-1)]
-        [TestCase(0)]
-        public void WhenInvalidPageParameterPassed_ShouldReturnBadRequest(int invalidPage)
-        {
-            var parametersModel = new CategoriesParametersModel()
-            {
-                Limit = invalidPage
-            };
-
-            //Arange
-            ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerStub);
+            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializerMock);
 
             //Act
-            IHttpActionResult result = cut.GetCategories(parametersModel);
+            cut.GetCategories(parameters);
 
             //Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+            jsonFieldsSerializerMock.AssertWasCalled(
+                x => x.Serialize(Arg<CategoriesRootObject>.Matches(r => r.Categories.Count == 0),
+                Arg<string>.Is.Equal(parameters.Fields)));
         }
+        
+        
     }
 }

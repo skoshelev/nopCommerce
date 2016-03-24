@@ -15,26 +15,6 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
     public class CategoriesControllerTests_GetCategoriesById
     {
         [Test]
-        public void WhenIdIsPositiveNumberButNoSuchCategoryExists_ShouldReturn404NotFound()
-        {
-            int nonExistingCategoryId = 5;
-
-            // Arange
-            ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
-            categoryApiServiceStub.Stub(x => x.GetCategoryById(nonExistingCategoryId)).Return(null);
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializer);
-
-            // Act
-            IHttpActionResult result = cut.GetCategoryById(nonExistingCategoryId);
-
-            // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result);
-        }
-
-        [Test]
         [TestCase(0)]
         [TestCase(-20)]
         public void WhenIdEqualsToZeroOrLess_ShouldReturn404NotFound(int nonPositiveCategoryId)
@@ -72,6 +52,26 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             categoryApiServiceMock.AssertWasNotCalled(x => x.GetCategoryById(negativeCategoryId));
         }
 
+        [Test]
+        public void WhenIdIsPositiveNumberButNoSuchCategoryExists_ShouldReturn404NotFound()
+        {
+            int nonExistingCategoryId = 5;
+
+            // Arange
+            ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
+            categoryApiServiceStub.Stub(x => x.GetCategoryById(nonExistingCategoryId)).Return(null);
+
+            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
+
+            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializer);
+
+            // Act
+            IHttpActionResult result = cut.GetCategoryById(nonExistingCategoryId);
+
+            // Assert
+            Assert.IsInstanceOf<NotFoundResult>(result);
+        }
+        
         [Test]
         public void WhenIdEqualsToExistingCategoryId_ShouldSerializeThatCategory()
         {

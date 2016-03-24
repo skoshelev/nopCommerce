@@ -16,7 +16,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         [Test]
         public void WhenNoCategoriesExist_ShouldReturnOKResultWithCountEqualToZero()
         {
-            var categoriesCountParametersModel = new CategoriesCountParametersModel();
+            var parameters = new CategoriesCountParametersModel();
 
             // arrange
             var categoriesApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
@@ -27,7 +27,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
 
             // act
-            IHttpActionResult result = cut.GetCategoriesCount(categoriesCountParametersModel);
+            IHttpActionResult result = cut.GetCategoriesCount(parameters);
 
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<CategoriesCountRootObject>>(result);
@@ -37,7 +37,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         [Test]
         public void WhenSingleCategoryExists_ShouldReturnOKWithCountEqualToOne()
         {
-            var categoriesCountParametersModel = new CategoriesCountParametersModel();
+            var parameters = new CategoriesCountParametersModel();
 
             // arrange
             var categoriesApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
@@ -48,7 +48,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
 
             // act
-            IHttpActionResult result = cut.GetCategoriesCount(categoriesCountParametersModel);
+            IHttpActionResult result = cut.GetCategoriesCount(parameters);
 
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<CategoriesCountRootObject>>(result);

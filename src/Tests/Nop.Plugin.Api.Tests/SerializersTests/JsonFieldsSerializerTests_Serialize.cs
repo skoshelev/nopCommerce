@@ -100,7 +100,7 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
         }
 
         [Test]
-        public void WhenNoValidFieldsPassedInTheFieldsParameter_ShouldReturnEmptyCollectionJson()
+        public void WhenNoValidFieldsInTheFieldsParameterPassed_ShouldReturnEmptyCollectionJson()
         {
             DummySerializableObject dummySerializableObject = new DummySerializableObject();
             dummySerializableObject.Items.Add(new DummyObject()
@@ -132,7 +132,7 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
         }
 
         [Test]
-        public void WhenValidFieldsPassedParameter_ShouldSerializeTheseFieldsJson()
+        public void WhenValidFieldsParameterPassed_ShouldSerializeTheseFieldsJson()
         {
             DummySerializableObject dummySerializableObject = new DummySerializableObject();
             dummySerializableObject.Items.Add(new DummyObject()
@@ -165,7 +165,7 @@ namespace Nop.Plugin.Api.Tests.SerializersTests
         }
 
         [Test]
-        public void WhenValidFieldsPassedParameter_ShouldNotSerializeOtherFieldsJson()
+        public void WhenValidFieldsParameterPassed_ShouldNotSerializeOtherFieldsJson()
         {
             DummySerializableObject dummySerializableObject = new DummySerializableObject();
             dummySerializableObject.Items.Add(new DummyObject()
