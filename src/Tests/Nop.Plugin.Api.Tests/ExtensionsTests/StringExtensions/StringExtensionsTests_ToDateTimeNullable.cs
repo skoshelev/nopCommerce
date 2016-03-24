@@ -22,10 +22,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            DateTime? cut = invalidDate.ToDateTimeNullable();
+            DateTime? result = invalidDate.ToDateTimeNullable();
 
             //Assert
-            Assert.IsNull(cut);
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -36,10 +36,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            DateTime? cut = nullOrEmpty.ToDateTimeNullable();
+            DateTime? result = nullOrEmpty.ToDateTimeNullable();
 
             //Assert
-            Assert.IsNull(cut);
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -57,10 +57,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             DateTime validParsedDate = DateTime.Parse(validDate);
 
             //Act
-            DateTime? cut = validDate.ToDateTimeNullable();
+            DateTime? result = validDate.ToDateTimeNullable();
 
             //Assert
-            Assert.AreEqual(validParsedDate, cut);
+            Assert.AreEqual(validParsedDate, result);
         }
     }
 }

@@ -17,10 +17,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? cut = invalidStatus.ToStatus();
+            bool? result = invalidStatus.ToStatus();
 
             //Assert
-            Assert.IsNull(cut);
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -31,10 +31,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? cut = nullOrEmpty.ToStatus();
+            bool? result = nullOrEmpty.ToStatus();
 
             //Assert
-            Assert.IsNull(cut);
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -46,10 +46,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? cut = validPublishedStatus.ToStatus();
+            bool? result = validPublishedStatus.ToStatus();
 
             //Assert
-            Assert.IsTrue(cut.Value);
+            Assert.IsTrue(result.Value);
         }
 
         [Test]
@@ -61,10 +61,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? cut = validUnpublishedStatus.ToStatus();
+            bool? result = validUnpublishedStatus.ToStatus();
 
             //Assert
-            Assert.IsFalse(cut.Value);
+            Assert.IsFalse(result.Value);
         }
     }
 }

@@ -21,10 +21,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            IList<int> cut = invalidList.ToListOfInts();
+            IList<int> result = invalidList.ToListOfInts();
 
             //Assert
-            Assert.IsNull(cut);
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -35,10 +35,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            IList<int> cut = nullOrEmpty.ToListOfInts();
+            IList<int> result = nullOrEmpty.ToListOfInts();
 
             //Assert
-            Assert.IsNull(cut);
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -52,10 +52,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             List<int> expectedList = validList.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
 
             //Act
-            IList<int> cut = validList.ToListOfInts();
+            IList<int> result = validList.ToListOfInts();
 
             //Assert
-            CollectionAssert.AreEqual(expectedList, cut);
+            CollectionAssert.AreEqual(expectedList, result);
         }
 
         [Test]
@@ -85,11 +85,11 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             }
 
             //Act
-            IList<int> cut = mixedList.ToListOfInts();
+            IList<int> result = mixedList.ToListOfInts();
 
             //Assert
-            CollectionAssert.IsNotEmpty(cut);
-            CollectionAssert.AreEqual(expectedList, cut);
+            CollectionAssert.IsNotEmpty(result);
+            CollectionAssert.AreEqual(expectedList, result);
         }
 
         [Test]
@@ -114,12 +114,12 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             }
 
             //Act
-            IList<int> cut = mixedList.ToListOfInts();
+            IList<int> result = mixedList.ToListOfInts();
 
             //Assert
-            Assert.AreEqual(1, cut.Count);
-            CollectionAssert.IsNotEmpty(cut);
-            CollectionAssert.AreEqual(expectedList, cut);
+            Assert.AreEqual(1, result.Count);
+            CollectionAssert.IsNotEmpty(result);
+            CollectionAssert.AreEqual(expectedList, result);
         }
     }
 }

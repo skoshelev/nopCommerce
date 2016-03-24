@@ -19,10 +19,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            int cut = invalidInt.ToInt();
+            int result = invalidInt.ToInt();
 
             //Assert
-            Assert.AreEqual(0, cut);
+            Assert.AreEqual(0, result);
         }
 
         [Test]
@@ -33,10 +33,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            int cut = nullOrEmpty.ToInt();
+            int result = nullOrEmpty.ToInt();
 
             //Assert
-            Assert.AreEqual(0, cut);
+            Assert.AreEqual(0, result);
         }
 
         [Test]
@@ -51,10 +51,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             int valid = int.Parse(validInt);
 
             //Act
-            int cut = validInt.ToInt();
+            int result = validInt.ToInt();
 
             //Assert
-            Assert.AreEqual(valid, cut);
+            Assert.AreEqual(valid, result);
         }
     }
 }
