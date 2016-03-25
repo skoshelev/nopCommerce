@@ -11,7 +11,6 @@ using Nop.Plugin.Api.Models.ProductsParameters;
 using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
-using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.Controllers
 {
@@ -80,19 +79,21 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest();
+                return NotFound();
             }
 
             Product product = _productApiService.GetProductById(id);
 
+            if (product == null)
+            {
+                return NotFound();
+            }
+            
+            ProductDto productDto = product.ToDto(fields);
+
             var productsRootObject = new ProductsRootObjectDto();
 
-            if (product != null)
-            {
-                ProductDto productDto = product.ToDto(fields);
-
-                productsRootObject.Products.Add(productDto);
-            }
+            productsRootObject.Products.Add(productDto);
 
             var json = _jsonFieldsSerializer.Serialize(productsRootObject, fields);
 
