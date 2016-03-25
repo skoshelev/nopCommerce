@@ -12,15 +12,18 @@ namespace Nop.Plugin.Api.Extensions
             T someObject = new T();
             Type someObjectType = someObject.GetType();
 
-            foreach (KeyValuePair<string, string> item in source)
+            if (source != null)
             {
-                var itemKey = item.Key.Replace("_", string.Empty);
-                var currentProperty = someObjectType.GetProperty(itemKey,
-                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-
-                if (currentProperty != null)
+                foreach (KeyValuePair<string, string> item in source)
                 {
-                    currentProperty.SetValue(someObject, To(item.Value, currentProperty.PropertyType), null);
+                    var itemKey = item.Key.Replace("_", string.Empty);
+                    var currentProperty = someObjectType.GetProperty(itemKey,
+                        BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+
+                    if (currentProperty != null)
+                    {
+                        currentProperty.SetValue(someObject, To(item.Value, currentProperty.PropertyType), null);
+                    }
                 }
             }
 
