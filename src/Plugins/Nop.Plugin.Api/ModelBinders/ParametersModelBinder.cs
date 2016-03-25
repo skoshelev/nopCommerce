@@ -23,6 +23,7 @@ namespace Nop.Plugin.Api.ModelBinders
                 bindingContext.Model = new T();
             }
 
+            // This should be true otherwise the model will be null.
             return true;
         }
     }
