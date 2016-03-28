@@ -21,6 +21,7 @@ namespace Nop.Plugin.Api.ActionResults
             get { return _jsonString; }
         }
 
+        // TODO: check invalid property
         public Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken)
         {
             var content = new StringContent(JsonContent);

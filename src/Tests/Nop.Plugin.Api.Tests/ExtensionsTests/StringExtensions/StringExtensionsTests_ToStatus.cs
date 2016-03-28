@@ -12,6 +12,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
         [TestCase("un-published")]
         [TestCase("322345")]
         [TestCase("%^)@*%&*@_!+=")]
+        [TestCase("1")]
         public void WhenInvalidStatusPassed_ShouldReturnNull(string invalidStatus)
         {
             //Arange
