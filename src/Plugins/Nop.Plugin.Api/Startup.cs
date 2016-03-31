@@ -104,6 +104,21 @@ namespace Nop.Plugin.Api
                 routeTemplate: "api/categories/{id}",
                 defaults: new { controller = "Categories", action = "GetCategoryById" });
 
+            config.Routes.MapHttpRoute(
+              name: "products",
+              routeTemplate: "api/products",
+              defaults: new { controller = "Products", action = "GetProducts" });
+
+            config.Routes.MapHttpRoute(
+                name: "productsCount",
+                routeTemplate: "api/products/count",
+                defaults: new { controller = "Products", action = "GetProductsCount" });
+
+            config.Routes.MapHttpRoute(
+                name: "productById",
+                routeTemplate: "api/products/{id}",
+                defaults: new { controller = "Products", action = "GetProductById" });
+
             // The default route templates for the Swagger docs and swagger-ui are "swagger/docs/{apiVersion}" and "swagger/ui/index#/{assetPath}" respectively.
             config
                 .EnableSwagger(c =>

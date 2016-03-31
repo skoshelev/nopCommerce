@@ -123,6 +123,7 @@ namespace Nop.Plugin.Api.Tests.ValidatorTests
         [TestCase("()")]
         [TestCase("'\"\"")]
         [TestCase(",,,,mail, 545, ''\"")]
+        [TestCase("peshoid")]
         public void WhenInvalidFieldsWithSpecialSymbolsParameterPassed_ShouldReturnEmptyDictionary(string invalidFields)
         {
             //Arange

@@ -50,6 +50,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             Assert.IsNull(result);
         }
 
+        // TODO: check if shopify restrict to specific format.
         [Test]
         [TestCase("2016/01/01")]
         [TestCase("2016.12.12")]
