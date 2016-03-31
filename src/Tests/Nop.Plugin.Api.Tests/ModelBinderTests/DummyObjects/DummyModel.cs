@@ -6,7 +6,8 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests.DummyObjects
     {
          public string StringProperty { get; set; }
          public int IntProperty { get; set; }
-         public DateTime? DateTimeNullableProperty { get; set; }
+         public int? IntNullableProperty { get; set; }
+        public DateTime? DateTimeNullableProperty { get; set; }
          public bool? BooleanNullableStatusProperty { get; set; }
     }
 }

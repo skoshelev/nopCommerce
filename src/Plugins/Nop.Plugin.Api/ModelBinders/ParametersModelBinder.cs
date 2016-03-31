@@ -9,14 +9,20 @@ namespace Nop.Plugin.Api.ModelBinders
     // but instead of using streams I am using the properties of the request.
     public class ParametersModelBinder<T> : IModelBinder where T : class, new()
     {
+        private readonly IObjectExtensions _objectExtensions;
+
+        public ParametersModelBinder(IObjectExtensions objectExtensions)
+        {
+            _objectExtensions = objectExtensions;
+        }
+
         public bool BindModel(HttpActionContext actionContext, ModelBindingContext bindingContext)
         {
             // MS_QueryNameValuePairs contains key value pair representation of the query parameters passed to in the request.
             if (actionContext.Request.Properties.ContainsKey("MS_QueryNameValuePairs"))
             {
-                bindingContext.Model =
-                    ((ICollection<KeyValuePair<string, string>>)
-                        actionContext.Request.Properties["MS_QueryNameValuePairs"]).ToObject<T>();
+                bindingContext.Model = _objectExtensions.ToObject<T>(
+                    (ICollection<KeyValuePair<string, string>>)actionContext.Request.Properties["MS_QueryNameValuePairs"]);
             }
             else
             {

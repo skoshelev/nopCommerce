@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
 {
     [TestFixture]
-    public class StringExtensionsTests_ToInt
+    public class StringExtensionsTests_ToIntNullable
     {
         private IStringExtensions _stringExtensions;
 
@@ -22,29 +22,29 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
         [TestCase("$%%^%^$#^&&%#)__(^&")]
         [TestCase("2015-02-12")]
         [TestCase("12:45")]
-        public void WhenInvalidIntPassed_ShouldReturnZero(string invalidInt)
+        public void WhenInvalidIntPassed_ShouldReturnNull(string invalidInt)
         {
             //Arange
 
             //Act
-            int result = _stringExtensions.ToInt(invalidInt);
+            int? result = _stringExtensions.ToIntNullable(invalidInt);
 
             //Assert
-            Assert.AreEqual(0, result);
+            Assert.IsNull(result);
         }
 
         [Test]
         [TestCase("")]
         [TestCase(null)]
-        public void WhenNullOrEmptyStringPassed_ShouldReturnZero(string nullOrEmpty)
+        public void WhenNullOrEmptyStringPassed_ShouldReturnNull(string nullOrEmpty)
         {
             //Arange
 
             //Act
-            int result = _stringExtensions.ToInt(nullOrEmpty);
+            int? result = _stringExtensions.ToIntNullable(nullOrEmpty);
 
             //Assert
-            Assert.AreEqual(0, result);
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             int valid = int.Parse(validInt);
 
             //Act
-            int result = _stringExtensions.ToInt(validInt);
+            int? result = _stringExtensions.ToIntNullable(validInt);
 
             //Assert
             Assert.AreEqual(valid, result);

@@ -22,10 +22,9 @@ namespace Nop.Plugin.Api.Services
 
         public IList<Category> GetCategories(IList<int> ids = null,
             DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
-            int limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, int productId = 0,
+            int limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, int? productId = null,
             bool? publishedStatus = null)
         {
-
             var query = GetCategoriesQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax,
                 publishedStatus, productId, ids);
 
@@ -48,7 +47,7 @@ namespace Nop.Plugin.Api.Services
         }
 
         public int GetCategoriesCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
-            bool? publishedStatus = null, int productId = 0)
+            bool? publishedStatus = null, int? productId = null)
         {
             var query = GetCategoriesQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax,
                                            publishedStatus, productId);
@@ -58,7 +57,7 @@ namespace Nop.Plugin.Api.Services
 
         private IQueryable<Category> GetCategoriesQuery(
             DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
-            bool? publishedStatus = null, int productId = 0, IList<int> ids = null)
+            bool? publishedStatus = null, int? productId = null, IList<int> ids = null)
         {
             var query = _categoryRepository.TableNoTracking;
 
@@ -102,9 +101,9 @@ namespace Nop.Plugin.Api.Services
                     orderby cGroup.Key
                     select cGroup.FirstOrDefault();
 
-            if (productId > 0)
+            if (productId != null)
             {
-                var categoryMappingsForProduct = from productCategoryMapping in _productCategoryMappingRepository.Table
+                var categoryMappingsForProduct = from productCategoryMapping in _productCategoryMappingRepository.TableNoTracking
                                                  where productCategoryMapping.ProductId == productId
                                                  select productCategoryMapping;
 

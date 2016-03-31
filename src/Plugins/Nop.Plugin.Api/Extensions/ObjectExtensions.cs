@@ -4,9 +4,16 @@ using System.Reflection;
 
 namespace Nop.Plugin.Api.Extensions
 {
-    public static class ObjectExtensions
+    public class ObjectExtensions : IObjectExtensions
     {
-        public static T ToObject<T>(this ICollection<KeyValuePair<string, string>> source)
+        private readonly IStringExtensions _stringExtensions;
+
+        public ObjectExtensions(IStringExtensions stringExtensions)
+        {
+            _stringExtensions = stringExtensions;
+        }
+
+        public T ToObject<T>(ICollection<KeyValuePair<string, string>> source)
             where T : class, new()
         {
             T someObject = new T();
@@ -30,24 +37,28 @@ namespace Nop.Plugin.Api.Extensions
             return someObject;
         }
 
-        private static object To(string value, Type type)
+        private object To(string value, Type type)
         {
             if (type == typeof(DateTime?))
             {
-                return value.ToDateTimeNullable();
+                return _stringExtensions.ToDateTimeNullable(value);
+            }
+            else if (type == typeof (int?))
+            {
+                return _stringExtensions.ToIntNullable(value);
             }
             else if (type == typeof(int))
             {
-                return value.ToInt();
+                return _stringExtensions.ToInt(value);
             }
             else if (type == typeof(List<int>))
             {
-                return value.ToListOfInts();
+                return _stringExtensions.ToListOfInts(value);
             }
             else if(type == typeof(bool?))
             {
                 // Because currently status is the only boolean and we need to accept published and unpublished statuses.
-                return value.ToStatus();
+                return _stringExtensions.ToStatus(value);
             }
 
             // It should be the last resort, because it is not exception safe.

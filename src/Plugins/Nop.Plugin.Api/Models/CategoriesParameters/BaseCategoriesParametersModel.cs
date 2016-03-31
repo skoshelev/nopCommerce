@@ -1,5 +1,4 @@
 ﻿using System;
-using Nop.Plugin.Api.MVC;
 
 namespace Nop.Plugin.Api.Models.CategoriesParameters
 {
@@ -7,7 +6,7 @@ namespace Nop.Plugin.Api.Models.CategoriesParameters
     {
         public BaseCategoriesParametersModel()
         {
-            ProductId = 0;
+            ProductId = null;
             CreatedAtMin = null;
             CreatedAtMax = null;
             UpdatedAtMin = null;
@@ -25,6 +24,6 @@ namespace Nop.Plugin.Api.Models.CategoriesParameters
 
         public bool? PublishedStatus { get; set; }
 
-        public int ProductId { get; set; }
+        public int? ProductId { get; set; }
     }
 }

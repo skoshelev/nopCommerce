@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Nop.Plugin.Api.Extensions
 {
-    public static class StringExtensions
+    public class StringExtensions : IStringExtensions
     {
-        public static DateTime? ToDateTimeNullable(this string value)
+        public DateTime? ToDateTimeNullable(string value)
         {
             DateTime result;
 
@@ -18,7 +18,7 @@ namespace Nop.Plugin.Api.Extensions
             return null;
         }
 
-        public static int ToInt(this string value)
+        public int ToInt(string value)
         {
             int result;
 
@@ -30,7 +30,19 @@ namespace Nop.Plugin.Api.Extensions
             return 0;
         }
 
-        public static IList<int> ToListOfInts(this string value)
+        public int? ToIntNullable(string value)
+        {
+            int result;
+
+            if (int.TryParse(value, out result))
+            {
+                return result;
+            }
+
+            return null;
+        }
+
+        public IList<int> ToListOfInts(string value)
         {
             if (!string.IsNullOrEmpty(value))
             {
@@ -53,7 +65,7 @@ namespace Nop.Plugin.Api.Extensions
             return null;
         }
 
-        public static bool? ToStatus(this string value)
+        public bool? ToStatus(string value)
         {
             if (!string.IsNullOrEmpty(value))
             {

@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System.Web.Http.ModelBinding;
+using Autofac;
 using Autofac.Core;
 using Nop.Core.Configuration;
 using Nop.Core.Data;
@@ -10,8 +11,10 @@ using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.Data;
 using Nop.Plugin.Api.Domain;
 using Nop.Plugin.Api.DTOs.Categories;
+using Nop.Plugin.Api.Extensions;
 using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.MappingExtensions;
+using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.Models;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
@@ -38,6 +41,8 @@ namespace Nop.Plugin.Api.Infrastructure
             RegisterPluginServices(builder);
 
             RegisterControllers(builder);
+
+            RegisterModelBinders(builder);
         }
 
         private void RegisterControllers(ContainerBuilder builder)
@@ -45,6 +50,11 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<CustomersController>().InstancePerLifetimeScope();
             builder.RegisterType<CategoriesController>().InstancePerLifetimeScope();
             builder.RegisterType<ProductsController>().InstancePerLifetimeScope();
+        }
+
+        private void RegisterModelBinders(ContainerBuilder builder)
+        {
+            builder.RegisterGeneric(typeof(ParametersModelBinder<>)).InstancePerLifetimeScope();
         }
 
         private void CreateModelMappings()
@@ -80,6 +90,8 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<JsonFieldsSerializer>().As<IJsonFieldsSerializer>().InstancePerLifetimeScope();
             builder.RegisterType<FieldsValidator>().As<IFieldsValidator>().InstancePerLifetimeScope();
             builder.RegisterType<ParametersValidator>().As<IParametersValidator>().InstancePerLifetimeScope();
+            builder.RegisterType<ObjectExtensions>().As<IObjectExtensions>().InstancePerLifetimeScope();
+            builder.RegisterType<StringExtensions>().As<IStringExtensions>().InstancePerLifetimeScope();
         }
 
         public int Order { get; }

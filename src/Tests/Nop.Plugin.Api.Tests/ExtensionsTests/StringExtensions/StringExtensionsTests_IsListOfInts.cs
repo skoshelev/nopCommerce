@@ -9,6 +9,14 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
     [TestFixture]
     public class StringExtensionsTests_IsListOfInts
     {
+        private IStringExtensions _stringExtensions;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _stringExtensions = new Extensions.StringExtensions();
+        }
+
         [Test]
         [TestCase("a,b,c,d")]
         [TestCase(",")]
@@ -19,9 +27,9 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
         public void WhenAllPartsOfTheListAreInvalid_ShouldReturnNull(string invalidList)
         {
             //Arange
-
+           
             //Act
-            IList<int> result = invalidList.ToListOfInts();
+            IList<int> result = _stringExtensions.ToListOfInts(invalidList);
 
             //Assert
             Assert.IsNull(result);
@@ -35,7 +43,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            IList<int> result = nullOrEmpty.ToListOfInts();
+            IList<int> result = _stringExtensions.ToListOfInts(nullOrEmpty);
 
             //Assert
             Assert.IsNull(result);
@@ -52,7 +60,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             List<int> expectedList = validList.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
 
             //Act
-            IList<int> result = validList.ToListOfInts();
+            IList<int> result = _stringExtensions.ToListOfInts(validList);
 
             //Assert
             CollectionAssert.AreEqual(expectedList, result);
@@ -85,7 +93,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             }
 
             //Act
-            IList<int> result = mixedList.ToListOfInts();
+            IList<int> result = _stringExtensions.ToListOfInts(mixedList);
 
             //Assert
             CollectionAssert.IsNotEmpty(result);
@@ -114,7 +122,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             }
 
             //Act
-            IList<int> result = mixedList.ToListOfInts();
+            IList<int> result = _stringExtensions.ToListOfInts(mixedList);
 
             //Assert
             Assert.AreEqual(1, result.Count);

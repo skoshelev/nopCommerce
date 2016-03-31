@@ -152,6 +152,8 @@
     <Compile Include="DTOs\Products\ProductDto.cs" />
     <Compile Include="DTOs\Products\ProductsCountRootObject.cs" />
     <Compile Include="DTOs\Products\ProductsRootObjectDto.cs" />
+    <Compile Include="Extensions\IObjectExtensions.cs" />
+    <Compile Include="Extensions\IStringExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Helpers\AuthorizationHelper.cs" />

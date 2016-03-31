@@ -7,6 +7,14 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
     [TestFixture]
     public class StringExtensionsTests_ToDateTimeNullable
     {
+        private IStringExtensions _stringExtensions;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _stringExtensions = new Extensions.StringExtensions();
+        }
+
         [Test]
         [TestCase("invalid date")]
         [TestCase("20.30.10")]
@@ -22,7 +30,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            DateTime? result = invalidDate.ToDateTimeNullable();
+            DateTime? result = _stringExtensions.ToDateTimeNullable(invalidDate);
 
             //Assert
             Assert.IsNull(result);
@@ -36,7 +44,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            DateTime? result = nullOrEmpty.ToDateTimeNullable();
+            DateTime? result = _stringExtensions.ToDateTimeNullable(nullOrEmpty);
 
             //Assert
             Assert.IsNull(result);
@@ -57,7 +65,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             DateTime validParsedDate = DateTime.Parse(validDate);
 
             //Act
-            DateTime? result = validDate.ToDateTimeNullable();
+            DateTime? result = _stringExtensions.ToDateTimeNullable(validDate);
 
             //Assert
             Assert.AreEqual(validParsedDate, result);

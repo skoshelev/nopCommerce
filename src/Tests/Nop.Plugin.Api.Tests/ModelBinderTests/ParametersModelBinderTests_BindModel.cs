@@ -5,6 +5,7 @@ using System.Net.Http.Formatting;
 using System.Web.Http.Controllers;
 using System.Web.Http.Metadata;
 using System.Web.Http.ModelBinding;
+using Nop.Plugin.Api.Extensions;
 using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.Tests.ModelBinderTests.DummyObjects;
 using NUnit.Framework;
@@ -15,11 +16,20 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
     [TestFixture]
     public class ParametersModelBinderTests_BindModel
     {
+        private ParametersModelBinder<DummyModel> _binder;
+
+        [SetUp]
+        public void SetUp()
+        {
+            IStringExtensions stringExtensions = new StringExtensions();
+            IObjectExtensions objectExtensions = new ObjectExtensions(stringExtensions);
+            _binder = new ParametersModelBinder<DummyModel>(objectExtensions);
+        }
+
         [Test]
         public void WhenRequestDoesNotContainQuery_BindingContextShouldContainInstanceOfTheModelType()
         {
             // Arrange
-            var binder = new ParametersModelBinder<DummyModel>();
             var httpControllerContext = new HttpControllerContext();
             httpControllerContext.Request = new HttpRequestMessage(HttpMethod.Get, "http://someUri");
             httpControllerContext.Request.Content = new ObjectContent(typeof(DummyModel), new DummyModel(), new XmlMediaTypeFormatter());
@@ -33,7 +43,7 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
             bindingContext.ModelMetadata = metaData;
 
             //Act
-            binder.BindModel(httpActionContext, bindingContext);
+            _binder.BindModel(httpActionContext, bindingContext);
 
             // Assert
             Assert.IsInstanceOf<DummyModel>(bindingContext.Model);
@@ -43,7 +53,6 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
         public void WhenRequestContainsQueryWithValidIntProperty_BindingContextShouldContainInstanceOfTheModelTypeWithItsIntPropertySetToTheValue()
         {
             // Arrange
-            var binder = new ParametersModelBinder<DummyModel>();
             var httpControllerContext = new HttpControllerContext();
             httpControllerContext.Request = new HttpRequestMessage(HttpMethod.Get, "http://someUri");
             httpControllerContext.Request.Content = new ObjectContent(typeof(DummyModel), new DummyModel(), new XmlMediaTypeFormatter());
@@ -62,7 +71,7 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
             bindingContext.ModelMetadata = metaData;
 
             //Act
-            binder.BindModel(httpActionContext, bindingContext);
+            _binder.BindModel(httpActionContext, bindingContext);
 
             // Assert
             Assert.AreEqual(5, ((DummyModel)bindingContext.Model).IntProperty);
@@ -72,7 +81,6 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
         public void WhenRequestContainsQueryWithValidStringProperty_BindingContextShouldContainInstanceOfTheModelTypeWithItsStringPropertySetToTheValue()
         {
             // Arrange
-            var binder = new ParametersModelBinder<DummyModel>();
             var httpControllerContext = new HttpControllerContext();
             httpControllerContext.Request = new HttpRequestMessage(HttpMethod.Get, "http://someUri");
             httpControllerContext.Request.Content = new ObjectContent(typeof(DummyModel), new DummyModel(), new XmlMediaTypeFormatter());
@@ -91,7 +99,7 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
             bindingContext.ModelMetadata = metaData;
 
             //Act
-            binder.BindModel(httpActionContext, bindingContext);
+            _binder.BindModel(httpActionContext, bindingContext);
 
             // Assert
             Assert.AreEqual("some value", ((DummyModel)bindingContext.Model).StringProperty);
@@ -101,7 +109,6 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
         public void WhenRequestContainsQueryWithValidDateTimeProperty_BindingContextShouldContainInstanceOfTheModelTypeWithItsDateTimePropertySetToTheValue()
         {
             // Arrange
-            var binder = new ParametersModelBinder<DummyModel>();
             var httpControllerContext = new HttpControllerContext();
             httpControllerContext.Request = new HttpRequestMessage(HttpMethod.Get, "http://someUri");
             httpControllerContext.Request.Content = new ObjectContent(typeof(DummyModel), new DummyModel(), new XmlMediaTypeFormatter());
@@ -120,7 +127,7 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
             bindingContext.ModelMetadata = metaData;
 
             //Act
-            binder.BindModel(httpActionContext, bindingContext);
+            _binder.BindModel(httpActionContext, bindingContext);
 
             // Assert
             Assert.AreEqual(new DateTime(2016, 12, 12), ((DummyModel)bindingContext.Model).DateTimeNullableProperty.Value);
@@ -130,7 +137,6 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
         public void WhenRequestContainsQueryWithValidBooleanStatusProperty_BindingContextShouldContainInstanceOfTheModelTypeWithItBooleanStatusPropertySetToTheValue()
         {
             // Arrange
-            var binder = new ParametersModelBinder<DummyModel>();
             var httpControllerContext = new HttpControllerContext();
             httpControllerContext.Request = new HttpRequestMessage(HttpMethod.Get, "http://someUri");
             httpControllerContext.Request.Content = new ObjectContent(typeof(DummyModel), new DummyModel(), new XmlMediaTypeFormatter());
@@ -149,7 +155,7 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
             bindingContext.ModelMetadata = metaData;
 
             //Act
-            binder.BindModel(httpActionContext, bindingContext);
+            _binder.BindModel(httpActionContext, bindingContext);
 
             // Assert
             Assert.AreEqual(true, ((DummyModel)bindingContext.Model).BooleanNullableStatusProperty.Value);
@@ -159,7 +165,6 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
         public void BindModel_ShouldAlwaysReturnTrue()
         {
             // Arrange
-            var binder = new ParametersModelBinder<DummyModel>();
             var httpControllerContext = new HttpControllerContext();
             httpControllerContext.Request = new HttpRequestMessage(HttpMethod.Get, "http://someUri");
             httpControllerContext.Request.Content = new ObjectContent(typeof(DummyModel), new DummyModel(), new XmlMediaTypeFormatter());
@@ -173,7 +178,7 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
             bindingContext.ModelMetadata = metaData;
 
             //Act
-            bool result = binder.BindModel(httpActionContext, bindingContext);
+            bool result = _binder.BindModel(httpActionContext, bindingContext);
 
             // Assert
             Assert.IsTrue(result);

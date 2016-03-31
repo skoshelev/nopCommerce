@@ -6,6 +6,14 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
     [TestFixture]
     public class StringExtensionsTests_ToStatus
     {
+        private IStringExtensions _stringExtensions;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _stringExtensions = new Extensions.StringExtensions();
+        }
+
         [Test]
         [TestCase("invalid status")]
         [TestCase("publicshed")]
@@ -17,7 +25,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? result = invalidStatus.ToStatus();
+            bool? result = _stringExtensions.ToStatus(invalidStatus);
 
             //Assert
             Assert.IsNull(result);
@@ -31,7 +39,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? result = nullOrEmpty.ToStatus();
+            bool? result = _stringExtensions.ToStatus(nullOrEmpty);
 
             //Assert
             Assert.IsNull(result);
@@ -46,7 +54,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? result = validPublishedStatus.ToStatus();
+            bool? result = _stringExtensions.ToStatus(validPublishedStatus);
 
             //Assert
             Assert.IsTrue(result.Value);
@@ -61,7 +69,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? result = validUnpublishedStatus.ToStatus();
+            bool? result = _stringExtensions.ToStatus(validUnpublishedStatus);
 
             //Assert
             Assert.IsFalse(result.Value);
