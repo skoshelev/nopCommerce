@@ -8,10 +8,10 @@ using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
 using Nop.Data;
 using Nop.Plugin.Api.Controllers;
+using Nop.Plugin.Api.Converters;
 using Nop.Plugin.Api.Data;
 using Nop.Plugin.Api.Domain;
 using Nop.Plugin.Api.DTOs.Categories;
-using Nop.Plugin.Api.Extensions;
 using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.ModelBinders;
@@ -90,8 +90,8 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<JsonFieldsSerializer>().As<IJsonFieldsSerializer>().InstancePerLifetimeScope();
             builder.RegisterType<FieldsValidator>().As<IFieldsValidator>().InstancePerLifetimeScope();
             builder.RegisterType<ParametersValidator>().As<IParametersValidator>().InstancePerLifetimeScope();
-            builder.RegisterType<ObjectExtensions>().As<IObjectExtensions>().InstancePerLifetimeScope();
-            builder.RegisterType<StringExtensions>().As<IStringExtensions>().InstancePerLifetimeScope();
+            builder.RegisterType<ObjectConverter>().As<IObjectConverter>().InstancePerLifetimeScope();
+            builder.RegisterType<ApiTypeConverter>().As<IApiTypeConverter>().InstancePerLifetimeScope();
         }
 
         public int Order { get; }

@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Nop.Plugin.Api.Extensions
+namespace Nop.Plugin.Api.Converters
 {
-    public class ObjectExtensions : IObjectExtensions
+    public class ObjectConverter : IObjectConverter
     {
-        private readonly IStringExtensions _stringExtensions;
+        private readonly IApiTypeConverter _apiTypeConverter;
 
-        public ObjectExtensions(IStringExtensions stringExtensions)
+        public ObjectConverter(IApiTypeConverter apiTypeConverter)
         {
-            _stringExtensions = stringExtensions;
+            _apiTypeConverter = apiTypeConverter;
         }
 
         public T ToObject<T>(ICollection<KeyValuePair<string, string>> source)
@@ -41,24 +41,24 @@ namespace Nop.Plugin.Api.Extensions
         {
             if (type == typeof(DateTime?))
             {
-                return _stringExtensions.ToDateTimeNullable(value);
+                return _apiTypeConverter.ToDateTimeNullable(value);
             }
             else if (type == typeof (int?))
             {
-                return _stringExtensions.ToIntNullable(value);
+                return _apiTypeConverter.ToIntNullable(value);
             }
             else if (type == typeof(int))
             {
-                return _stringExtensions.ToInt(value);
+                return _apiTypeConverter.ToInt(value);
             }
             else if (type == typeof(List<int>))
             {
-                return _stringExtensions.ToListOfInts(value);
+                return _apiTypeConverter.ToListOfInts(value);
             }
             else if(type == typeof(bool?))
             {
                 // Because currently status is the only boolean and we need to accept published and unpublished statuses.
-                return _stringExtensions.ToStatus(value);
+                return _apiTypeConverter.ToStatus(value);
             }
 
             // It should be the last resort, because it is not exception safe.

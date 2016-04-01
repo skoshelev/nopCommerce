@@ -1,17 +1,17 @@
-﻿using Nop.Plugin.Api.Extensions;
+﻿using Nop.Plugin.Api.Converters;
 using NUnit.Framework;
 
-namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
+namespace Nop.Plugin.Api.Tests.ExtensionsTests.ApiTypeConverter
 {
     [TestFixture]
-    public class StringExtensionsTests_ToStatus
+    public class ApiTypeConverterTests_ToStatus
     {
-        private IStringExtensions _stringExtensions;
+        private IApiTypeConverter _apiTypeConverter;
 
         [SetUp]
         public void SetUp()
         {
-            _stringExtensions = new Extensions.StringExtensions();
+            _apiTypeConverter = new Converters.ApiTypeConverter();
         }
 
         [Test]
@@ -26,7 +26,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? result = _stringExtensions.ToStatus(invalidStatus);
+            bool? result = _apiTypeConverter.ToStatus(invalidStatus);
 
             //Assert
             Assert.IsNull(result);
@@ -40,7 +40,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? result = _stringExtensions.ToStatus(nullOrEmpty);
+            bool? result = _apiTypeConverter.ToStatus(nullOrEmpty);
 
             //Assert
             Assert.IsNull(result);
@@ -55,7 +55,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? result = _stringExtensions.ToStatus(validPublishedStatus);
+            bool? result = _apiTypeConverter.ToStatus(validPublishedStatus);
 
             //Assert
             Assert.IsTrue(result.Value);
@@ -70,7 +70,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            bool? result = _stringExtensions.ToStatus(validUnpublishedStatus);
+            bool? result = _apiTypeConverter.ToStatus(validUnpublishedStatus);
 
             //Assert
             Assert.IsFalse(result.Value);

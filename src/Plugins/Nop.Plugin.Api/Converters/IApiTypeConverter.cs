@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Nop.Plugin.Api.Extensions
+namespace Nop.Plugin.Api.Converters
 {
-    public interface IStringExtensions
+    public interface IApiTypeConverter
     {
         DateTime? ToDateTimeNullable(string value);
         int ToInt(string value);

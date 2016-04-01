@@ -1,48 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
-using Nop.Plugin.Api.Extensions;
-using Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions.DummyObjects;
+using Nop.Plugin.Api.Converters;
+using Nop.Plugin.Api.Tests.ExtensionsTests.ObjectConverter.DummyObjects;
 using NUnit.Framework;
 using Rhino.Mocks;
 
-namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
+namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectConverter
 {
     [TestFixture]
-    public class ObjectExtensionsTests_ToObject
+    public class ObjectConverterTests_ToObject
     {
         [Test]
-        public void WhenCollectionIsNull_ShouldShouldNotCallAnyOfTheStringExtensionsMethods()
+        public void WhenCollectionIsNull_ShouldNotCallAnyOfTheApiTypeConverterMethods()
         {
             //Arange
-            IStringExtensions stringExtensionsMock = MockRepository.GenerateMock<IStringExtensions>();
+            IApiTypeConverter apiTypeConverterMock = MockRepository.GenerateMock<IApiTypeConverter>();
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsMock);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterMock);
 
             ICollection<KeyValuePair<string, string>> nullCollection = null;
 
             //Act
-            objectExtensions.ToObject<SomeTestingObject>(nullCollection);
+            objectConverter.ToObject<SomeTestingObject>(nullCollection);
 
             //Assert
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToInt(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToIntNullable(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToDateTimeNullable(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToListOfInts(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToStatus(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToInt(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToIntNullable(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToDateTimeNullable(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToListOfInts(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToStatus(Arg<string>.Is.Anything));
         }
 
         [Test]
         public void WhenCollectionIsNull_ShouldReturnInstanceOfAnObjectOfTheSpecifiedType()
         {
             //Arange
-            IStringExtensions stringExtensionsStub = MockRepository.GenerateStub<IStringExtensions>();
+            IApiTypeConverter apiTypeConverterStub = MockRepository.GenerateStub<IApiTypeConverter>();
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsStub);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterStub);
 
             ICollection<KeyValuePair<string, string>> nullCollection = null;
 
             //Act
-            SomeTestingObject someTestingObject = objectExtensions.ToObject<SomeTestingObject>(nullCollection);
+            SomeTestingObject someTestingObject = objectConverter.ToObject<SomeTestingObject>(nullCollection);
 
             //Assert
             Assert.IsNotNull(someTestingObject);
@@ -53,14 +53,14 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
         public void WhenCollectionIsNull_ShouldReturnInstanceOfAnObjectWithUnsetProperties()
         {
             //Arange
-            IStringExtensions stringExtensionsStub = MockRepository.GenerateStub<IStringExtensions>();
+            IApiTypeConverter apiTypeConverterStub = MockRepository.GenerateStub<IApiTypeConverter>();
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsStub);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterStub);
 
             ICollection<KeyValuePair<string, string>> nullCollection = null;
 
             //Act
-            SomeTestingObject someTestingObject = objectExtensions.ToObject<SomeTestingObject>(nullCollection);
+            SomeTestingObject someTestingObject = objectConverter.ToObject<SomeTestingObject>(nullCollection);
 
             //Assert
             Assert.AreEqual(0, someTestingObject.IntProperty);
@@ -73,14 +73,14 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
         public void WhenCollectionIsEmpty_ShouldReturnInstanceOfAnObjectWithUnsetProperties()
         {
             //Arange
-            IStringExtensions stringExtensionsStub = MockRepository.GenerateStub<IStringExtensions>();
+            IApiTypeConverter apiTypeConverterStub = MockRepository.GenerateStub<IApiTypeConverter>();
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsStub);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterStub);
 
             ICollection<KeyValuePair<string, string>> emptyCollection = new List<KeyValuePair<string, string>>();
 
             //Act
-            SomeTestingObject someTestingObject = objectExtensions.ToObject<SomeTestingObject>(emptyCollection);
+            SomeTestingObject someTestingObject = objectConverter.ToObject<SomeTestingObject>(emptyCollection);
 
             //Assert
             Assert.AreEqual(0, someTestingObject.IntProperty);
@@ -89,24 +89,24 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
             Assert.AreEqual(null, someTestingObject.BooleanNullableStatusProperty);
         }
         [Test]
-        public void WhenCollectionIsEmpty_ShoulNotCallAnyOfTheStringExtensionsMethods()
+        public void WhenCollectionIsEmpty_ShoulNotCallAnyOfTheApiTypeConverterMethods()
         {
             //Arange
-            IStringExtensions stringExtensionsMock = MockRepository.GenerateMock<IStringExtensions>();
+            IApiTypeConverter apiTypeConverterMock = MockRepository.GenerateMock<IApiTypeConverter>();
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsMock);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterMock);
 
             ICollection<KeyValuePair<string, string>> emptyCollection = new List<KeyValuePair<string, string>>();
 
             //Act
-            objectExtensions.ToObject<SomeTestingObject>(emptyCollection);
+            objectConverter.ToObject<SomeTestingObject>(emptyCollection);
 
             //Assert
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToInt(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToIntNullable(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToDateTimeNullable(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToListOfInts(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToStatus(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToInt(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToIntNullable(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToDateTimeNullable(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToListOfInts(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToStatus(Arg<string>.Is.Anything));
         }
 
         [Test]
@@ -119,10 +119,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
         {
             //Arange
             int expectedInt = 5;
-            IStringExtensions stringExtensionsMock = MockRepository.GenerateMock<IStringExtensions>();
-            stringExtensionsMock.Expect(x => x.ToInt(Arg<string>.Is.Anything)).IgnoreArguments().Return(expectedInt);
+            IApiTypeConverter apiTypeConverterMock = MockRepository.GenerateMock<IApiTypeConverter>();
+            apiTypeConverterMock.Expect(x => x.ToInt(Arg<string>.Is.Anything)).IgnoreArguments().Return(expectedInt);
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsMock);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterMock);
 
             ICollection<KeyValuePair<string, string>> collection = new List<KeyValuePair<string, string>>()
             {
@@ -130,10 +130,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
             };
 
             //Act
-            objectExtensions.ToObject<SomeTestingObject>(collection);
+            objectConverter.ToObject<SomeTestingObject>(collection);
 
             //Assert
-            stringExtensionsMock.VerifyAllExpectations();
+            apiTypeConverterMock.VerifyAllExpectations();
         }
         
         [Test]
@@ -142,9 +142,9 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
         public void WhenCollectionContainsInvalidIntProperty_ShouldNotCallTheToIntMethod(string invalidIntPropertyName)
         {
             //Arange
-            IStringExtensions stringExtensionsMock = MockRepository.GenerateMock<IStringExtensions>();
+            IApiTypeConverter apiTypeConverterMock = MockRepository.GenerateMock<IApiTypeConverter>();
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsMock);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterMock);
 
             ICollection<KeyValuePair<string, string>> collection = new List<KeyValuePair<string, string>>()
             {
@@ -152,10 +152,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
             };
 
             //Act
-            objectExtensions.ToObject<SomeTestingObject>(collection);
+            objectConverter.ToObject<SomeTestingObject>(collection);
 
             //Assert
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToInt(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToInt(Arg<string>.Is.Anything));
         }
 
         [Test]
@@ -167,9 +167,9 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
         public void WhenCollectionContainsValidStringProperty_ShouldSetTheObjectStringPropertyValueToTheCollectionStringPropertyValue(string stringPropertyName)
         {
             //Arange
-            IStringExtensions stringExtensionsStub = MockRepository.GenerateMock<IStringExtensions>();
+            IApiTypeConverter apiTypeConverterStub = MockRepository.GenerateMock<IApiTypeConverter>();
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsStub);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterStub);
 
             ICollection<KeyValuePair<string, string>> collection = new List<KeyValuePair<string, string>>()
             {
@@ -177,7 +177,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
             };
 
             //Act
-            SomeTestingObject someTestingObject = objectExtensions.ToObject<SomeTestingObject>(collection);
+            SomeTestingObject someTestingObject = objectConverter.ToObject<SomeTestingObject>(collection);
 
             //Assert
             Assert.AreEqual("some value", someTestingObject.StringProperty);
@@ -188,9 +188,9 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
         public void WhenCollectionContainsInvalidStringProperty_ShouldReturnTheObjectWithItsStringPropertySetToTheDefaultValue(string invalidStringPropertyName)
         {
             //Arange
-            IStringExtensions stringExtensionsStub = MockRepository.GenerateMock<IStringExtensions>();
+            IApiTypeConverter apiTypeConverterStub = MockRepository.GenerateMock<IApiTypeConverter>();
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsStub);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterStub);
 
             ICollection<KeyValuePair<string, string>> collection = new List<KeyValuePair<string, string>>()
             {
@@ -198,7 +198,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
             };
 
             //Act
-            SomeTestingObject someTestingObject = objectExtensions.ToObject<SomeTestingObject>(collection);
+            SomeTestingObject someTestingObject = objectConverter.ToObject<SomeTestingObject>(collection);
 
             //Assert
             Assert.IsNull(someTestingObject.StringProperty);
@@ -211,12 +211,12 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
         [TestCase("string_property")]
         [TestCase("stringproperty")]
         [TestCase("strInGprOperTy")]
-        public void WhenCollectionContainsValidOrInvalidStringProperty_ShouldNotCallAnyOfTheStringExtensionsMethods(string stringProperty)
+        public void WhenCollectionContainsValidOrInvalidStringProperty_ShouldNotCallAnyOfTheApiTypeConverterMethods(string stringProperty)
         {
             //Arange
-            IStringExtensions stringExtensionsMock = MockRepository.GenerateMock<IStringExtensions>();
+            IApiTypeConverter apiTypeConverterMock = MockRepository.GenerateMock<IApiTypeConverter>();
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsMock);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterMock);
 
             ICollection<KeyValuePair<string, string>> collection = new List<KeyValuePair<string, string>>()
             {
@@ -224,14 +224,14 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
             };
 
             //Act
-            objectExtensions.ToObject<SomeTestingObject>(collection);
+            objectConverter.ToObject<SomeTestingObject>(collection);
 
             //Assert
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToInt(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToIntNullable(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToDateTimeNullable(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToListOfInts(Arg<string>.Is.Anything));
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToStatus(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToInt(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToIntNullable(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToDateTimeNullable(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToListOfInts(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToStatus(Arg<string>.Is.Anything));
         }
 
         [Test]
@@ -243,10 +243,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
         public void WhenCollectionContainsValidDateTimeProperty_ShouldCallTheToDateTimeNullableMethod(string dateTimePropertyName)
         {
             //Arange
-            IStringExtensions stringExtensionsMock = MockRepository.GenerateMock<IStringExtensions>();
-            stringExtensionsMock.Expect(x => x.ToDateTimeNullable(Arg<string>.Is.Anything)).IgnoreArguments().Return(DateTime.Now);
+            IApiTypeConverter apiTypeConverterMock = MockRepository.GenerateMock<IApiTypeConverter>();
+            apiTypeConverterMock.Expect(x => x.ToDateTimeNullable(Arg<string>.Is.Anything)).IgnoreArguments().Return(DateTime.Now);
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsMock);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterMock);
 
             ICollection<KeyValuePair<string, string>> collection = new List<KeyValuePair<string, string>>()
             {
@@ -254,10 +254,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
             };
 
             //Act
-            objectExtensions.ToObject<SomeTestingObject>(collection);
+            objectConverter.ToObject<SomeTestingObject>(collection);
 
             //Assert
-            stringExtensionsMock.AssertWasCalled(x => x.ToDateTimeNullable(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasCalled(x => x.ToDateTimeNullable(Arg<string>.Is.Anything));
         }
 
         [Test]
@@ -265,10 +265,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
         public void WhenCollectionContainsInvalidDateTimeNullableProperty_ShouldNotCallTheDateTimeNullableMethod(string invalidDateTimeNullablePropertyName)
         {
             //Arange
-            IStringExtensions stringExtensionsMock = MockRepository.GenerateMock<IStringExtensions>();
-            stringExtensionsMock.Expect(x => x.ToDateTimeNullable(Arg<string>.Is.Anything)).IgnoreArguments();
+            IApiTypeConverter apiTypeConverterMock = MockRepository.GenerateMock<IApiTypeConverter>();
+            apiTypeConverterMock.Expect(x => x.ToDateTimeNullable(Arg<string>.Is.Anything)).IgnoreArguments();
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsMock);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterMock);
 
             ICollection<KeyValuePair<string, string>> collection = new List<KeyValuePair<string, string>>()
             {
@@ -276,10 +276,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
             };
 
             //Act
-            objectExtensions.ToObject<SomeTestingObject>(collection);
+            objectConverter.ToObject<SomeTestingObject>(collection);
 
             //Assert
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToDateTimeNullable(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToDateTimeNullable(Arg<string>.Is.Anything));
         }
 
         [Test]
@@ -296,10 +296,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
         public void WhenCollectionContainsValidBooleanStatusPropertyAndPublishedValue_ShouldCallTheToStatusMethod(string booleanStatusPropertyName)
         {
             //Arange
-            IStringExtensions stringExtensionsMock = MockRepository.GenerateMock<IStringExtensions>();
-            stringExtensionsMock.Expect(x => x.ToStatus(Arg<string>.Is.Anything)).IgnoreArguments().Return(true);
+            IApiTypeConverter apiTypeConverterMock = MockRepository.GenerateMock<IApiTypeConverter>();
+            apiTypeConverterMock.Expect(x => x.ToStatus(Arg<string>.Is.Anything)).IgnoreArguments().Return(true);
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsMock);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterMock);
 
             ICollection<KeyValuePair<string, string>> collection = new List<KeyValuePair<string, string>>()
             {
@@ -307,10 +307,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
             };
 
             //Act
-            objectExtensions.ToObject<SomeTestingObject>(collection);
+            objectConverter.ToObject<SomeTestingObject>(collection);
 
             //Assert
-            stringExtensionsMock.AssertWasCalled(x => x.ToStatus(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasCalled(x => x.ToStatus(Arg<string>.Is.Anything));
         }
 
         [Test]
@@ -318,10 +318,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
         public void WhenCollectionContainsInvalidBooleanNullableStatusProperty_ShouldNotCallTheToStatusMethod(string invalidBooleanNullableStatusPropertyName)
         {
             //Arange
-            IStringExtensions stringExtensionsMock = MockRepository.GenerateMock<IStringExtensions>();
-            stringExtensionsMock.Expect(x => x.ToStatus(Arg<string>.Is.Anything)).IgnoreArguments();
+            IApiTypeConverter apiTypeConverterMock = MockRepository.GenerateMock<IApiTypeConverter>();
+            apiTypeConverterMock.Expect(x => x.ToStatus(Arg<string>.Is.Anything)).IgnoreArguments();
 
-            IObjectExtensions objectExtensions = new Extensions.ObjectExtensions(stringExtensionsMock);
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterMock);
 
             ICollection<KeyValuePair<string, string>> collection = new List<KeyValuePair<string, string>>()
             {
@@ -329,10 +329,10 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions
             };
 
             //Act
-            objectExtensions.ToObject<SomeTestingObject>(collection);
+            objectConverter.ToObject<SomeTestingObject>(collection);
 
             //Assert
-            stringExtensionsMock.AssertWasNotCalled(x => x.ToStatus(Arg<string>.Is.Anything));
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToStatus(Arg<string>.Is.Anything));
         }
     }   
 }

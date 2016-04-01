@@ -1,17 +1,17 @@
-﻿using Nop.Plugin.Api.Extensions;
+﻿using Nop.Plugin.Api.Converters;
 using NUnit.Framework;
 
-namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
+namespace Nop.Plugin.Api.Tests.ExtensionsTests.ApiTypeConverter
 {
     [TestFixture]
-    public class StringExtensionsTests_ToInt
+    public class ApiTypeConverterTests_ToInt
     {
-        private IStringExtensions _stringExtensions;
+        private IApiTypeConverter _apiTypeConverter;
 
         [SetUp]
         public void SetUp()
         {
-            _stringExtensions = new Extensions.StringExtensions();
+            _apiTypeConverter = new Converters.ApiTypeConverter();
         }
 
         [Test]
@@ -27,7 +27,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            int result = _stringExtensions.ToInt(invalidInt);
+            int result = _apiTypeConverter.ToInt(invalidInt);
 
             //Assert
             Assert.AreEqual(0, result);
@@ -41,7 +41,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            int result = _stringExtensions.ToInt(nullOrEmpty);
+            int result = _apiTypeConverter.ToInt(nullOrEmpty);
 
             //Assert
             Assert.AreEqual(0, result);
@@ -59,7 +59,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             int valid = int.Parse(validInt);
 
             //Act
-            int result = _stringExtensions.ToInt(validInt);
+            int result = _apiTypeConverter.ToInt(validInt);
 
             //Assert
             Assert.AreEqual(valid, result);

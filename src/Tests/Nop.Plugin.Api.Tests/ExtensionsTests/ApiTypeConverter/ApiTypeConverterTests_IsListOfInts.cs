@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Nop.Plugin.Api.Extensions;
+using Nop.Plugin.Api.Converters;
 using NUnit.Framework;
 
-namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
+namespace Nop.Plugin.Api.Tests.ExtensionsTests.ApiTypeConverter
 {
     [TestFixture]
-    public class StringExtensionsTests_IsListOfInts
+    public class ApiTypeConverterTests_IsListOfInts
     {
-        private IStringExtensions _stringExtensions;
+        private IApiTypeConverter _apiTypeConverter;
 
         [SetUp]
         public void SetUp()
         {
-            _stringExtensions = new Extensions.StringExtensions();
+            _apiTypeConverter = new Converters.ApiTypeConverter();
         }
 
         [Test]
@@ -29,7 +29,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
            
             //Act
-            IList<int> result = _stringExtensions.ToListOfInts(invalidList);
+            IList<int> result = _apiTypeConverter.ToListOfInts(invalidList);
 
             //Assert
             Assert.IsNull(result);
@@ -43,7 +43,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            IList<int> result = _stringExtensions.ToListOfInts(nullOrEmpty);
+            IList<int> result = _apiTypeConverter.ToListOfInts(nullOrEmpty);
 
             //Assert
             Assert.IsNull(result);
@@ -60,7 +60,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             List<int> expectedList = validList.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList();
 
             //Act
-            IList<int> result = _stringExtensions.ToListOfInts(validList);
+            IList<int> result = _apiTypeConverter.ToListOfInts(validList);
 
             //Assert
             CollectionAssert.AreEqual(expectedList, result);
@@ -93,7 +93,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             }
 
             //Act
-            IList<int> result = _stringExtensions.ToListOfInts(mixedList);
+            IList<int> result = _apiTypeConverter.ToListOfInts(mixedList);
 
             //Assert
             CollectionAssert.IsNotEmpty(result);
@@ -122,7 +122,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             }
 
             //Act
-            IList<int> result = _stringExtensions.ToListOfInts(mixedList);
+            IList<int> result = _apiTypeConverter.ToListOfInts(mixedList);
 
             //Assert
             Assert.AreEqual(1, result.Count);

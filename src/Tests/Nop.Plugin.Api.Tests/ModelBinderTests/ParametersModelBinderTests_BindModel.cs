@@ -5,7 +5,7 @@ using System.Net.Http.Formatting;
 using System.Web.Http.Controllers;
 using System.Web.Http.Metadata;
 using System.Web.Http.ModelBinding;
-using Nop.Plugin.Api.Extensions;
+using Nop.Plugin.Api.Converters;
 using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.Tests.ModelBinderTests.DummyObjects;
 using NUnit.Framework;
@@ -21,9 +21,9 @@ namespace Nop.Plugin.Api.Tests.ModelBinderTests
         [SetUp]
         public void SetUp()
         {
-            IStringExtensions stringExtensions = new StringExtensions();
-            IObjectExtensions objectExtensions = new ObjectExtensions(stringExtensions);
-            _binder = new ParametersModelBinder<DummyModel>(objectExtensions);
+            IApiTypeConverter apiTypeConverter = new ApiTypeConverter();
+            IObjectConverter objectConverter = new ObjectConverter(apiTypeConverter);
+            _binder = new ParametersModelBinder<DummyModel>(objectConverter);
         }
 
         [Test]

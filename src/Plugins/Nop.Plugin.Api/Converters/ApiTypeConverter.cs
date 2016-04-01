@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Nop.Plugin.Api.Extensions
+namespace Nop.Plugin.Api.Converters
 {
-    public class StringExtensions : IStringExtensions
+    public class ApiTypeConverter : IApiTypeConverter
     {
         public DateTime? ToDateTimeNullable(string value)
         {

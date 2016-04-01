@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectExtensions.DummyObjects
+namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectConverter.DummyObjects
 {
     public class SomeTestingObject
     {

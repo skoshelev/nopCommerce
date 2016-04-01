@@ -1,17 +1,17 @@
-﻿using Nop.Plugin.Api.Extensions;
+﻿using Nop.Plugin.Api.Converters;
 using NUnit.Framework;
 
-namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
+namespace Nop.Plugin.Api.Tests.ExtensionsTests.ApiTypeConverter
 {
     [TestFixture]
-    public class StringExtensionsTests_ToIntNullable
+    public class ApiTypeConverterTests_ToIntNullable
     {
-        private IStringExtensions _stringExtensions;
+        private IApiTypeConverter _apiTypeConverter;
 
         [SetUp]
         public void SetUp()
         {
-            _stringExtensions = new Extensions.StringExtensions();
+            _apiTypeConverter = new Converters.ApiTypeConverter();
         }
 
         [Test]
@@ -27,7 +27,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            int? result = _stringExtensions.ToIntNullable(invalidInt);
+            int? result = _apiTypeConverter.ToIntNullable(invalidInt);
 
             //Assert
             Assert.IsNull(result);
@@ -41,7 +41,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             //Arange
 
             //Act
-            int? result = _stringExtensions.ToIntNullable(nullOrEmpty);
+            int? result = _apiTypeConverter.ToIntNullable(nullOrEmpty);
 
             //Assert
             Assert.IsNull(result);
@@ -59,7 +59,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.StringExtensions
             int valid = int.Parse(validInt);
 
             //Act
-            int? result = _stringExtensions.ToIntNullable(validInt);
+            int? result = _apiTypeConverter.ToIntNullable(validInt);
 
             //Assert
             Assert.AreEqual(valid, result);
