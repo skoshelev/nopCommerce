@@ -12,16 +12,16 @@ namespace Nop.Plugin.Api.Models.OrdersParameters
             CreatedAtMax = null;
             CreatedAtMin = null;
             Status = null;
-            FinancialStatus = null;
-            FulfillmentStatus = null;
+            PaymentStatus = null;
+            ShippingStatus = null;
             CustomerId = null;
         }
 
         public DateTime? CreatedAtMin { get; set; }
         public DateTime? CreatedAtMax { get; set; }
         public OrderStatus? Status { get; set; }
-        public PaymentStatus? FinancialStatus { get; set; }
-        public ShippingStatus? FulfillmentStatus { get; set; }
+        public PaymentStatus? PaymentStatus { get; set; }
+        public ShippingStatus? ShippingStatus { get; set; }
         public int? CustomerId { get; set; }
     }
 }

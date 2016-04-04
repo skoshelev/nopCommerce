@@ -94,8 +94,8 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
                 CreatedAtMin = DateTime.Now,
                 CreatedAtMax = DateTime.Now,
                 Status = OrderStatus.Complete,
-                FulfillmentStatus = ShippingStatus.Delivered,
-                FinancialStatus = PaymentStatus.Authorized,
+                ShippingStatus = ShippingStatus.Delivered,
+                PaymentStatus = PaymentStatus.Authorized,
                 CustomerId = 10
             };
 
@@ -104,8 +104,8 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
             orderApiServiceMock.Expect(x => x.GetOrdersCount(parameters.CreatedAtMin,
                                                             parameters.CreatedAtMax,
                                                             parameters.Status,
-                                                            parameters.FinancialStatus,
-                                                            parameters.FulfillmentStatus,
+                                                            parameters.PaymentStatus,
+                                                            parameters.ShippingStatus,
                                                             parameters.CustomerId)).Return(1);
 
             IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
@@ -135,8 +135,8 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
             orderApiServiceMock.Expect(x => x.GetOrdersCount(parameters.CreatedAtMin,
                                                             parameters.CreatedAtMax,
                                                             parameters.Status,
-                                                            parameters.FinancialStatus,
-                                                            parameters.FulfillmentStatus,
+                                                            parameters.PaymentStatus,
+                                                            parameters.ShippingStatus,
                                                             parameters.CustomerId)).Return(0);
 
             IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();

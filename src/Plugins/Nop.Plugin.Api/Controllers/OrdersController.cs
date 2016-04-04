@@ -42,7 +42,7 @@ namespace Nop.Plugin.Api.Controllers
 
             IList<OrderDto> ordersAsDtos = _orderApiService.GetOrders(parameters.Ids, parameters.CreatedAtMin, parameters.CreatedAtMax,
                                                                       parameters.Limit, parameters.Page, parameters.SinceId, 
-                                                                      parameters.Status, parameters.FinancialStatus, parameters.FulfillmentStatus,
+                                                                      parameters.Status, parameters.PaymentStatus, parameters.ShippingStatus,
                                                                       parameters.CustomerId).Select(x => x.ToDto()).ToList();
 
             var ordersRootObject = new OrdersRootObject()
@@ -60,7 +60,7 @@ namespace Nop.Plugin.Api.Controllers
         public IHttpActionResult GetOrdersCount(OrdersCountParametersModel parameters)
         {
             var ordersCount = _orderApiService.GetOrdersCount(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.Status,
-                                                              parameters.FinancialStatus, parameters.FulfillmentStatus, parameters.CustomerId);
+                                                              parameters.PaymentStatus, parameters.ShippingStatus, parameters.CustomerId);
 
             var ordersCountRootObject = new OrdersCountRootObject()
             {
