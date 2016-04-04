@@ -81,5 +81,19 @@ namespace Nop.Plugin.Api.Converters
 
             return null;
         }
+
+        public object ToEnumNullable(string value, Type type)
+        {
+            int enumIntValue = -1;
+
+            if (int.TryParse(value, out enumIntValue))
+            {
+                return Enum.ToObject(Nullable.GetUnderlyingType(type), enumIntValue);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

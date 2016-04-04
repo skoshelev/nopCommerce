@@ -93,6 +93,10 @@
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomersCount.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomers.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_Search.cs" />
+    <Compile Include="ControllersTests\Orders\OrdersControllerTests_GetOrderById.cs" />
+    <Compile Include="ControllersTests\Orders\OrdersControllerTests_GetOrders.cs" />
+    <Compile Include="ControllersTests\Orders\OrdersControllerTests_GetOrdersByCustomerId.cs" />
+    <Compile Include="ControllersTests\Orders\OrdersControllerTests_GetOrdersCount.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProductById.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProducts.cs" />
     <Compile Include="ExtensionsTests\ObjectConverter\DummyObjects\SomeTestingObject.cs" />
