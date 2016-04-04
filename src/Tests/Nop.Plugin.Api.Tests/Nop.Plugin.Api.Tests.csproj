@@ -99,10 +99,11 @@
     <Compile Include="ControllersTests\Orders\OrdersControllerTests_GetOrdersCount.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProductById.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProducts.cs" />
+    <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToEnumNullable.cs" />
     <Compile Include="ConvertersTests\ObjectConverter\DummyObjects\SomeTestingObject.cs" />
     <Compile Include="ConvertersTests\ObjectConverter\ObjectConverterTests_ToObject.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProductsCount.cs" />
-    <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_IsListOfInts.cs" />
+    <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToListOfInts.cs" />
     <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToDateTimeNullable.cs" />
     <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToIntNullable.cs" />
     <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToInt.cs" />

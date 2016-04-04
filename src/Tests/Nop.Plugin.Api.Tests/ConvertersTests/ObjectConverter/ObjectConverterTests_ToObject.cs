@@ -5,7 +5,7 @@ using Nop.Plugin.Api.Tests.ConvertersTests.ObjectConverter.DummyObjects;
 using NUnit.Framework;
 using Rhino.Mocks;
 
-namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectConverter
+namespace Nop.Plugin.Api.Tests.ConvertersTests.ObjectConverter
 {
     [TestFixture]
     public class ObjectConverterTests_ToObject
