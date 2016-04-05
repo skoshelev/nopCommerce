@@ -23,7 +23,7 @@ namespace Nop.Plugin.Api.DTOs.ProductCategoryMappings
         /// <summary>
         /// Gets or sets a value indicating whether the product is featured
         /// </summary>
-        [JsonProperty("is_futured_product")]
+        [JsonProperty("is_featured_product")]
         public bool? IsFeaturedProduct { get; set; }
 
         /// <summary>
