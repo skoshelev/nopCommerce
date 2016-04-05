@@ -2,7 +2,7 @@
 using Nop.Plugin.Api.Converters;
 using NUnit.Framework;
 
-namespace Nop.Plugin.Api.Tests.ExtensionsTests.ApiTypeConverter
+namespace Nop.Plugin.Api.Tests.ConvertersTests.ApiTypeConverter
 {
     [TestFixture]
     public class ApiTypeConverterTests_ToDateTimeNullable

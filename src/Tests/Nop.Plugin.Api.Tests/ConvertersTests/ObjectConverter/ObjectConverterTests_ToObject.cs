@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Nop.Plugin.Api.Converters;
-using Nop.Plugin.Api.Tests.ExtensionsTests.ObjectConverter.DummyObjects;
+using Nop.Plugin.Api.Tests.ConvertersTests.ObjectConverter.DummyObjects;
 using NUnit.Framework;
 using Rhino.Mocks;
 
-namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectConverter
+namespace Nop.Plugin.Api.Tests.ConvertersTests.ObjectConverter
 {
     [TestFixture]
     public class ObjectConverterTests_ToObject
@@ -333,6 +333,61 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ObjectConverter
 
             //Assert
             apiTypeConverterMock.AssertWasNotCalled(x => x.ToStatus(Arg<string>.Is.Anything));
+        }
+
+        [Test]
+        [TestCase("OrderStatus")]
+        [TestCase("PaymentStatus")]
+        [TestCase("ShippingStatus")]
+        [TestCase("order_status")]
+        [TestCase("payment_status")]
+        [TestCase("shipping_status")]
+        [TestCase("orderstatus")]
+        [TestCase("paymentstatus")]
+        [TestCase("shippingstatus")]
+        [TestCase("OrderstaTuS")]
+        [TestCase("shiPpiNgStaTus")]
+        [TestCase("PAymeNTStatUs")]
+        public void WhenCollectionContainsValidNullableEnumProperty_ShouldCallTheToEnumNullableMethod(string enumNullableProperty)
+        {
+            //Arange
+            IApiTypeConverter apiTypeConverterMock = MockRepository.GenerateMock<IApiTypeConverter>();
+            apiTypeConverterMock.Expect(x => x.ToEnumNullable(Arg<string>.Is.Anything, Arg<Type>.Is.Anything)).IgnoreArguments().Return(null);
+
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterMock);
+
+            ICollection<KeyValuePair<string, string>> collection = new List<KeyValuePair<string, string>>()
+            {
+                new KeyValuePair<string, string>(enumNullableProperty, "some enum value")
+            };
+
+            //Act
+            objectConverter.ToObject<SomeTestingObject>(collection);
+
+            //Assert
+            apiTypeConverterMock.AssertWasCalled(x => x.ToEnumNullable(Arg<string>.Is.Anything, Arg<Type>.Is.Anything));
+        }
+
+        [Test]
+        [TestCase("invalid enum property name")]
+        public void WhenCollectionContainsInvalidNullableEnumProperty_ShouldNotCallTheToEnumNullableMethod(string invalidEnumNullableProperty)
+        {
+            //Arange
+            IApiTypeConverter apiTypeConverterMock = MockRepository.GenerateMock<IApiTypeConverter>();
+            apiTypeConverterMock.Expect(x => x.ToEnumNullable(Arg<string>.Is.Anything, Arg<Type>.Is.Anything)).IgnoreArguments();
+
+            IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterMock);
+
+            ICollection<KeyValuePair<string, string>> collection = new List<KeyValuePair<string, string>>()
+            {
+                new KeyValuePair<string, string>(invalidEnumNullableProperty, "some enum value")
+            };
+
+            //Act
+            objectConverter.ToObject<SomeTestingObject>(collection);
+
+            //Assert
+            apiTypeConverterMock.AssertWasNotCalled(x => x.ToEnumNullable(Arg<string>.Is.Anything, Arg<Type>.Is.Anything));
         }
     }   
 }

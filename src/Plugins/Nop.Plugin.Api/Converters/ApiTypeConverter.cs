@@ -81,5 +81,22 @@ namespace Nop.Plugin.Api.Converters
 
             return null;
         }
+
+        public object ToEnumNullable(string value, Type type)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                Type enumType = Nullable.GetUnderlyingType(type);
+
+                var enumNames = enumType.GetEnumNames();
+
+                if (enumNames.Any(x => x.ToLowerInvariant().Equals(value.ToLowerInvariant())))
+                {
+                    return Enum.Parse(enumType, value, true);
+                }
+            }
+
+            return null;
+        }
     }
 }

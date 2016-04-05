@@ -60,9 +60,19 @@ namespace Nop.Plugin.Api.Converters
                 // Because currently status is the only boolean and we need to accept published and unpublished statuses.
                 return _apiTypeConverter.ToStatus(value);
             }
+            else if (IsNullableEnum(type))
+            {
+                return _apiTypeConverter.ToEnumNullable(value, type);
+            }
 
             // It should be the last resort, because it is not exception safe.
             return Convert.ChangeType(value, type);
+        }
+
+        private bool IsNullableEnum(Type t)
+        {
+            Type u = Nullable.GetUnderlyingType(t);
+            return (u != null) && u.IsEnum;
         }
     }
 }

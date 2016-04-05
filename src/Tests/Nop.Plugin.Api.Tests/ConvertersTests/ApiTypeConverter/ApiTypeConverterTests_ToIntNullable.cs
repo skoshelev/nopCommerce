@@ -1,10 +1,10 @@
 ﻿using Nop.Plugin.Api.Converters;
 using NUnit.Framework;
 
-namespace Nop.Plugin.Api.Tests.ExtensionsTests.ApiTypeConverter
+namespace Nop.Plugin.Api.Tests.ConvertersTests.ApiTypeConverter
 {
     [TestFixture]
-    public class ApiTypeConverterTests_ToInt
+    public class ApiTypeConverterTests_ToIntNullable
     {
         private IApiTypeConverter _apiTypeConverter;
 
@@ -22,29 +22,29 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ApiTypeConverter
         [TestCase("$%%^%^$#^&&%#)__(^&")]
         [TestCase("2015-02-12")]
         [TestCase("12:45")]
-        public void WhenInvalidIntPassed_ShouldReturnZero(string invalidInt)
+        public void WhenInvalidIntPassed_ShouldReturnNull(string invalidInt)
         {
             //Arange
 
             //Act
-            int result = _apiTypeConverter.ToInt(invalidInt);
+            int? result = _apiTypeConverter.ToIntNullable(invalidInt);
 
             //Assert
-            Assert.AreEqual(0, result);
+            Assert.IsNull(result);
         }
 
         [Test]
         [TestCase("")]
         [TestCase(null)]
-        public void WhenNullOrEmptyStringPassed_ShouldReturnZero(string nullOrEmpty)
+        public void WhenNullOrEmptyStringPassed_ShouldReturnNull(string nullOrEmpty)
         {
             //Arange
 
             //Act
-            int result = _apiTypeConverter.ToInt(nullOrEmpty);
+            int? result = _apiTypeConverter.ToIntNullable(nullOrEmpty);
 
             //Assert
-            Assert.AreEqual(0, result);
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace Nop.Plugin.Api.Tests.ExtensionsTests.ApiTypeConverter
             int valid = int.Parse(validInt);
 
             //Act
-            int result = _apiTypeConverter.ToInt(validInt);
+            int? result = _apiTypeConverter.ToIntNullable(validInt);
 
             //Assert
             Assert.AreEqual(valid, result);

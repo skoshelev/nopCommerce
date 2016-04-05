@@ -4,10 +4,10 @@ using System.Linq;
 using Nop.Plugin.Api.Converters;
 using NUnit.Framework;
 
-namespace Nop.Plugin.Api.Tests.ExtensionsTests.ApiTypeConverter
+namespace Nop.Plugin.Api.Tests.ConvertersTests.ApiTypeConverter
 {
     [TestFixture]
-    public class ApiTypeConverterTests_IsListOfInts
+    public class ApiTypeConverterTests_ToListOfInts
     {
         private IApiTypeConverter _apiTypeConverter;
 

@@ -22,6 +22,14 @@ namespace Nop.Plugin.Api.Swagger
                     {
                         parameter.type = "string";
                     }
+
+                    if(parameter.name.Equals("status", StringComparison.InvariantCultureIgnoreCase) ||
+                       parameter.name.Equals("paymentStatus", StringComparison.InvariantCultureIgnoreCase) ||
+                       parameter.name.Equals("shippingStatus", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        parameter.type = "string";
+                        parameter.@enum = null;
+                    }
                 }
             }
         }
