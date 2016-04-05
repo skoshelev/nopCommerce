@@ -9,6 +9,7 @@
         public const int DefaultPageValue = 1;
         public const int DefaultSinceId = 0;
         public const int DefaultCategoryId = 0;
+        public const int DefaultProductId = 0;
         public const int MaxLimit = 250;
         public const int MinLimit = 1;
         public const string PublishedStatus = "published";

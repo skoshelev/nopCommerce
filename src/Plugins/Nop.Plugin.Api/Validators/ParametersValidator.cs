@@ -31,6 +31,7 @@ namespace Nop.Plugin.Api.Validators
             return null;
         }
 
+        // TODO: remove this method because it is not used anymore.
         public string EnsurePublishedStatusIsValid(string publishedStatus)
         {
             if (publishedStatus != Configurations.PublishedStatus && publishedStatus != Configurations.UnpublishedStatus &&

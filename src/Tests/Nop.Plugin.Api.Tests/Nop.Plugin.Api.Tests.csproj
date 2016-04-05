@@ -93,6 +93,9 @@
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomersCount.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomers.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_Search.cs" />
+    <Compile Include="ControllersTests\ProductCategoryMappings\ProductCategoryMappingsControllerTests_GetMappingById.cs" />
+    <Compile Include="ControllersTests\ProductCategoryMappings\ProductCategoryMappingsControllerTests_GetMappings.cs" />
+    <Compile Include="ControllersTests\ProductCategoryMappings\ProductCategoryMappingsControllerTests_GetMappingsCount.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProductById.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProducts.cs" />
     <Compile Include="ExtensionsTests\ObjectConverter\DummyObjects\SomeTestingObject.cs" />

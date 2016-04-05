@@ -137,6 +137,7 @@
     <Compile Include="Controllers\CustomersController.cs" />
     <Compile Include="Controllers\ManageClientsAdminController.cs" />
     <Compile Include="Controllers\OAuthController.cs" />
+    <Compile Include="Controllers\ProductCategoryMappingsController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="DataMappings\ClientMap.cs" />
     <Compile Include="DataStructures\ApiList.cs" />
@@ -149,6 +150,9 @@
     <Compile Include="DTOs\Categories\CategoryDto.cs" />
     <Compile Include="DTOs\Customers\BaseCustomerDto.cs" />
     <Compile Include="DTOs\Customers\ISerializableObject.cs" />
+    <Compile Include="DTOs\ProductCategoryMappings\ProductCategoryMappingsCountRootObject.cs" />
+    <Compile Include="DTOs\ProductCategoryMappings\ProductCategoryMappingsDto.cs" />
+    <Compile Include="DTOs\ProductCategoryMappings\ProductCategoryMappingsRootObject.cs" />
     <Compile Include="DTOs\Products\ProductDto.cs" />
     <Compile Include="DTOs\Products\ProductsCountRootObject.cs" />
     <Compile Include="DTOs\Products\ProductsRootObjectDto.cs" />
@@ -177,6 +181,7 @@
     <Compile Include="MappingExtensions\ConfigurationMappings.cs" />
     <Compile Include="MappingExtensions\CustomerDtoMappings.cs" />
     <Compile Include="MappingExtensions\Maps.cs" />
+    <Compile Include="MappingExtensions\ProductCategoryMappingDtoMappings.cs" />
     <Compile Include="MappingExtensions\ProductDtoMappings.cs" />
     <Compile Include="MappingExtensions\ShoppingCartItemDtoMappings.cs" />
     <Compile Include="ModelBinders\ParametersModelBinder.cs" />
@@ -187,6 +192,9 @@
     <Compile Include="Models\ConfigurationModel.cs" />
     <Compile Include="Models\CustomersParameters\CustomersParametersModel.cs" />
     <Compile Include="Models\CustomersParameters\CustomersSearchParametersModel.cs" />
+    <Compile Include="Models\ProductCategoryMappingsParameters\ProductCategoryMappingsCountParametersModel.cs" />
+    <Compile Include="Models\ProductCategoryMappingsParameters\BaseCategoryMappingsParametersModel.cs" />
+    <Compile Include="Models\ProductCategoryMappingsParameters\ProductCategoryMappingsParametersModel.cs" />
     <Compile Include="Models\ProductsParameters\BaseProductsParametersModel.cs" />
     <Compile Include="Models\ProductsParameters\ProductsCountParametersModel.cs" />
     <Compile Include="Models\ProductsParameters\ProductsParametersModel.cs" />
@@ -204,12 +212,14 @@
     <Compile Include="Services\CountryApiService.cs" />
     <Compile Include="Services\CustomerApiService.cs" />
     <Compile Include="Services\ICategoryApiService.cs" />
+    <Compile Include="Services\IProductCategoryMappingsApiService.cs" />
     <Compile Include="Services\IClientService.cs" />
     <Compile Include="Services\ICountryApiService.cs" />
     <Compile Include="Services\ICustomerApiService.cs" />
     <Compile Include="Services\IProductApiService.cs" />
     <Compile Include="Services\IStateProvinceApiService.cs" />
     <Compile Include="Services\ProductApiService.cs" />
+    <Compile Include="Services\ProductCategoryMappingsApiService.cs" />
     <Compile Include="Services\StateProvinceApiService.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Swagger\ChangeParameterTypeOperationFilter.cs" />

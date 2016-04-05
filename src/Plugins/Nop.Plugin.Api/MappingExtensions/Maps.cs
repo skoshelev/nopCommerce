@@ -82,6 +82,5 @@ namespace Nop.Plugin.Api.MappingExtensions
                .IgnoreAllNonExisting()
                .ForMember(x => x.FullDescription, y => y.MapFrom(src => HttpUtility.HtmlEncode(src.FullDescription)));
         }
-
     }
 }
