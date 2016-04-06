@@ -27,8 +27,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
             // Assert
             Assert.AreEqual(0, categories.Count);
         }
-
-        //TODO: Discuss if we should return the deleted categories as well.
+        
         [Test]
         public void WhenCalledWithDefaultParameters_GivenOnlyDeletedCategoriesExist_ShouldReturnEmptyCollection()
         {

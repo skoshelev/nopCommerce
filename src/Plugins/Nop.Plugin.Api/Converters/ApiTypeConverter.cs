@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Nop.Plugin.Api.Converters
@@ -10,7 +11,15 @@ namespace Nop.Plugin.Api.Converters
         {
             DateTime result;
 
-            if (DateTime.TryParse(value, out result))
+            var formats = new string[]
+            {
+                "yyyy-MM-dd",
+                "yyyy-MM-ddTHH:mm",
+                "yyyy-MM-ddTHH:mm:ss",
+                "yyyy-MM-ddTHH:mm:sszzz",
+            };
+
+            if (DateTime.TryParseExact(value, formats, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out result))
             {
                 return result;
             }

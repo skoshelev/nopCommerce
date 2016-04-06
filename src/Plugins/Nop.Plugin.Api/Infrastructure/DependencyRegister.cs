@@ -96,7 +96,6 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<AuthorizationHelper>().As<IAuthorizationHelper>().InstancePerLifetimeScope();
             builder.RegisterType<JsonFieldsSerializer>().As<IJsonFieldsSerializer>().InstancePerLifetimeScope();
             builder.RegisterType<FieldsValidator>().As<IFieldsValidator>().InstancePerLifetimeScope();
-            builder.RegisterType<ParametersValidator>().As<IParametersValidator>().InstancePerLifetimeScope();
             builder.RegisterType<ObjectConverter>().As<IObjectConverter>().InstancePerLifetimeScope();
             builder.RegisterType<ApiTypeConverter>().As<IApiTypeConverter>().InstancePerLifetimeScope();
         }

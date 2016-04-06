@@ -35,6 +35,9 @@ namespace Nop.Plugin.Api.Services
             var query = GetCustomersQuery(createdAtMin, createdAtMax, sinceId);
 
             // TODO: Check why this does not return some customers i.e Guests
+            // TODO: checked 
+            // It does not return guest customers because they don't have a record in the generic attributes table.
+            // This won't return customers if they don't have record in the generic attributes table, regardless if they are guests or not.
             IList<CustomerDto> result = HandleCustomerGenericAttributes(null, query, limit, page);
 
             return result;

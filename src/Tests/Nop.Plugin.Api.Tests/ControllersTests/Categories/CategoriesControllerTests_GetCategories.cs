@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Results;
 using Nop.Core.Domain.Catalog;
@@ -19,44 +17,6 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
     [TestFixture]
     public class CategoriesControllerTests_GetCategories
     {
-        // TODO: Move these tests when the specific module is ready
-        //[TestCase("bbb")]
-        //[TestCase(",,,,")]
-        //[TestCase("asd,asda")]
-        //[TestCase("1234323232323223")]
-        // The cases above should be used for the tests of the module that converts the ids from string to list<int>
-        // WhenNonNumericIdsParameterPassed_ShouldCallTheServiceWithNullIds(string ids)
-
-        // TODO: Move these tests when the specific module is ready
-        //[TestCase("1")]
-        //[TestCase("1,1")]
-        //[TestCase("1,sasa")]
-        //[TestCase("asda,1,sasa,aa")]
-        // The cases above should be used for the tests of the module that converts the ids from string to list<int>
-        // WhenSigleValidNumericIdParameterPassed_ShouldCallTheServiceWithThatId(List<int> ids)
-
-        // TODO: Move these tests when the specific module is ready
-        //[TestCase("1,2")]
-        //[TestCase("1, 2,1, 2 ")]
-        //[TestCase("1,sasa, 2")]
-        //[TestCase("asda,1,sasa, 2, aa,2 , 1")]
-        // The cases above should be used for the tests of the module that converts the ids from string to list<int>
-        // WhenSeveralNumericIdsParameterPassed_ShouldCallTheServiceWithTheseIds(string ids)
-
-        // TODO: Move these tests when the specific module is ready
-        //[TestCase("somestatus")]
-        //[TestCase("Published")]
-        //[TestCase("Unpublished")]
-        // The cases above should be used for the tests of the module that converts the status from string to bool?
-        // WhenInvalidStatusParameterPassed_ShouldCallTheServiceWithAnyStatus(string status)
-
-        // TODO: Move these tests when the specific module is ready
-        //[TestCase("published")]
-        //[TestCase("unpublished")]
-        //[TestCase("any")]
-        // The cases above should be used for the tests of the module that converts the status from string to bool?
-        // WhenValidStatusParameterPassed_ShouldCallTheServiceWithSameStatus(string validStatus)
-
         [Test]
         [TestCase(Configurations.MinLimit - 1)]
         [TestCase(Configurations.MaxLimit + 1)]

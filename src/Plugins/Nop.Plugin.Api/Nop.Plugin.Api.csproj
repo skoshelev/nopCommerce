@@ -193,7 +193,6 @@
     <Compile Include="MappingExtensions\OrderItemDtoMappings.cs" />
     <Compile Include="MappingExtensions\ProductDtoMappings.cs" />
     <Compile Include="MappingExtensions\ShoppingCartItemDtoMappings.cs" />
-    <Compile Include="ModelBinders\JsonModelBinder.cs" />
     <Compile Include="ModelBinders\ParametersModelBinder.cs" />
     <Compile Include="Models\CategoriesParameters\BaseCategoriesParametersModel.cs" />
     <Compile Include="Models\CategoriesParameters\CategoriesCountParametersModel.cs" />
@@ -243,8 +242,6 @@
     <Compile Include="Validators\ClientValidator.cs" />
     <Compile Include="Validators\FieldsValidator.cs" />
     <Compile Include="Validators\IFieldsValidator.cs" />
-    <Compile Include="Validators\IParametersValidator.cs" />
-    <Compile Include="Validators\ParametersValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Description.txt">
