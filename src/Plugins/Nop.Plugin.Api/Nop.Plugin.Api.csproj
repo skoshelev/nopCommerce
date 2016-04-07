@@ -128,7 +128,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionResults\RowJsonActionResult.cs" />
+    <Compile Include="ActionResults\RawJsonActionResult.cs" />
     <Compile Include="Attributes\BearerTokenAuthorizeAttribute.cs" />
     <Compile Include="Constants\ViewNames.cs" />
     <Compile Include="ContractResolvers\DynamicContractResolver.cs" />
@@ -140,6 +140,7 @@
     <Compile Include="Controllers\ProductCategoryMappingsController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
+    <Compile Include="Controllers\ShoppingCartItemsController.cs" />
     <Compile Include="DataMappings\ClientMap.cs" />
     <Compile Include="DataStructures\ApiList.cs" />
     <Compile Include="Data\ApiObjectContext.cs" />
@@ -166,6 +167,8 @@
     <Compile Include="Converters\IApiTypeConverter.cs" />
     <Compile Include="Converters\ObjectConverter.cs" />
     <Compile Include="Converters\ApiTypeConverter.cs" />
+    <Compile Include="DTOs\ShoppingCarts\ShoppingCartItemDto.cs" />
+    <Compile Include="DTOs\ShoppingCarts\ShoppingCartItemsRootObject.cs" />
     <Compile Include="Helpers\AuthorizationHelper.cs" />
     <Compile Include="Helpers\AutoMapperHelper.cs" />
     <Compile Include="Helpers\IAuthorizationHelper.cs" />
@@ -179,7 +182,6 @@
     <Compile Include="DTOs\Customers\CustomersCountRootObject.cs" />
     <Compile Include="DTOs\Customers\CustomersRootObject.cs" />
     <Compile Include="DTOs\Customers\OrderCustomerDto.cs" />
-    <Compile Include="DTOs\ShoppingCartItemDto.cs" />
     <Compile Include="Infrastructure\DependencyRegister.cs" />
     <Compile Include="MappingExtensions\AddressDtoMappings.cs" />
     <Compile Include="MappingExtensions\BaseMapping.cs" />
@@ -210,6 +212,7 @@
     <Compile Include="Models\ProductsParameters\BaseProductsParametersModel.cs" />
     <Compile Include="Models\ProductsParameters\ProductsCountParametersModel.cs" />
     <Compile Include="Models\ProductsParameters\ProductsParametersModel.cs" />
+    <Compile Include="Models\ShoppingCartsParameters\ShoppingCartItemsParametersModel.cs" />
     <Compile Include="MVC\Configurations.cs" />
     <Compile Include="Owin\Middleware\BearerTokenMiddleware.cs" />
     <Compile Include="Owin\OAuth\Providers\AuthenticationTokenProvider.cs" />
@@ -230,10 +233,12 @@
     <Compile Include="Services\ICustomerApiService.cs" />
     <Compile Include="Services\IOrderApiService.cs" />
     <Compile Include="Services\IProductApiService.cs" />
+    <Compile Include="Services\IShoppingCartItemApiService.cs" />
     <Compile Include="Services\IStateProvinceApiService.cs" />
     <Compile Include="Services\OrderApiService.cs" />
     <Compile Include="Services\ProductApiService.cs" />
     <Compile Include="Services\ProductCategoryMappingsApiService.cs" />
+    <Compile Include="Services\ShoppingCartItemApiService.cs" />
     <Compile Include="Services\StateProvinceApiService.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Swagger\ChangeParameterTypeOperationFilter.cs" />

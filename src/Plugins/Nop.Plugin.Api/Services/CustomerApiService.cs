@@ -82,6 +82,14 @@ namespace Nop.Plugin.Api.Services
             return result;
         }
 
+        public Dictionary<string, string> GetFirstAndLastNameByCustomerId(int customerId)
+        {
+            return _genericAttributeRepository.Table.Where(
+                x =>
+                    x.KeyGroup == KeyGroup && x.EntityId == customerId &&
+                    (x.Key == FirstName || x.Key == LastName)).ToDictionary(x => x.Key.ToLowerInvariant(), y => y.Value);
+        }
+
         private Dictionary<string, string> EnsureSearchQueryIsValid(string query, Func<string, Dictionary<string, string>> parseSearchQuery)
         {
             if (!string.IsNullOrEmpty(query))

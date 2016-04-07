@@ -4,7 +4,7 @@ using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.DTOs.Products;
 
-namespace Nop.Plugin.Api.DTOs
+namespace Nop.Plugin.Api.DTOs.ShoppingCarts
 {
     [JsonObject(Title = "shopping_cart_items")]
     public class ShoppingCartItemDto

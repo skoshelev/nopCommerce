@@ -89,7 +89,7 @@ namespace Nop.Plugin.Api.Controllers
                 return NotFound();
             }
             
-            ProductDto productDto = product.ToDto(fields);
+            ProductDto productDto = product.ToDto();
 
             var productsRootObject = new ProductsRootObjectDto();
 

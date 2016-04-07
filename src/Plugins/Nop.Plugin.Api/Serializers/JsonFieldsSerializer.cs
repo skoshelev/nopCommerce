@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Nop.Plugin.Api.ContractResolvers;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.Validators;
@@ -8,6 +9,8 @@ namespace Nop.Plugin.Api.Serializers
 {
     public class JsonFieldsSerializer : IJsonFieldsSerializer
     {
+        private const string DateTimeIso8601Format = "yyyy-MM-ddTHH:mm:sszzz";
+
         private readonly IFieldsValidator _fieldsValidator;
 
         public JsonFieldsSerializer(IFieldsValidator fieldsValidator)
@@ -55,16 +58,18 @@ namespace Nop.Plugin.Api.Serializers
         {
             DynamicContractResolver dynamicContractResolver = new DynamicContractResolver(fieldsToSerialize);
 
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(objectToSerialize,
-                Newtonsoft.Json.Formatting.Indented,
-                new Newtonsoft.Json.JsonSerializerSettings { ContractResolver = dynamicContractResolver });
+            string json = JsonConvert.SerializeObject(objectToSerialize,
+                Formatting.Indented,
+                new JsonSerializerSettings { ContractResolver = dynamicContractResolver, DateFormatString = DateTimeIso8601Format });
 
             return json;
         }
 
         private string Serialize(object objectToSerialize)
         {
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(objectToSerialize, Newtonsoft.Json.Formatting.Indented);
+            string json = JsonConvert.SerializeObject(objectToSerialize, 
+                Formatting.Indented, 
+                new JsonSerializerSettings() {DateFormatString = DateTimeIso8601Format });
 
             return json;
         }

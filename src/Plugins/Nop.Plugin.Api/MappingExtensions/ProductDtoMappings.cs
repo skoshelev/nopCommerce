@@ -6,7 +6,7 @@ namespace Nop.Plugin.Api.MappingExtensions
 {
     public static class ProductDtoMappings
     {
-        public static ProductDto ToDto(this Product product, string fields = null)
+        public static ProductDto ToDto(this Product product)
         {
             return Mapper.Map<Product, ProductDto>(product);
         }

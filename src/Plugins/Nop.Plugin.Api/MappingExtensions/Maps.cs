@@ -14,6 +14,7 @@ using Nop.Core.Domain.Shipping;
 using Nop.Plugin.Api.DTOs;
 using Nop.Plugin.Api.DTOs.Orders;
 using Nop.Plugin.Api.DTOs.Products;
+using Nop.Plugin.Api.DTOs.ShoppingCarts;
 
 namespace Nop.Plugin.Api.MappingExtensions
 {
@@ -77,7 +78,7 @@ namespace Nop.Plugin.Api.MappingExtensions
             Mapper.CreateMap<ShoppingCartItem, ShoppingCartItemDto>()
                 .IgnoreAllNonExisting()
                 .ForMember(x => x.Customer, y => y.MapFrom(src => src.Customer.GetWithDefault(x => x, new Customer()).ToCustomerForShoppingCartItemDto()))
-                .ForMember(x => x.Product, y => y.MapFrom(src => src.Product.GetWithDefault(x => x, new Product()).ToDto(null)));
+                .ForMember(x => x.Product, y => y.MapFrom(src => src.Product.GetWithDefault(x => x, new Product()).ToDto()));
         }
 
         public static void CreateProductMap()
@@ -91,7 +92,7 @@ namespace Nop.Plugin.Api.MappingExtensions
         {
             Mapper.CreateMap<OrderItem, OrderItemDto>()
                 .IgnoreAllNonExisting()
-                .ForMember(x => x.Product, y => y.MapFrom(src => src.Product.GetWithDefault(x => x, new Product()).ToDto(null)));
+                .ForMember(x => x.Product, y => y.MapFrom(src => src.Product.GetWithDefault(x => x, new Product()).ToDto()));
         }
 
         public static void CreateOrderMap()

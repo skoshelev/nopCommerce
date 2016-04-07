@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Nop.Core.Domain.Orders;
-using Nop.Plugin.Api.DTOs;
+using Nop.Plugin.Api.DTOs.ShoppingCarts;
 
 namespace Nop.Plugin.Api.MappingExtensions
 {
