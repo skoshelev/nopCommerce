@@ -12,6 +12,12 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
         private int? _shoppingCartTypeId;
 
         /// <summary>
+        /// Gets or sets the id
+        /// </summary>
+        [JsonProperty("id")]
+        public int Id { get; set; }
+
+        /// <summary>
         /// Gets or sets the price enter by a customer
         /// </summary>
         [JsonProperty("customer_entered_price")]

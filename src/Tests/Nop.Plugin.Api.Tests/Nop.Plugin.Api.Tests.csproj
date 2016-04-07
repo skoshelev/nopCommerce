@@ -102,6 +102,8 @@
     <Compile Include="ControllersTests\Orders\OrdersControllerTests_GetOrdersCount.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProductById.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProducts.cs" />
+    <Compile Include="ControllersTests\ShoppingCartItems\ShoppingCartItemsControllerTests_GetShoppingCartItems.cs" />
+    <Compile Include="ControllersTests\ShoppingCartItems\ShoppingCartItemsControllerTests_GetShoppingCartItemsByCustomerId.cs" />
     <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToEnumNullable.cs" />
     <Compile Include="ConvertersTests\ObjectConverter\DummyObjects\SomeTestingObject.cs" />
     <Compile Include="ConvertersTests\ObjectConverter\ObjectConverterTests_ToObject.cs" />

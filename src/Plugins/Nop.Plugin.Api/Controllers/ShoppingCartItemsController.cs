@@ -40,19 +40,29 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest("Invalid request parameters");
             }
 
-            return GetShoppingCartItemsJsonResult(parameters);
+            IList<ShoppingCartItem> shoppingCartItems = _shoppingCartItemApiService.GetShoppingCartItems(parameters.CustomerId,
+                                                                                                         parameters.CreatedAtMin,
+                                                                                                         parameters.CreatedAtMax, parameters.UpdatedAtMin,
+                                                                                                         parameters.UpdatedAtMax, parameters.Limit,
+                                                                                                         parameters.Page);
+
+            List<ShoppingCartItemDto> shoppingCartItemsDtos = shoppingCartItems.Select(x => x.ToDto()).ToList();
+
+            var shoppingCartsRootObject = new ShoppingCartItemsRootObject()
+            {
+                ShoppingCartItems = shoppingCartItemsDtos
+            };
+
+            var json = _jsonFieldsSerializer.Serialize(shoppingCartsRootObject, parameters.Fields);
+
+            return new RawJsonActionResult(json);
         }
         
         [HttpGet]
         [ResponseType(typeof(ShoppingCartItemsRootObject))]
-        public IHttpActionResult GetShoppingCartByCustomerId(int customerId, ShoppingCartItemsParametersModel parameters)
+        public IHttpActionResult GetShoppingCartItemsByCustomerId(int customerId, ShoppingCartItemsForCustomerParametersModel parameters)
         {
-            // This is needed because the binder won't bind the customer id if it is passed as part of the url and not in the query string
-            // i.e. api/shopping_cart_items/1 
-            // We are settings it in the parameters model so we can reuse the GetShoppingCartItemsJsonResult method.
-            parameters.CustomerId = customerId;
-
-            if (parameters.CustomerId <= Configurations.DefaultCustomerId)
+            if (customerId <= Configurations.DefaultCustomerId)
             {
                 return NotFound();
             }
@@ -67,17 +77,16 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest("Invalid request parameters");
             }
 
-            return GetShoppingCartItemsJsonResult(parameters);
-        }
+            IList<ShoppingCartItem> shoppingCartItems = _shoppingCartItemApiService.GetShoppingCartItems(customerId,
+                                                                                                         parameters.CreatedAtMin,
+                                                                                                         parameters.CreatedAtMax, parameters.UpdatedAtMin,
+                                                                                                         parameters.UpdatedAtMax, parameters.Limit,
+                                                                                                         parameters.Page);
 
-        [NonAction]
-        private IHttpActionResult GetShoppingCartItemsJsonResult(ShoppingCartItemsParametersModel parameters)
-        {
-            IList<ShoppingCartItem> shoppingCartItems = _shoppingCartItemApiService.GetShoppingCartItems(parameters.CustomerId,
-                parameters.CreatedAtMin,
-                parameters.CreatedAtMax, parameters.UpdatedAtMin,
-                parameters.UpdatedAtMax, parameters.Limit,
-                parameters.Page);
+            if (shoppingCartItems == null)
+            {
+                return NotFound();
+            }
 
             List<ShoppingCartItemDto> shoppingCartItemsDtos = shoppingCartItems.Select(x => x.ToDto()).ToList();
 

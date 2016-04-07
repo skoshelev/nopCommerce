@@ -162,8 +162,8 @@ namespace Nop.Plugin.Api
             
             config.Routes.MapHttpRoute(
                 name: "shoppingCartItemsByCustomerId",
-                routeTemplate: "api/shopping_carts/{customer_id}",
-                defaults: new { controller = "ShoppingCartItems", action = "GetShoppingCartByCustomerId" });
+                routeTemplate: "api/shopping_carts/{customerId}",
+                defaults: new { controller = "ShoppingCartItems", action = "GetShoppingCartItemsByCustomerId" });
 
             // The default route templates for the Swagger docs and swagger-ui are "swagger/docs/{apiVersion}" and "swagger/ui/index#/{assetPath}" respectively.
             config

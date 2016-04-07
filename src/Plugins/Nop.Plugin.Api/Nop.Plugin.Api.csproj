@@ -212,6 +212,8 @@
     <Compile Include="Models\ProductsParameters\BaseProductsParametersModel.cs" />
     <Compile Include="Models\ProductsParameters\ProductsCountParametersModel.cs" />
     <Compile Include="Models\ProductsParameters\ProductsParametersModel.cs" />
+    <Compile Include="Models\ShoppingCartsParameters\BaseShoppingCartItemsParametersModel.cs" />
+    <Compile Include="Models\ShoppingCartsParameters\ShoppingCartItemsForCustomerParametersModel.cs" />
     <Compile Include="Models\ShoppingCartsParameters\ShoppingCartItemsParametersModel.cs" />
     <Compile Include="MVC\Configurations.cs" />
     <Compile Include="Owin\Middleware\BearerTokenMiddleware.cs" />
