@@ -73,7 +73,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             //Arange
             IShoppingCartItemApiService shoppingCartItemsApiServiceMock = MockRepository.GenerateMock<IShoppingCartItemApiService>();
 
-            shoppingCartItemsApiServiceMock.Expect(x => x.GetShoppingCartItems(parameters.CustomerId, parameters.CreatedAtMin,
+            shoppingCartItemsApiServiceMock.Expect(x => x.GetShoppingCartItems(0, parameters.CreatedAtMin,
                                                                                parameters.CreatedAtMax, parameters.UpdatedAtMin,
                                                                                parameters.UpdatedAtMax, parameters.Limit, 
                                                                                parameters.Page)).Return(new List<ShoppingCartItem>());

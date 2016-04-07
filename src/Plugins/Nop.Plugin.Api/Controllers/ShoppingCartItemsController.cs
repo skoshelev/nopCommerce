@@ -40,11 +40,13 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest("Invalid request parameters");
             }
 
-            IList<ShoppingCartItem> shoppingCartItems = _shoppingCartItemApiService.GetShoppingCartItems(parameters.CustomerId,
-                                                                                                         parameters.CreatedAtMin,
-                                                                                                         parameters.CreatedAtMax, parameters.UpdatedAtMin,
-                                                                                                         parameters.UpdatedAtMax, parameters.Limit,
-                                                                                                         parameters.Page);
+            IList<ShoppingCartItem> shoppingCartItems = _shoppingCartItemApiService.GetShoppingCartItems(customerId: 0,
+                                                                                                         createdAtMin: parameters.CreatedAtMin,
+                                                                                                         createdAtMax: parameters.CreatedAtMax, 
+                                                                                                         updatedAtMin: parameters.UpdatedAtMin,
+                                                                                                         updatedAtMax: parameters.UpdatedAtMax, 
+                                                                                                         limit: parameters.Limit,
+                                                                                                         page: parameters.Page);
 
             List<ShoppingCartItemDto> shoppingCartItemsDtos = shoppingCartItems.Select(x => x.ToDto()).ToList();
 
