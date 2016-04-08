@@ -194,7 +194,7 @@ namespace Nop.Plugin.Api.Services
         private IList<CustomerDto> GetFullCustomerDtos(IQueryable<IGrouping<int, CustomerAttributeMappingDto>> customerAttributesMappings, 
             int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit, string order = "Id")
         {
-            var mappings = new List<CustomerDto>();
+            var customerDtos = new List<CustomerDto>();
 
             customerAttributesMappings = customerAttributesMappings.OrderBy(x => x.Key);
 
@@ -206,18 +206,19 @@ namespace Nop.Plugin.Api.Services
 
                 CustomerDto customerDto = Merge(mappingsForMerge);
 
-                mappings.Add(customerDto);
+                customerDtos.Add(customerDto);
             }
 
-            return mappings;
+            // Needed so we can apply the order parameter
+            return customerDtos.AsQueryable().OrderBy(order).ToList();
         }
 
         private CustomerDto Merge(IList<CustomerAttributeMappingDto> mappingsForMerge)
         {
-            var mapping = new CustomerDto();
+            var customerDto = new CustomerDto();
 
             // We expect the customer to be always set.
-            mapping = mappingsForMerge.First().Customer.ToDto();
+            customerDto = mappingsForMerge.First().Customer.ToDto();
 
             List<GenericAttribute> attributes = mappingsForMerge.Select(x => x.Attribute).ToList();
             
@@ -227,16 +228,16 @@ namespace Nop.Plugin.Api.Services
                 {
                     if (attribute.Key.Equals(FirstName, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        mapping.FirstName = attribute.Value;
+                        customerDto.FirstName = attribute.Value;
                     }
                     else if (attribute.Key.Equals(LastName, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        mapping.LastName = attribute.Value;
+                        customerDto.LastName = attribute.Value;
                     }
                 }
             }
 
-            return mapping;
+            return customerDto;
         }
 
         private IQueryable<IGrouping<int, CustomerAttributeMappingDto>> GetCustomerAttributesMappingsByKey(IQueryable<IGrouping<int, CustomerAttributeMappingDto>> customerAttributesGroups, string key, string value)
