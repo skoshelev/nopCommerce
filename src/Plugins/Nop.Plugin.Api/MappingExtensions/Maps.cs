@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AutoMapper;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
@@ -9,10 +8,7 @@ using System.Linq;
 using System.Web;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
-using Nop.Core.Domain.Payments;
-using Nop.Core.Domain.Shipping;
 using Nop.Plugin.Api.DTOs;
-using Nop.Plugin.Api.DTOs.Orders;
 using Nop.Plugin.Api.DTOs.Products;
 using Nop.Plugin.Api.DTOs.ShoppingCarts;
 
@@ -86,38 +82,6 @@ namespace Nop.Plugin.Api.MappingExtensions
             Mapper.CreateMap<Product, ProductDto>()
                .IgnoreAllNonExisting()
                .ForMember(x => x.FullDescription, y => y.MapFrom(src => HttpUtility.HtmlEncode(src.FullDescription)));
-        }
-
-        public static void CreateOrderItemMap()
-        {
-            Mapper.CreateMap<OrderItem, OrderItemDto>()
-                .IgnoreAllNonExisting()
-                .ForMember(x => x.Product, y => y.MapFrom(src => src.Product.GetWithDefault(x => x, new Product()).ToDto()));
-        }
-
-        public static void CreateOrderMap()
-        {
-            Mapper.CreateMap<OrderDto, Order>().IgnoreAllNonExisting()
-                .ForMember(x => x.OrderStatus, y => y.MapFrom(src => Enum.Parse(typeof(OrderStatus), src.OrderStatus.GetWithDefault(x => x, string.Empty), true).ToString()))
-                .ForMember(x => x.PaymentStatus, y => y.MapFrom(src => Enum.Parse(typeof(PaymentStatus), src.PaymentStatus.GetWithDefault(x => x, string.Empty), true).ToString()))
-                .ForMember(x => x.ShippingStatus, y => y.MapFrom(src => Enum.Parse(typeof(ShippingStatus), src.ShippingStatus.GetWithDefault(x => x, string.Empty), true).ToString()));
-        }
-
-        public static void CreateOrderToDTOMap()
-        {
-            Mapper.CreateMap<Order, OrderDto>().IgnoreAllNonExisting()
-                .ForMember(x => x.OrderItems,
-                    y =>
-                        y.MapFrom(
-                            src =>
-                                src.OrderItems.GetWithDefault(x => x, new List<OrderItem>())
-                                    .Select(item => item.ToDto())))
-                .ForMember(x => x.OrderStatus, y => y.MapFrom(src => src.OrderStatus.ToString()))
-                .ForMember(x => x.PaymentStatus, y => y.MapFrom(src => src.PaymentStatus.ToString()))
-                .ForMember(x => x.ShippingStatus, y => y.MapFrom(src => src.ShippingStatus.ToString()))
-                .ForMember(x => x.Customer,
-                    y => y.MapFrom(src => src.Customer.GetWithDefault(x => x, new Customer()).ToOrderCustomerDto()))
-                .ForMember(x => x.Id, y => y.MapFrom(src => src.Id));
         }
     }
 }

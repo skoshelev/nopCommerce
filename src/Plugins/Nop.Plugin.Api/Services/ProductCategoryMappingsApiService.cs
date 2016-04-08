@@ -16,7 +16,9 @@ namespace Nop.Plugin.Api.Services
             _productCategoryMappingsRepository = productCategoryMappingsRepository;
         }
 
-        public IList<ProductCategory> GetMappings(int productId = Configurations.DefaultProductId, int categoryId = Configurations.DefaultCategoryId, int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId)
+        public IList<ProductCategory> GetMappings(int productId = Configurations.DefaultProductId, 
+            int categoryId = Configurations.DefaultCategoryId, int limit = Configurations.DefaultLimit, 
+            int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId)
         {
             var query = GetMappingsQuery(productId, categoryId, sinceId);
 
@@ -33,7 +35,8 @@ namespace Nop.Plugin.Api.Services
             return _productCategoryMappingsRepository.Table.FirstOrDefault(mapping => mapping.Id == id);
         }
 
-        private IQueryable<ProductCategory> GetMappingsQuery(int productId = Configurations.DefaultProductId, int categoryId = Configurations.DefaultCategoryId, int sinceId = Configurations.DefaultSinceId)
+        private IQueryable<ProductCategory> GetMappingsQuery(int productId = Configurations.DefaultProductId, 
+            int categoryId = Configurations.DefaultCategoryId, int sinceId = Configurations.DefaultSinceId)
         {
             var query = _productCategoryMappingsRepository.Table;
 

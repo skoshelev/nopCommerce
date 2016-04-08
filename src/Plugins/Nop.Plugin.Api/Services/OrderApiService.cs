@@ -29,8 +29,8 @@ namespace Nop.Plugin.Api.Services
         }
 
         public IList<Order> GetOrders(IList<int> ids = null, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
-           int limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, OrderStatus? status = null,
-           PaymentStatus? financialStatus = null, ShippingStatus? fulfillmentStatus = null, int? customerId = null)
+           int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId, 
+           OrderStatus? status = null, PaymentStatus? financialStatus = null, ShippingStatus? fulfillmentStatus = null, int? customerId = null)
         {
             var query = GetOrdersQuery(createdAtMin, createdAtMax, status, financialStatus, fulfillmentStatus, ids, customerId);
 

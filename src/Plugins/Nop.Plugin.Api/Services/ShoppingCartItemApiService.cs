@@ -27,7 +27,7 @@ namespace Nop.Plugin.Api.Services
             return new ApiList<ShoppingCartItem>(query, page - 1, limit);
         }
         
-        private IQueryable<ShoppingCartItem> GetShoppingCartItemsQuery(int customerId = 0, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
+        private IQueryable<ShoppingCartItem> GetShoppingCartItemsQuery(int customerId = Configurations.DefaultCategoryId, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
                                                                        DateTime? updatedAtMin = null, DateTime? updatedAtMax = null)
         {
             var query = _shoppingCartItemsRepository.Table;

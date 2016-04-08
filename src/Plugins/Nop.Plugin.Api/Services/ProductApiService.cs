@@ -39,7 +39,7 @@ namespace Nop.Plugin.Api.Services
         public IList<Product> GetProducts(IList<int> ids = null,
             DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId,
-           int categoryId = 0, string vendorName = "", bool? publishedStatus = null)
+           int categoryId = Configurations.DefaultCategoryId, string vendorName = null, bool? publishedStatus = null)
         {
 
             var query = GetProductsQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax, vendorName,
@@ -53,7 +53,9 @@ namespace Nop.Plugin.Api.Services
             return new ApiList<Product>(query, page - 1, limit);
         }
         
-        public int GetProductsCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, bool? publishedStatus = null, string vendorName = "", int categoryId = 0)
+        public int GetProductsCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, 
+            DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, bool? publishedStatus = null, string vendorName = null, 
+            int categoryId = Configurations.DefaultCategoryId)
         {
             var query = GetProductsQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax, vendorName,
                                          publishedStatus, categoryId: categoryId);
@@ -70,8 +72,9 @@ namespace Nop.Plugin.Api.Services
             return _cacheManager.Get(key, () => _productRepository.GetById(productId));
         }
 
-        private IQueryable<Product> GetProductsQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
-             string vendorName = "", bool? publishedStatus = null, IList<int> ids = null, int categoryId = 0)
+        private IQueryable<Product> GetProductsQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, 
+            DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, string vendorName = null, 
+            bool? publishedStatus = null, IList<int> ids = null, int categoryId = Configurations.DefaultCategoryId)
             
         {
             var query = _productRepository.Table;

@@ -30,7 +30,7 @@ namespace Nop.Plugin.Api.Services
         }
 
         public IList<CustomerDto> GetCustomersDtos(DateTime? createdAtMin = null, DateTime? createdAtMax = null, int limit = Configurations.DefaultLimit,
-            int page = 1, int sinceId = 0)
+            int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId)
         {
             var query = GetCustomersQuery(createdAtMin, createdAtMax, sinceId);
 
@@ -45,7 +45,8 @@ namespace Nop.Plugin.Api.Services
         }
 
         // Need to work with dto object so we can map the first and last name from generic attributes table.
-        public IList<CustomerDto> Search(string queryParams = "", string order = "Id", int page = 1, int limit = Configurations.DefaultLimit)
+        public IList<CustomerDto> Search(string queryParams = "", string order = Configurations.DefaultOrder, 
+            int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit)
         {
             IList<CustomerDto> result = new List<CustomerDto>();
 
@@ -143,7 +144,8 @@ namespace Nop.Plugin.Api.Services
         /// to be only those with specific search parameter (i.e. currently we focus only on first and last name).</param>
         /// <param name="query">Query parameter represents the current customer records which we will join with GenericAttributes table.</param>
         /// <returns></returns>
-        private IList<CustomerDto> HandleCustomerGenericAttributes(Dictionary<string, string> searchParams, IQueryable<Customer> query, int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, string order = "Id")
+        private IList<CustomerDto> HandleCustomerGenericAttributes(Dictionary<string, string> searchParams, IQueryable<Customer> query, 
+            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, string order = Configurations.DefaultOrder)
         {
             // Here we join the GenericAttribute records with the customers and making sure that we are working only with the attributes
             // that are in the customers keyGroup and their keys are either first or last name.
@@ -192,7 +194,7 @@ namespace Nop.Plugin.Api.Services
         /// This method is responsible for getting customer dto records with first and last names set from the attribute mappings.
         /// </summary>
         private IList<CustomerDto> GetFullCustomerDtos(IQueryable<IGrouping<int, CustomerAttributeMappingDto>> customerAttributesMappings, 
-            int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit, string order = "Id")
+            int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit, string order = Configurations.DefaultOrder)
         {
             var customerDtos = new List<CustomerDto>();
 
@@ -240,7 +242,8 @@ namespace Nop.Plugin.Api.Services
             return customerDto;
         }
 
-        private IQueryable<IGrouping<int, CustomerAttributeMappingDto>> GetCustomerAttributesMappingsByKey(IQueryable<IGrouping<int, CustomerAttributeMappingDto>> customerAttributesGroups, string key, string value)
+        private IQueryable<IGrouping<int, CustomerAttributeMappingDto>> GetCustomerAttributesMappingsByKey(
+            IQueryable<IGrouping<int, CustomerAttributeMappingDto>> customerAttributesGroups, string key, string value)
         {
             // Here we filter the customerAttributesGroups to be only the ones that have the passed key parameter as a key.
             var customerAttributesMappingByKey = from @group in customerAttributesGroups

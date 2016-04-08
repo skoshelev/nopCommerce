@@ -12,7 +12,8 @@ namespace Nop.Plugin.Api.Services
         IList<Order> GetOrdersByCustomerId(int customerId);
 
         IList<Order> GetOrders(IList<int> ids = null, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
-                               int limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, OrderStatus? status = null,
+                               int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, 
+                               int sinceId = Configurations.DefaultSinceId, OrderStatus? status = null,
                                PaymentStatus? financialStatus = null, ShippingStatus? fulfillmentStatus = null, int? customerId = null);
 
         Order GetOrderById(int orderId);

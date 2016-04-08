@@ -12,7 +12,7 @@ namespace Nop.Plugin.Api.Models.ProductsParameters
             UpdatedAtMin = null;
             UpdatedAtMax = null;
             PublishedStatus = null;
-            VendorName = string.Empty;
+            VendorName = null;
             CategoryId = Configurations.DefaultCategoryId;
         }
 
