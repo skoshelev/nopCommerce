@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Nop.Core.Data;
+﻿using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.Services;
 using NUnit.Framework;
 using Rhino.Mocks;
 
-namespace Nop.Plugin.Api.Tests.ServicesTests.Categories
+namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategoryById
 {
     [TestFixture]
     public class CategoryApiServiceTests_GetCategoryById
@@ -34,6 +29,23 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories
         }
 
         [Test]
+        [TestCase(-2)]
+        [TestCase(0)]
+        public void WhenNegativeOrZeroCategoryIdPassed_ShouldReturnNull(int negativeOrZeroCategoryId)
+        {
+            // Aranges
+            var categoryRepoMock = MockRepository.GenerateMock<IRepository<Category>>();
+            var productCategoryRepo = MockRepository.GenerateStub<IRepository<ProductCategory>>();
+
+            // Act
+            var cut = new CategoryApiService(categoryRepoMock, productCategoryRepo);
+            var result = cut.GetCategoryById(negativeOrZeroCategoryId);
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
         public void WhenCategoryIsReturnedByTheRepository_ShouldReturnTheSameCategory()
         {
             int categoryId = 3;
@@ -51,23 +63,6 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories
 
             // Assert
             Assert.AreSame(category, result);
-        }
-
-        [Test]
-        [TestCase(-2)]
-        [TestCase(0)]
-        public void WhenNegativeOrZeroCategoryIdPassed_ShouldReturnNull(int negativeOrZeroCategoryId)
-        {
-            // Arange
-            var categoryRepoMock = MockRepository.GenerateMock<IRepository<Category>>();
-            var productCategoryRepo = MockRepository.GenerateStub<IRepository<ProductCategory>>();
-
-            // Act
-            var cut = new CategoryApiService(categoryRepoMock, productCategoryRepo);
-            var result = cut.GetCategoryById(negativeOrZeroCategoryId);
-
-            // Assert
-            Assert.IsNull(result);
         }
     }
 }
