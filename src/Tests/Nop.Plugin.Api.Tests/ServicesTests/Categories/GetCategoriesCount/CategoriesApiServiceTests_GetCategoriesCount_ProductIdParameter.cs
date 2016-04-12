@@ -6,10 +6,10 @@ using Nop.Plugin.Api.Services;
 using NUnit.Framework;
 using Rhino.Mocks;
 
-namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
+namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategoriesCount
 {
     [TestFixture]
-    public class CategoriesApiServiceTests_GetCategories_ProductIdParameter
+    public class CategoriesApiServiceTests_GetCategoriesCount_ProductIdParameter
     {
         private ICategoryApiService _categoryApiService;
         private List<Category> _existigCategories;
@@ -49,35 +49,33 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
         }
 
         [Test]
-        public void WhenCalledWithValidProductId_ShouldReturnOnlyTheCategoriesMappedToThisProduct()
+        public void WhenCalledWithValidProductId_ShouldReturnOnlyTheCountOfTheCategoriesMappedToThisProduct()
         {
             // Arange
             int productId = 3;
-            var expectedCollection = (from cat in _existigCategories
-                                      join mapping in _existingCategoryMappings on cat.Id equals mapping.CategoryId
-                                      where mapping.ProductId == productId
-                                      orderby cat.Id
-                                      select cat);
+            var expectedCollectionCount = (from cat in _existigCategories
+                                          join mapping in _existingCategoryMappings on cat.Id equals mapping.CategoryId
+                                          where mapping.ProductId == productId
+                                          orderby cat.Id
+                                          select cat).Count();
 
             // Act
-            var categories = _categoryApiService.GetCategories(productId: productId);
+            var categoriesCount = _categoryApiService.GetCategoriesCount(productId: productId);
 
             // Assert
-            // Not Empty assert is a good practice when you assert something about collection. Because you can get a false positive if the collection is empty.
-            CollectionAssert.IsNotEmpty(categories);
-            Assert.IsTrue(categories.Select(x => x.Id).SequenceEqual(expectedCollection.Select(x => x.Id)));
+            Assert.AreEqual(expectedCollectionCount, categoriesCount);
         }
 
         [Test]
         [TestCase(0)]
         [TestCase(-10)]
-        public void WhenCalledWithNegativeOrZeroProductId_ShouldReturnEmptyCollection(int productId)
+        public void WhenCalledWithNegativeOrZeroProductId_ShouldReturnZero(int productId)
         {
             // Act
-            var categories = _categoryApiService.GetCategories(productId: productId);
+            var categoriesCount = _categoryApiService.GetCategoriesCount(productId: productId);
 
             // Assert
-            CollectionAssert.IsEmpty(categories);
+            Assert.AreEqual(0, categoriesCount);
         }
 
         [Test]
@@ -85,14 +83,13 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
         [TestCase(int.MinValue)]
         [TestCase(-1)]
         [TestCase(5465464)]
-        public void WhenCalledWithProductIdThatDoesNotExistInTheMappings_ShouldReturnEmptyCollection(int productId)
+        public void WhenCalledWithProductIdThatDoesNotExistInTheMappings_ShouldReturnZero(int productId)
         {
-            // Arange
             // Act
-            var categories = _categoryApiService.GetCategories(productId: productId);
+            var categoriesCount = _categoryApiService.GetCategoriesCount(productId: productId);
 
             // Assert
-            CollectionAssert.IsEmpty(categories);
+            Assert.AreEqual(0, categoriesCount);
         }
     }
 }

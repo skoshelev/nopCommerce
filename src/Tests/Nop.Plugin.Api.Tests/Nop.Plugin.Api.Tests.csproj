@@ -116,10 +116,14 @@
     <Compile Include="ModelBinderTests\DummyObjects\DummyModel.cs" />
     <Compile Include="ModelBinderTests\ParametersModelBinderTests_BindModel.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummyObject.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoriesApiServiceTests_GetCategoriesCount_ProductIdParameter.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_UpdatedParameters.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_PublishedStatusParameter.cs" />
     <Compile Include="ServicesTests\Categories\GetCategories\CategoriesApiServiceTests_GetCategories_ProductIdParameter.cs" />
     <Compile Include="ServicesTests\Categories\GetCategories\CategoriesApiServiceTests_GetCategories_SinceIdParameter.cs" />
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_DefaultParameters.cs" />
-    <Compile Include="ServicesTests\Categories\CategoryApiServiceTests_GetCategoriesCount.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_DefaultParameters.cs" />
     <Compile Include="ServicesTests\Categories\CategoryApiServiceTests_GetCategoryById.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummySerializableObject.cs" />
     <Compile Include="SerializersTests\JsonFieldsSerializerTests_Serialize.cs" />

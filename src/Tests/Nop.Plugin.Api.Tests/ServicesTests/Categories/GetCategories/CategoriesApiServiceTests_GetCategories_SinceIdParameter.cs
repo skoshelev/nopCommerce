@@ -37,7 +37,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
         }
 
         [Test]
-        public void WhenCalledWithValidSinceId_GivenCategoriesCollection_ShouldReturnOnlyTheCategoriesAfterThisIdSortedById()
+        public void WhenCalledWithValidSinceId_ShouldReturnOnlyTheCategoriesAfterThisIdSortedById()
         {
             // Arange
             int sinceId = 3;
@@ -55,7 +55,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
         [Test]
         [TestCase(0)]
         [TestCase(-10)]
-        public void WhenCalledZeroOrNegativeSinceId_GivenCategoriesCollection_ShouldReturnAllTheCategoriesSortedById(int sinceId)
+        public void WhenCalledZeroOrNegativeSinceId_ShouldReturnAllTheCategoriesSortedById(int sinceId)
         {
             // Arange
             var expectedCollection = _existigCategories.Where(x => x.Id > sinceId && !x.Deleted).OrderBy(x => x.Id);
@@ -70,7 +70,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
         }
 
         [Test]
-        public void WhenCalledSinceIdOutsideOfTheCategoriesIdsRange_GivenCategoriesCollection_ShouldReturnEmptyCollection()
+        public void WhenCalledSinceIdOutsideOfTheCategoriesIdsRange_ShouldReturnEmptyCollection()
         {
             // Arange
             int sinceId = int.MaxValue;

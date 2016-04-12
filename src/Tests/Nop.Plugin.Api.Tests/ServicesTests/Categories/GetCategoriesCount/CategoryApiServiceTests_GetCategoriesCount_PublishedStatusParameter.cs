@@ -6,10 +6,10 @@ using Nop.Plugin.Api.Services;
 using NUnit.Framework;
 using Rhino.Mocks;
 
-namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
+namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategoriesCount
 {
     [TestFixture]
-    public class CategoryApiServiceTests_GetCategories_PublishedStatusParameter
+    public class CategoryApiServiceTests_GetCategoriesCount_PublishedStatusParameter
     {
         private ICategoryApiService _categoryApiService;
         private List<Category> _existigCategories;
@@ -37,33 +37,29 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
         }
 
         [Test]
-        public void WhenAskForOnlyThePublishedCategories_ShouldReturnOnlyThePublishedOnesSortedById()
+        public void WhenAskForOnlyThePublishedCategories_ShouldReturnOnlyThePublishedCategoriesCount()
         {
             // Arange
-            var expectedCollection = _existigCategories.Where(x => x.Published && !x.Deleted).OrderBy(x => x.Id);
+            var expectedCategoriesCount = _existigCategories.Count(x => x.Published && !x.Deleted);
 
             // Act
-            var categories = _categoryApiService.GetCategories(publishedStatus: true);
+            var categoriesCount = _categoryApiService.GetCategoriesCount(publishedStatus: true);
 
             // Assert
-            // Not Empty assert is a good practice when you assert something about collection. Because you can get a false positive if the collection is empty.
-            CollectionAssert.IsNotEmpty(categories);
-            Assert.IsTrue(categories.Select(x => x.Id).SequenceEqual(expectedCollection.Select(x => x.Id)));
+            Assert.AreEqual(expectedCategoriesCount, categoriesCount);
         }
 
         [Test]
-        public void WhenAskForOnlyTheUnpublishedCategories_ShouldReturnOnlyTheUnpublishedOnesSortedById()
+        public void WhenAskForOnlyTheUnpublishedCategories_ShouldReturnOnlyTheUnpublishedCategoriesCount()
         {
             // Arange
-            var expectedCollection = _existigCategories.Where(x => !x.Published && !x.Deleted).OrderBy(x => x.Id);
+            var expectedCollectionCount = _existigCategories.Count(x => !x.Published && !x.Deleted);
 
             // Act
-            var categories = _categoryApiService.GetCategories(publishedStatus: false);
+            var categoriesCount = _categoryApiService.GetCategoriesCount(publishedStatus: false);
 
             // Assert
-            // Not Empty assert is a good practice when you assert something about collection. Because you can get a false positive if the collection is empty.
-            CollectionAssert.IsNotEmpty(categories);
-            Assert.IsTrue(categories.Select(x => x.Id).SequenceEqual(expectedCollection.Select(x => x.Id)));
+            Assert.AreEqual(expectedCollectionCount, categoriesCount);
         }
     }
 }
