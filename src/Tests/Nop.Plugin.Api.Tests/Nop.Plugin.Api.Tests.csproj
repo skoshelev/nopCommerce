@@ -134,6 +134,7 @@
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_PublishedStatusParameter.cs" />
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_UpdatedParameters.cs" />
     <Compile Include="ServicesTests\CountryApiServiceTests.cs" />
+    <Compile Include="ServicesTests\Products\ProductApiServiceTests_GetProductById.cs" />
     <Compile Include="ServicesTests\StateProvinceApiServiceTests.cs" />
     <Compile Include="ServicesTests\Customers\CustomerApiServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

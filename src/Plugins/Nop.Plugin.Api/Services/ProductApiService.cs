@@ -12,28 +12,17 @@ namespace Nop.Plugin.Api.Services
 {
     public class ProductApiService : IProductApiService
     {
-        /// <summary>
-        /// Key for caching
-        /// </summary>
-        /// <remarks>
-        /// {0} : product ID
-        /// </remarks>
-        private const string PRODUCTS_BY_ID_KEY = "Nop.product.id-{0}";
-
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<ProductCategory> _productCategoryMappingRepository;
         private readonly IRepository<Vendor> _vendorRepository;
 
-        private readonly ICacheManager _cacheManager;
-
         public ProductApiService(IRepository<Product> productRepository,
             IRepository<ProductCategory> productCategoryMappingRepository,
-            IRepository<Vendor> vendorRepository, ICacheManager cacheManager)
+            IRepository<Vendor> vendorRepository)
         {
             _productRepository = productRepository;
             _productCategoryMappingRepository = productCategoryMappingRepository;
             _vendorRepository = vendorRepository;
-            _cacheManager = cacheManager;
         }
 
         public IList<Product> GetProducts(IList<int> ids = null,
@@ -68,8 +57,7 @@ namespace Nop.Plugin.Api.Services
             if (productId == 0)
                 return null;
 
-            string key = string.Format(PRODUCTS_BY_ID_KEY, productId);
-            return _cacheManager.Get(key, () => _productRepository.GetById(productId));
+            return _productRepository.GetById(productId);
         }
 
         private IQueryable<Product> GetProductsQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, 
