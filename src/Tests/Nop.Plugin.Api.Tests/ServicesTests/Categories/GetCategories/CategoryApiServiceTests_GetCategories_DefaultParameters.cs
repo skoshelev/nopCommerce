@@ -8,6 +8,7 @@ using Rhino.Mocks;
 
 namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
 {
+    //TODO: improve using sequence equal
     [TestFixture]
     public class CategoryApiServiceTests_GetCategories_DefaultParameters
     {

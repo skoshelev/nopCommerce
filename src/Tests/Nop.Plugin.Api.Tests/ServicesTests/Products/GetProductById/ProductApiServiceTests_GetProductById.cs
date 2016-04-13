@@ -5,7 +5,7 @@ using Nop.Plugin.Api.Services;
 using NUnit.Framework;
 using Rhino.Mocks;
 
-namespace Nop.Plugin.Api.Tests.ServicesTests.Products
+namespace Nop.Plugin.Api.Tests.ServicesTests.Products.GetProductById
 {
     [TestFixture]
     public class ProductApiServiceTests_GetProductById
