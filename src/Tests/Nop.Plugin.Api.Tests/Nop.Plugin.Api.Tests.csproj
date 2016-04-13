@@ -124,7 +124,7 @@
     <Compile Include="ServicesTests\Categories\GetCategories\CategoriesApiServiceTests_GetCategories_SinceIdParameter.cs" />
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_DefaultParameters.cs" />
     <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_DefaultParameters.cs" />
-    <Compile Include="ServicesTests\Categories\CategoryApiServiceTests_GetCategoryById.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoryById\CategoryApiServiceTests_GetCategoryById.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummySerializableObject.cs" />
     <Compile Include="SerializersTests\JsonFieldsSerializerTests_Serialize.cs" />
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_CreatedParameters.cs" />
@@ -135,6 +135,7 @@
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_UpdatedParameters.cs" />
     <Compile Include="ServicesTests\CountryApiServiceTests.cs" />
     <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_VendorNameParameter.cs" />
+    <Compile Include="ServicesTests\Products\ProductApiServiceTests_GetProductById.cs" />
     <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_CategoryIdParameter.cs" />
     <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_PublishedStatusParameter.cs" />
     <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_UpdatedParameters.cs" />

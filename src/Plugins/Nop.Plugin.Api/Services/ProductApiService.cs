@@ -14,7 +14,7 @@ namespace Nop.Plugin.Api.Services
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<ProductCategory> _productCategoryMappingRepository;
         private readonly IRepository<Vendor> _vendorRepository;
-        
+
         public ProductApiService(IRepository<Product> productRepository,
             IRepository<ProductCategory> productCategoryMappingRepository,
             IRepository<Vendor> vendorRepository)
@@ -55,7 +55,7 @@ namespace Nop.Plugin.Api.Services
         {
             if (productId == 0)
                 return null;
-            
+
             return _productRepository.GetById(productId);
         }
 
