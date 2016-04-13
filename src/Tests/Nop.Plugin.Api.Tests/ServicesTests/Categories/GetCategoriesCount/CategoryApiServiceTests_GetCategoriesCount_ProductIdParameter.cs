@@ -9,7 +9,7 @@ using Rhino.Mocks;
 namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategoriesCount
 {
     [TestFixture]
-    public class CategoriesApiServiceTests_GetCategoriesCount_ProductIdParameter
+    public class CategoryApiServiceTests_GetCategoriesCount_ProductIdParameter
     {
         private ICategoryApiService _categoryApiService;
         private List<Category> _existigCategories;

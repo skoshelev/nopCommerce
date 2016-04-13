@@ -1,5 +1,4 @@
 ﻿using System;
-using Nop.Plugin.Api.MVC;
 
 namespace Nop.Plugin.Api.Models.ProductsParameters
 {
@@ -13,7 +12,7 @@ namespace Nop.Plugin.Api.Models.ProductsParameters
             UpdatedAtMax = null;
             PublishedStatus = null;
             VendorName = null;
-            CategoryId = Configurations.DefaultCategoryId;
+            CategoryId = null;
         }
 
         public DateTime? CreatedAtMin { get; set; }
@@ -22,6 +21,6 @@ namespace Nop.Plugin.Api.Models.ProductsParameters
         public DateTime? UpdatedAtMax { get; set; }
         public bool? PublishedStatus { get; set; }
         public string VendorName { get; set; }
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
     }
 }

@@ -116,7 +116,7 @@
     <Compile Include="ModelBinderTests\DummyObjects\DummyModel.cs" />
     <Compile Include="ModelBinderTests\ParametersModelBinderTests_BindModel.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummyObject.cs" />
-    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoriesApiServiceTests_GetCategoriesCount_ProductIdParameter.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_ProductIdParameter.cs" />
     <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_UpdatedParameters.cs" />
     <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_CreatedParameters.cs" />
     <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_PublishedStatusParameter.cs" />
@@ -134,6 +134,12 @@
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_PublishedStatusParameter.cs" />
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_UpdatedParameters.cs" />
     <Compile Include="ServicesTests\CountryApiServiceTests.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_VendorNameParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_CategoryIdParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_PublishedStatusParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_UpdatedParameters.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_DefaultParameters.cs" />
     <Compile Include="ServicesTests\StateProvinceApiServiceTests.cs" />
     <Compile Include="ServicesTests\Customers\CustomerApiServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

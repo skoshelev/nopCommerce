@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Nop.Core.Caching;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Vendors;
@@ -12,34 +11,23 @@ namespace Nop.Plugin.Api.Services
 {
     public class ProductApiService : IProductApiService
     {
-        /// <summary>
-        /// Key for caching
-        /// </summary>
-        /// <remarks>
-        /// {0} : product ID
-        /// </remarks>
-        private const string PRODUCTS_BY_ID_KEY = "Nop.product.id-{0}";
-
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<ProductCategory> _productCategoryMappingRepository;
         private readonly IRepository<Vendor> _vendorRepository;
-
-        private readonly ICacheManager _cacheManager;
-
+        
         public ProductApiService(IRepository<Product> productRepository,
             IRepository<ProductCategory> productCategoryMappingRepository,
-            IRepository<Vendor> vendorRepository, ICacheManager cacheManager)
+            IRepository<Vendor> vendorRepository)
         {
             _productRepository = productRepository;
             _productCategoryMappingRepository = productCategoryMappingRepository;
             _vendorRepository = vendorRepository;
-            _cacheManager = cacheManager;
         }
 
         public IList<Product> GetProducts(IList<int> ids = null,
             DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId,
-           int categoryId = Configurations.DefaultCategoryId, string vendorName = null, bool? publishedStatus = null)
+           int? categoryId = null, string vendorName = null, bool? publishedStatus = null)
         {
 
             var query = GetProductsQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax, vendorName,
@@ -55,7 +43,7 @@ namespace Nop.Plugin.Api.Services
         
         public int GetProductsCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, 
             DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, bool? publishedStatus = null, string vendorName = null, 
-            int categoryId = Configurations.DefaultCategoryId)
+            int? categoryId = null)
         {
             var query = GetProductsQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax, vendorName,
                                          publishedStatus, categoryId: categoryId);
@@ -67,17 +55,16 @@ namespace Nop.Plugin.Api.Services
         {
             if (productId == 0)
                 return null;
-
-            string key = string.Format(PRODUCTS_BY_ID_KEY, productId);
-            return _cacheManager.Get(key, () => _productRepository.GetById(productId));
+            
+            return _productRepository.GetById(productId);
         }
 
         private IQueryable<Product> GetProductsQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, 
             DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, string vendorName = null, 
-            bool? publishedStatus = null, IList<int> ids = null, int categoryId = Configurations.DefaultCategoryId)
+            bool? publishedStatus = null, IList<int> ids = null, int? categoryId = null)
             
         {
-            var query = _productRepository.Table;
+            var query = _productRepository.TableNoTracking;
 
             if (ids != null && ids.Count > 0)
             {
@@ -114,9 +101,9 @@ namespace Nop.Plugin.Api.Services
 
             if (!string.IsNullOrEmpty(vendorName))
             {
-                query = from vendor in _vendorRepository.Table
-                        join product in _productRepository.Table on vendor.Id equals product.VendorId
-                        where vendor.Name == vendorName
+                query = from vendor in _vendorRepository.TableNoTracking
+                        join product in _productRepository.TableNoTracking on vendor.Id equals product.VendorId
+                        where vendor.Name == vendorName && !vendor.Deleted && vendor.Active
                         select product;
             }
 
@@ -127,9 +114,9 @@ namespace Nop.Plugin.Api.Services
                     orderby pGroup.Key
                     select pGroup.FirstOrDefault();
 
-            if (categoryId > 0)
+            if (categoryId != null)
             {
-                var categoryMappingsForProduct = from productCategoryMapping in _productCategoryMappingRepository.Table
+                var categoryMappingsForProduct = from productCategoryMapping in _productCategoryMappingRepository.TableNoTracking
                                                  where productCategoryMapping.CategoryId == categoryId
                                                  select productCategoryMapping;
 
