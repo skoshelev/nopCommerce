@@ -22,7 +22,7 @@ namespace Nop.Plugin.Api.Services
         public IList<Order> GetOrdersByCustomerId(int customerId)
         {
             var query = from order in _orderRepository.TableNoTracking
-                        where order.CustomerId == customerId
+                        where order.CustomerId == customerId && !order.Deleted
                         orderby order.Id
                         select order;
 
