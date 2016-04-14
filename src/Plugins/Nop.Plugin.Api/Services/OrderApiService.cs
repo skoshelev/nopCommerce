@@ -44,7 +44,7 @@ namespace Nop.Plugin.Api.Services
 
         public Order GetOrderById(int orderId)
         {
-            if (orderId == 0)
+            if (orderId <= 0)
                 return null;
 
             return _orderRepository.GetById(orderId);
