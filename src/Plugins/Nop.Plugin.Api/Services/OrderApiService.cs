@@ -13,6 +13,7 @@ namespace Nop.Plugin.Api.Services
     public class OrderApiService : IOrderApiService
     {
         private readonly IRepository<Order> _orderRepository;
+
         public OrderApiService(IRepository<Order> orderRepository)
         {
             _orderRepository = orderRepository;
@@ -20,7 +21,7 @@ namespace Nop.Plugin.Api.Services
 
         public IList<Order> GetOrdersByCustomerId(int customerId)
         {
-            var query = from order in _orderRepository.Table
+            var query = from order in _orderRepository.TableNoTracking
                         where order.CustomerId == customerId
                         orderby order.Id
                         select order;
@@ -63,7 +64,7 @@ namespace Nop.Plugin.Api.Services
             PaymentStatus? financialStatus = null, ShippingStatus? fulfillmentStatus = null, IList<int> ids = null, 
             int? customerId = null)
         {
-            var query = _orderRepository.Table;
+            var query = _orderRepository.TableNoTracking;
 
             if (customerId != null)
             {

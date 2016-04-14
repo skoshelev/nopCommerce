@@ -12,7 +12,7 @@ namespace Nop.Plugin.Api.Services
         CustomerDto GetCustomerById(int id);
 
         IList<CustomerDto> GetCustomersDtos(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
-        int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId);
+            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId);
         
         IList<CustomerDto> Search(string query = "", string order = Configurations.DefaultOrder, 
             int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit);

@@ -135,6 +135,10 @@
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_UpdatedParameters.cs" />
     <Compile Include="ServicesTests\CountryApiServiceTests.cs" />
     <Compile Include="ServicesTests\Orders\GetOrderById\OrderApiServiceTests_GetOrderById.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrdersCount\OrderApiServiceTests_GetOrdersCount_StatusesParameters.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrdersCount\OrderApiServiceTests_GetOrdersCount_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrdersCount\OrderApiServiceTests_GetOrdersCount_DefaultParameters.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrdersCount\OrderApiServiceTests_GetOrdersCount_CustomerIdParameter.cs" />
     <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_VendorNameParameter.cs" />
     <Compile Include="ServicesTests\Products\GetProductById\ProductApiServiceTests_GetProductById.cs" />
     <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_CategoryIdParameter.cs" />
