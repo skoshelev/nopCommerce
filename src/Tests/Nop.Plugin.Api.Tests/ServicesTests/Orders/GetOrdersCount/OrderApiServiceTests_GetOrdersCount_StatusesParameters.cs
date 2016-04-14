@@ -60,7 +60,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Orders.GetOrdersCount
             var expectedCollectionCount = _existigOrders.Count(x => x.PaymentStatus == paymentStatus);
 
             // Act
-            var resultCount = _orderApiService.GetOrdersCount(financialStatus: paymentStatus);
+            var resultCount = _orderApiService.GetOrdersCount(paymentStatus: paymentStatus);
 
             // Assert
             Assert.AreEqual(expectedCollectionCount, resultCount);
@@ -75,7 +75,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Orders.GetOrdersCount
             var expectedCollectionCount = _existigOrders.Count(x => x.ShippingStatus == shippingStatus);
 
             // Act
-            var resultCount = _orderApiService.GetOrdersCount(fulfillmentStatus: shippingStatus);
+            var resultCount = _orderApiService.GetOrdersCount(shippingStatus: shippingStatus);
 
             // Assert
             Assert.AreEqual(expectedCollectionCount, resultCount);
@@ -91,8 +91,8 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Orders.GetOrdersCount
 
             // Act
             var resultCount = _orderApiService.GetOrdersCount(status: orderStatus) + 
-                              _orderApiService.GetOrdersCount(financialStatus: paymentStatus) +
-                              _orderApiService.GetOrdersCount(fulfillmentStatus: shippingStatus); 
+                              _orderApiService.GetOrdersCount(paymentStatus: paymentStatus) +
+                              _orderApiService.GetOrdersCount(shippingStatus: shippingStatus); 
 
             // Assert
             Assert.AreEqual(0, resultCount);

@@ -31,9 +31,9 @@ namespace Nop.Plugin.Api.Services
 
         public IList<Order> GetOrders(IList<int> ids = null, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId, 
-           OrderStatus? status = null, PaymentStatus? financialStatus = null, ShippingStatus? fulfillmentStatus = null, int? customerId = null)
+           OrderStatus? status = null, PaymentStatus? paymentStatus = null, ShippingStatus? shippingStatus = null, int? customerId = null)
         {
-            var query = GetOrdersQuery(createdAtMin, createdAtMax, status, financialStatus, fulfillmentStatus, ids, customerId);
+            var query = GetOrdersQuery(createdAtMin, createdAtMax, status, paymentStatus, shippingStatus, ids, customerId);
 
             if (sinceId > 0)
             {
@@ -52,16 +52,16 @@ namespace Nop.Plugin.Api.Services
         }
 
         public int GetOrdersCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, OrderStatus? status = null,
-                                 PaymentStatus? financialStatus = null, ShippingStatus? fulfillmentStatus = null,
+                                 PaymentStatus? paymentStatus = null, ShippingStatus? shippingStatus = null,
                                  int? customerId = null)
         {
-            var query = GetOrdersQuery(createdAtMin, createdAtMax, status, financialStatus, fulfillmentStatus, customerId: customerId);
+            var query = GetOrdersQuery(createdAtMin, createdAtMax, status, paymentStatus, shippingStatus, customerId: customerId);
 
             return query.Count();
         }
 
         private IQueryable<Order> GetOrdersQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, OrderStatus? status = null,
-            PaymentStatus? financialStatus = null, ShippingStatus? fulfillmentStatus = null, IList<int> ids = null, 
+            PaymentStatus? paymentStatus = null, ShippingStatus? shippingStatus = null, IList<int> ids = null, 
             int? customerId = null)
         {
             var query = _orderRepository.TableNoTracking;
@@ -81,14 +81,14 @@ namespace Nop.Plugin.Api.Services
                 query = query.Where(order => order.OrderStatusId == (int)status);
             }
             
-            if (financialStatus != null)
+            if (paymentStatus != null)
             {
-                query = query.Where(order => order.PaymentStatusId == (int)financialStatus);
+                query = query.Where(order => order.PaymentStatusId == (int)paymentStatus);
             }
             
-            if (fulfillmentStatus != null)
+            if (shippingStatus != null)
             {
-                query = query.Where(order => order.ShippingStatusId == (int)fulfillmentStatus);
+                query = query.Where(order => order.ShippingStatusId == (int)shippingStatus);
             }
 
             query = query.Where(order => !order.Deleted);

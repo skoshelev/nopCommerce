@@ -63,7 +63,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Products.GetProducts
         }
 
         [Test]
-        public void WhenCalledWithCreatedAtMinParameter_GivenAllCategoriesCreatedBeforeThatDate_ShouldReturnEmptyCollection()
+        public void WhenCalledWithCreatedAtMinParameter_GivenAllProductsCreatedBeforeThatDate_ShouldReturnEmptyCollection()
         {
             // Arange
             DateTime createdAtMinDate = _baseDate.AddMonths(11);

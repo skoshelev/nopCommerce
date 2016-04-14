@@ -10,7 +10,7 @@ using Rhino.Mocks;
 namespace Nop.Plugin.Api.Tests.ServicesTests.Products.GetProducts
 {
     [TestFixture]
-    public class ProductsApiServiceTests_GetProducts_SinceIdParameter
+    public class ProductApiServiceTests_GetProducts_SinceIdParameter
     {
         private IProductApiService _productApiService;
         private List<Product> _existigProducts;
