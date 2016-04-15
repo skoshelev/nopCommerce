@@ -32,10 +32,10 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Orders.GetOrderById
         public void WhenNegativeOrZeroOrderIdPassed_ShouldReturnNull(int negativeOrZeroOrderId)
         {
             // Aranges
-            var orderRepoMock = MockRepository.GenerateMock<IRepository<Order>>();
+            var orderRepoStub = MockRepository.GenerateStub<IRepository<Order>>();
 
             // Act
-            var cut = new OrderApiService(orderRepoMock);
+            var cut = new OrderApiService(orderRepoStub);
             var result = cut.GetOrderById(negativeOrZeroOrderId);
 
             // Assert

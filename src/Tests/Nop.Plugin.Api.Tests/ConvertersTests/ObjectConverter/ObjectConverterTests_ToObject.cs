@@ -167,7 +167,7 @@ namespace Nop.Plugin.Api.Tests.ConvertersTests.ObjectConverter
         public void WhenCollectionContainsValidStringProperty_ShouldSetTheObjectStringPropertyValueToTheCollectionStringPropertyValue(string stringPropertyName)
         {
             //Arange
-            IApiTypeConverter apiTypeConverterStub = MockRepository.GenerateMock<IApiTypeConverter>();
+            IApiTypeConverter apiTypeConverterStub = MockRepository.GenerateStub<IApiTypeConverter>();
 
             IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterStub);
 
@@ -188,7 +188,7 @@ namespace Nop.Plugin.Api.Tests.ConvertersTests.ObjectConverter
         public void WhenCollectionContainsInvalidStringProperty_ShouldReturnTheObjectWithItsStringPropertySetToTheDefaultValue(string invalidStringPropertyName)
         {
             //Arange
-            IApiTypeConverter apiTypeConverterStub = MockRepository.GenerateMock<IApiTypeConverter>();
+            IApiTypeConverter apiTypeConverterStub = MockRepository.GenerateStub<IApiTypeConverter>();
 
             IObjectConverter objectConverter = new Converters.ObjectConverter(apiTypeConverterStub);
 
