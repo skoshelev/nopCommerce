@@ -32,7 +32,10 @@ namespace Nop.Plugin.Api.Services
 
         public ProductCategory GetById(int id)
         {
-            return _productCategoryMappingsRepository.Table.FirstOrDefault(mapping => mapping.Id == id);
+            if (id <= 0)
+                return null;
+
+            return _productCategoryMappingsRepository.GetById(id);
         }
 
         private IQueryable<ProductCategory> GetMappingsQuery(int productId = Configurations.DefaultProductId, 

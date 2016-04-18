@@ -34,11 +34,11 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategoryById
         public void WhenNegativeOrZeroCategoryIdPassed_ShouldReturnNull(int negativeOrZeroCategoryId)
         {
             // Aranges
-            var categoryRepoMock = MockRepository.GenerateMock<IRepository<Category>>();
+            var categoryRepoStub = MockRepository.GenerateStub<IRepository<Category>>();
             var productCategoryRepo = MockRepository.GenerateStub<IRepository<ProductCategory>>();
 
             // Act
-            var cut = new CategoryApiService(categoryRepoMock, productCategoryRepo);
+            var cut = new CategoryApiService(categoryRepoStub, productCategoryRepo);
             var result = cut.GetCategoryById(negativeOrZeroCategoryId);
 
             // Assert

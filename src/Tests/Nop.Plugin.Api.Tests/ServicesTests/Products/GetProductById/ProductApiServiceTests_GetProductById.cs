@@ -36,12 +36,12 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Products.GetProductById
         public void WhenNegativeOrZeroProductIdPassed_ShouldReturnNull(int negativeOrZeroProductId)
         {
             // Aranges
-            var productRepoMock = MockRepository.GenerateMock<IRepository<Product>>();
+            var productRepoStub = MockRepository.GenerateStub<IRepository<Product>>();
             var productCategoryRepo = MockRepository.GenerateStub<IRepository<ProductCategory>>();
             var vendorRepo = MockRepository.GenerateStub<IRepository<Vendor>>();
 
             // Act
-            var cut = new ProductApiService(productRepoMock, productCategoryRepo, vendorRepo);
+            var cut = new ProductApiService(productRepoStub, productCategoryRepo, vendorRepo);
             var result = cut.GetProductById(negativeOrZeroProductId);
 
             // Assert
