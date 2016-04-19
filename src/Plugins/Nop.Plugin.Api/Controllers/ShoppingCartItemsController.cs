@@ -26,6 +26,12 @@ namespace Nop.Plugin.Api.Controllers
             _jsonFieldsSerializer = jsonFieldsSerializer;
         }
 
+        /// <summary>
+        /// Receive a list of all shopping cart items
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ShoppingCartItemsRootObject))]
         public IHttpActionResult GetShoppingCartItems(ShoppingCartItemsParametersModel parameters)
@@ -59,7 +65,15 @@ namespace Nop.Plugin.Api.Controllers
 
             return new RawJsonActionResult(json);
         }
-        
+
+        /// <summary>
+        /// Receive a list of all shopping cart items by customer id
+        /// </summary>
+        /// <param name="customerId">Id of the customer whoes shopping cart items you want to get</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ShoppingCartItemsRootObject))]
         public IHttpActionResult GetShoppingCartItemsByCustomerId(int customerId, ShoppingCartItemsForCustomerParametersModel parameters)

@@ -27,6 +27,12 @@ namespace Nop.Plugin.Api.Controllers
             _jsonFieldsSerializer = jsonFieldsSerializer;
         }
 
+        /// <summary>
+        /// Receive a list of all products
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductsRootObjectDto))]
         public IHttpActionResult GetProducts(ProductsParametersModel parameters)
@@ -57,6 +63,11 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult(json);
         }
 
+        /// <summary>
+        /// Receive a count of all products
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductsCountRootObject))]
         public IHttpActionResult GetProductsCount(ProductsCountParametersModel parameters)
@@ -73,6 +84,14 @@ namespace Nop.Plugin.Api.Controllers
             return Ok(productsCountRootObject);
         }
 
+        /// <summary>
+        /// Retrieve product by spcified id
+        /// </summary>
+        /// <param name="id">Id of the product</param>
+        /// <param name="fields">Fields from the product you want your json to contain</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductsRootObjectDto))]
         public IHttpActionResult GetProductById(int id, string fields = "")

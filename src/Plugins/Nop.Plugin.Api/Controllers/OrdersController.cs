@@ -26,6 +26,12 @@ namespace Nop.Plugin.Api.Controllers
             _jsonFieldsSerializer = jsonFieldsSerializer;
         }
 
+        /// <summary>
+        /// Receive a list of all Orders
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(OrdersRootObject))]
         public IHttpActionResult GetOrders(OrdersParametersModel parameters)
@@ -55,6 +61,11 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult(json);
         }
 
+        /// <summary>
+        /// Receive a count of all Orders
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(OrdersCountRootObject))]
         public IHttpActionResult GetOrdersCount(OrdersCountParametersModel parameters)
@@ -70,6 +81,14 @@ namespace Nop.Plugin.Api.Controllers
             return Ok(ordersCountRootObject);
         }
 
+        /// <summary>
+        /// Retrieve order by spcified id
+        /// </summary>
+        ///   /// <param name="id">Id of the order</param>
+        /// <param name="fields">Fields from the order you want your json to contain</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(OrdersRootObject))]
         public IHttpActionResult GetOrderById(int id, string fields = "")
@@ -96,11 +115,17 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult(json);
         }
 
+        /// <summary>
+        /// Retrieve all orders for customer
+        /// </summary>
+        /// <param name="customerId">Id of the customer whoes orders you want to get</param>
+        /// <response code="200">OK</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(OrdersRootObject))]
-        public IHttpActionResult GetOrdersByCustomerId(int customer_id)
+        public IHttpActionResult GetOrdersByCustomerId(int customerId)
         {
-            IList<OrderDto> ordersForCustomer = _orderApiService.GetOrdersByCustomerId(customer_id).Select(x => x.ToDto()).ToList();
+            IList<OrderDto> ordersForCustomer = _orderApiService.GetOrdersByCustomerId(customerId).Select(x => x.ToDto()).ToList();
 
             var ordersRootObject = new OrdersRootObject()
             {
