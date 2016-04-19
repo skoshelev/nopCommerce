@@ -26,6 +26,12 @@ namespace Nop.Plugin.Api.Controllers
             _jsonFieldsSerializer = jsonFieldsSerializer;
         }
 
+        /// <summary>
+        /// Receive a list of all Categories
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(CategoriesRootObject))]
         public IHttpActionResult GetCategories(CategoriesParametersModel parameters)
@@ -57,6 +63,11 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult(json);
         }
 
+        /// <summary>
+        /// Receive a count of all Categories
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(CategoriesCountRootObject))]
         public IHttpActionResult GetCategoriesCount(CategoriesCountParametersModel parameters)
@@ -73,6 +84,14 @@ namespace Nop.Plugin.Api.Controllers
             return Ok(categoriesCountRootObject);
         }
 
+        /// <summary>
+        /// Retrieve customer by spcified id
+        /// </summary>
+        /// <param name="id">Id of the category</param>
+        /// <param name="fields">Fields from the category you want your json to contain</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(CategoriesRootObject))]
         public IHttpActionResult GetCategoryById(int id, string fields = "")

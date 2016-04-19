@@ -55,6 +55,14 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult(json);
         }
 
+        /// <summary>
+        /// Retrieve customer by spcified id
+        /// </summary>
+        /// <param name="id">Id of the customer</param>
+        /// <param name="fields">Fields from the customer you want your json to contain</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(CustomersRootObject))]
         public IHttpActionResult GetCustomerById(int id, string fields = "")
@@ -78,7 +86,13 @@ namespace Nop.Plugin.Api.Controllers
 
             return new RawJsonActionResult(json);
         }
-        
+
+
+        /// <summary>
+        /// Get a count of all customers
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(CustomersCountRootObject))]
         public IHttpActionResult GetCustomersCount()
@@ -93,7 +107,12 @@ namespace Nop.Plugin.Api.Controllers
             return Ok(customersCountRootObject);
         }
 
-
+        /// <summary>
+        /// Search for customers matching supplied query
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         public IHttpActionResult Search(CustomersSearchParametersModel parameters)
         {

@@ -26,6 +26,12 @@ namespace Nop.Plugin.Api.Controllers
             _jsonFieldsSerializer = jsonFieldsSerializer;
         }
 
+        /// <summary>
+        /// Receive a list of all Product-Category mappings
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductCategoryMappingsRootObject))]
         public IHttpActionResult GetMappings(ProductCategoryMappingsParametersModel parameters)
@@ -56,6 +62,11 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult(json);
         }
 
+        /// <summary>
+        /// Receive a count of all Product-Category mappings
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductCategoryMappingsCountRootObject))]
         public IHttpActionResult GetMappingsCount(ProductCategoryMappingsCountParametersModel parameters)
@@ -75,6 +86,14 @@ namespace Nop.Plugin.Api.Controllers
             return Ok(productCategoryMappingsCountRootObject);
         }
 
+        /// <summary>
+        /// Retrieve Product-Category mappings by spcified id
+        /// </summary>
+        ///   /// <param name="id">Id of the Product-Category mapping</param>
+        /// <param name="fields">Fields from the Product-Category mapping you want your json to contain</param>
+        /// <response code="200">OK</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductCategoryMappingsRootObject))]
         public IHttpActionResult GetMappingById(int id, string fields = "")

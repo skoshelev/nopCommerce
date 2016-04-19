@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Web.Http.ModelBinding;
+using Newtonsoft.Json;
 using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.MVC;
 
 namespace Nop.Plugin.Api.Models.CustomersParameters
 {
+    // JsonProperty is used only for swagger
     [ModelBinder(typeof(ParametersModelBinder<CustomersParametersModel>))]
     public class CustomersParametersModel
     {
@@ -19,41 +21,39 @@ namespace Nop.Plugin.Api.Models.CustomersParameters
         }
 
         /// <summary>
-        /// Amount of results
-        /// <br />
-        /// (default: 50) (maximum: 250)
+        /// Amount of results (default: 50) (maximum: 250)
         /// </summary>
+        [JsonProperty("limit")]
         public int Limit { get; set; }
 
         /// <summary>
-        /// Page to show
-        /// <br />
-        /// (default: 1)
+        /// Page to show (default: 1)
         /// </summary>
+        [JsonProperty("page")]
         public int Page { get; set; }
 
         /// <summary>
         /// Restrict results to after the specified ID
         /// </summary>
+        [JsonProperty("since_id")]
         public int SinceId { get; set; }
 
         /// <summary>
         /// Comma-separated list of fields to include in the response
         /// </summary>
+        [JsonProperty("fields")]
         public string Fields { get; set; }
 
         /// <summary>
-        /// Show customers created after date 
-        /// <br />
-        /// (format: 2008-12-31 03:00)
+        /// Show customers created after date (format: 2008-12-31 03:00)
         /// </summary>
+        [JsonProperty("created_at_min")]
         public DateTime? CreatedAtMin { get; set; }
 
         /// <summary>
-        /// Show customers created before date 
-        /// <br />
-        /// (format: 2008-12-31 03:00)
+        /// Show customers created before date (format: 2008-12-31 03:00)
         /// </summary>
+        [JsonProperty("created_at_max")]
         public DateTime? CreatedAtMax { get; set; }
     }
 }
