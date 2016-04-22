@@ -4,14 +4,14 @@ using Newtonsoft.Json.Linq;
 namespace Nop.Plugin.Api.Helpers
 {
     // source - http://stackoverflow.com/questions/5546142/how-do-i-use-json-net-to-deserialize-into-nested-recursive-dictionary-and-list
-    public static class JsonHelper
+    public class JsonHelper : IJsonHelper
     {
-        public static object Deserialize(string json)
+        public object Deserialize(string json)
         {
             return ToObject(JToken.Parse(json));
         }
 
-        private static object ToObject(JToken token)
+        private object ToObject(JToken token)
         {
             switch (token.Type)
             {

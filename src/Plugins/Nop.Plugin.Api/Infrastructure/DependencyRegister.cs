@@ -96,6 +96,7 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<ShoppingCartItemApiService>().As<IShoppingCartItemApiService>().InstancePerLifetimeScope();
             builder.RegisterType<MappingHelper>().As<IMappingHelper>().InstancePerLifetimeScope();
             builder.RegisterType<AuthorizationHelper>().As<IAuthorizationHelper>().InstancePerLifetimeScope();
+            builder.RegisterType<JsonHelper>().As<IJsonHelper>().InstancePerLifetimeScope();
             builder.RegisterType<JsonFieldsSerializer>().As<IJsonFieldsSerializer>().InstancePerLifetimeScope();
             builder.RegisterType<FieldsValidator>().As<IFieldsValidator>().InstancePerLifetimeScope();
             builder.RegisterType<ObjectConverter>().As<IObjectConverter>().InstancePerLifetimeScope();

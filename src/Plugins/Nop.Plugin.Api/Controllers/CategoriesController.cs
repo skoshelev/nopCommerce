@@ -19,8 +19,6 @@ using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Seo;
-using Swashbuckle.Application;
-using Swashbuckle.Swagger.Annotations;
 
 namespace Nop.Plugin.Api.Controllers
 {

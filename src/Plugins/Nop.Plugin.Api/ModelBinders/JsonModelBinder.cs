@@ -7,6 +7,13 @@ namespace Nop.Plugin.Api.ModelBinders
 {
     public class JsonModelBinder : IModelBinder
     {
+        private readonly IJsonHelper _jsonHelper;
+
+        public JsonModelBinder(IJsonHelper jsonHelper)
+        {
+            _jsonHelper = jsonHelper;
+        }
+
         public bool BindModel(HttpActionContext actionContext, ModelBindingContext bindingContext)
         {
             // TODO: use await
@@ -17,7 +24,7 @@ namespace Nop.Plugin.Api.ModelBinders
                 if (!string.IsNullOrEmpty(requestPayload.Result))
                 {
                     Dictionary<string, object> result =
-                        (Dictionary<string, object>)JsonHelper.Deserialize(requestPayload.Result);
+                        (Dictionary<string, object>)_jsonHelper.Deserialize(requestPayload.Result);
 
                     bindingContext.Model = result;
 

@@ -120,6 +120,7 @@
     <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToInt.cs" />
     <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToStatus.cs" />
     <Compile Include="ModelBinderTests\DummyObjects\DummyModel.cs" />
+    <Compile Include="ModelBinderTests\JsonModelBinderTests_BindModel.cs" />
     <Compile Include="ModelBinderTests\ParametersModelBinderTests_BindModel.cs" />
     <Compile Include="SerializersTests\DummyObjects\DummyObject.cs" />
     <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_ProductIdParameter.cs" />
