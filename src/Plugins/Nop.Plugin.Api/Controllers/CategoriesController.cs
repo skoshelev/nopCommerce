@@ -149,9 +149,9 @@ namespace Nop.Plugin.Api.Controllers
         // which will make them a kind of parameter object which they are not. 
         public IHttpActionResult CreateCategory([ModelBinder(typeof(JsonModelBinder))] Dictionary<string, object> categoryRoot)
         {
-            if (string.IsNullOrEmpty(categoryRoot.ToString()))
+            if (categoryRoot == null || string.IsNullOrEmpty(categoryRoot.ToString()))
             {
-                return BadRequest();
+                return BadRequest("Invalid category passed");
             }
 
             if (categoryRoot.ContainsKey("category"))
@@ -189,7 +189,7 @@ namespace Nop.Plugin.Api.Controllers
                 return new RawJsonActionResult(json);
             }
             
-            return BadRequest();
+            return BadRequest("Invalid category passed");
         }
     }
 }
