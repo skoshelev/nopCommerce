@@ -282,6 +282,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Scripts\swaggerPostPutTryItOutButtonsRemoval.js" />
     <Content Include="Views\Clients\ClientSettings.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
