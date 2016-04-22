@@ -1,16 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.ActionResults;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.DTOs.Categories;
+using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.MappingExtensions;
+using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.Models.CategoriesParameters;
 using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
+using Nop.Services.Catalog;
+using Nop.Services.Localization;
+using Nop.Services.Logging;
+using Nop.Services.Seo;
+using Swashbuckle.Application;
+using Swashbuckle.Swagger.Annotations;
 
 namespace Nop.Plugin.Api.Controllers
 {
@@ -18,12 +28,28 @@ namespace Nop.Plugin.Api.Controllers
     public class CategoriesController : ApiController
     {
         private readonly ICategoryApiService _categoryApiService;
+        private readonly ICategoryService _categoryService;
+        private readonly IUrlRecordService _urlRecordService;
+        private readonly ICustomerActivityService _customerActivityService;
+        private readonly ILocalizationService _localizationService;
         private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
+        private readonly IMappingHelper _mappingHelper;
 
-        public CategoriesController(ICategoryApiService categoryApiService, IJsonFieldsSerializer jsonFieldsSerializer)
+        public CategoriesController(ICategoryApiService categoryApiService, 
+            IJsonFieldsSerializer jsonFieldsSerializer, 
+            ICategoryService categoryService, 
+            IUrlRecordService urlRecordService, 
+            ICustomerActivityService customerActivityService, 
+            ILocalizationService localizationService, 
+            IMappingHelper mappingHelper)
         {
             _categoryApiService = categoryApiService;
             _jsonFieldsSerializer = jsonFieldsSerializer;
+            _categoryService = categoryService;
+            _urlRecordService = urlRecordService;
+            _customerActivityService = customerActivityService;
+            _localizationService = localizationService;
+            _mappingHelper = mappingHelper;
         }
 
         /// <summary>
@@ -85,7 +111,7 @@ namespace Nop.Plugin.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieve customer by spcified id
+        /// Retrieve category by spcified id
         /// </summary>
         /// <param name="id">Id of the category</param>
         /// <param name="fields">Fields from the category you want your json to contain</param>
@@ -115,6 +141,55 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, fields);
 
             return new RawJsonActionResult(json);
+        }
+
+        [HttpPost]
+        [ResponseType(typeof(CategoriesRootObject))]
+        // Here we use JsonModelBinder so we don't have to create a special binder for the DTO objects and couple the DTO objects with it,
+        // which will make them a kind of parameter object which they are not. 
+        public IHttpActionResult CreateCategory([ModelBinder(typeof(JsonModelBinder))] Dictionary<string, object> categoryRoot)
+        {
+            if (string.IsNullOrEmpty(categoryRoot.ToString()))
+            {
+                return BadRequest();
+            }
+
+            if (categoryRoot.ContainsKey("category"))
+            {
+                var newCategoryDto = new CategoryDto();
+
+                Dictionary<string, object> categoryProperties = (Dictionary<string, object>)categoryRoot["category"];
+
+                _mappingHelper.SetValues(categoryProperties, newCategoryDto, typeof(CategoryDto));
+
+                Category newCategory = newCategoryDto.ToEntity();
+                newCategory.CreatedOnUtc = DateTime.UtcNow;
+                newCategory.UpdatedOnUtc = DateTime.UtcNow;
+                _categoryService.InsertCategory(newCategory);
+
+                // TODO: Localization
+                // TODO: Discounts
+                // TODO: Pictures
+                // TODO: ACL
+                // TODO: StoreMappings
+
+                //search engine name
+                newCategoryDto.SeName = newCategory.ValidateSeName(newCategoryDto.SeName, newCategory.Name, true);
+                _urlRecordService.SaveSlug(newCategory, newCategoryDto.SeName, 0);
+
+                _customerActivityService.InsertActivity("AddNewCategory",
+                    _localizationService.GetResource("ActivityLog.AddNewCategory"), newCategory.Name);
+
+                var categoriesRootObject = new CategoriesRootObject();
+
+                categoriesRootObject.Categories.Add(newCategoryDto);
+
+                var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, string.Empty);
+
+                return new RawJsonActionResult(json);
+            }
+            
+            return BadRequest();
         }
     }
 }

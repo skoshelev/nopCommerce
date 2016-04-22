@@ -1,5 +1,6 @@
 ﻿using System.Web.Http;
 using System.Web.Http.Results;
+using AutoMock;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.Categories;
@@ -20,13 +21,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         public void WhenIdEqualsToZeroOrLess_ShouldReturn404NotFound(int nonPositiveCategoryId)
         {
             // Arange
-            ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializer);
+            var autoMocker = new RhinoAutoMocker<CategoriesController>();
 
             // Act
-            IHttpActionResult result = cut.GetCategoryById(nonPositiveCategoryId);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetCategoryById(nonPositiveCategoryId);
 
             // Assert
             Assert.IsInstanceOf<NotFoundResult>(result);
@@ -38,18 +36,14 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         public void WhenIdEqualsToZeroOrLess_ShouldNotCallCategoryApiService(int negativeCategoryId)
         {
             // Arange
-            ICategoryApiService categoryApiServiceMock = MockRepository.GenerateMock<ICategoryApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            jsonFieldsSerializer.Stub(x => x.Serialize(null, null)).Return(string.Empty);
-
-            var cut = new CategoriesController(categoryApiServiceMock, jsonFieldsSerializer);
+            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(null, null)).Return(string.Empty);
 
             // Act
-            cut.GetCategoryById(negativeCategoryId);
+            autoMocker.ClassUnderTest.GetCategoryById(negativeCategoryId);
 
             // Assert
-            categoryApiServiceMock.AssertWasNotCalled(x => x.GetCategoryById(negativeCategoryId));
+            autoMocker.Get<ICategoryApiService>().AssertWasNotCalled(x => x.GetCategoryById(negativeCategoryId));
         }
 
         [Test]
@@ -58,20 +52,16 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             int nonExistingCategoryId = 5;
 
             // Arange
-            ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
-            categoryApiServiceStub.Stub(x => x.GetCategoryById(nonExistingCategoryId)).Return(null);
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializer);
+            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoryById(nonExistingCategoryId)).Return(null);
 
             // Act
-            IHttpActionResult result = cut.GetCategoryById(nonExistingCategoryId);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetCategoryById(nonExistingCategoryId);
 
             // Assert
             Assert.IsInstanceOf<NotFoundResult>(result);
         }
-        
+
         [Test]
         public void WhenIdEqualsToExistingCategoryId_ShouldSerializeThatCategory()
         {
@@ -81,18 +71,14 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             var existingCategory = new Category() { Id = existingCategoryId };
 
             // Arange
-            ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
-            categoryApiServiceStub.Stub(x => x.GetCategoryById(existingCategoryId)).Return(existingCategory);
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializer);
+            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoryById(existingCategoryId)).Return(existingCategory);
 
             // Act
-            cut.GetCategoryById(existingCategoryId);
-            
+            autoMocker.ClassUnderTest.GetCategoryById(existingCategoryId);
+
             // Assert
-            jsonFieldsSerializer.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(
                     Arg<CategoriesRootObject>.Matches(
                         objectToSerialize =>
@@ -112,18 +98,14 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             string fields = "id,name";
 
             // Arange
-            ICategoryApiService categoryApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
-            categoryApiServiceStub.Stub(x => x.GetCategoryById(existingCategoryId)).Return(existingCategory);
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-            
-            var cut = new CategoriesController(categoryApiServiceStub, jsonFieldsSerializer);
+            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoryById(existingCategoryId)).Return(existingCategory);
 
             // Act
-            cut.GetCategoryById(existingCategoryId, fields);
+            autoMocker.ClassUnderTest.GetCategoryById(existingCategoryId, fields);
 
             // Assert
-            jsonFieldsSerializer.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(
                     Arg<CategoriesRootObject>.Matches(objectToSerialize => objectToSerialize.Categories[0].Id == existingCategory.Id.ToString() &&
                                                                            objectToSerialize.Categories[0].Name == existingCategory.Name),

@@ -92,7 +92,8 @@ namespace Nop.Plugin.Api
             config.Routes.MapHttpRoute(
                name: "categories",
                routeTemplate: "api/categories",
-               defaults: new { controller = "Categories", action = "GetCategories" });
+               defaults: new { controller = "Categories", action = "GetCategories" },
+               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get)});
 
             config.Routes.MapHttpRoute(
                 name: "categoriesCount",
@@ -103,6 +104,12 @@ namespace Nop.Plugin.Api
                 name: "categoryById",
                 routeTemplate: "api/categories/{id}",
                 defaults: new { controller = "Categories", action = "GetCategoryById" });
+
+            config.Routes.MapHttpRoute(
+                name: "createCategory",
+                routeTemplate: "api/categories",
+                defaults: new { controller = "Categories", action = "CreateCategory" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
 
             config.Routes.MapHttpRoute(
               name: "products",

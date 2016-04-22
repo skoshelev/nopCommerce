@@ -172,8 +172,10 @@
     <Compile Include="Helpers\AuthorizationHelper.cs" />
     <Compile Include="Helpers\AutoMapperHelper.cs" />
     <Compile Include="Helpers\IAuthorizationHelper.cs" />
+    <Compile Include="Helpers\IMappingHelper.cs" />
     <Compile Include="Helpers\IWebConfigManagerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
+    <Compile Include="Helpers\MappingHelper.cs" />
     <Compile Include="Helpers\ReflectionHelper.cs" />
     <Compile Include="Helpers\WebConfigManagerHelper.cs" />
     <Compile Include="DTOs\Customers\CustomerAttributeMappingDto.cs" />
@@ -195,6 +197,7 @@
     <Compile Include="MappingExtensions\OrderItemDtoMappings.cs" />
     <Compile Include="MappingExtensions\ProductDtoMappings.cs" />
     <Compile Include="MappingExtensions\ShoppingCartItemDtoMappings.cs" />
+    <Compile Include="ModelBinders\JsonModelBinder.cs" />
     <Compile Include="ModelBinders\ParametersModelBinder.cs" />
     <Compile Include="Models\CategoriesParameters\BaseCategoriesParametersModel.cs" />
     <Compile Include="Models\CategoriesParameters\CategoriesCountParametersModel.cs" />
