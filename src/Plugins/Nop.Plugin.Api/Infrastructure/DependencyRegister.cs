@@ -70,6 +70,7 @@ namespace Nop.Plugin.Api.Infrastructure
             Maps.CreateMap<ClientModel, Client>();
 
             Maps.CreateMap<Category, CategoryDto>();
+            Maps.CreateMap<CategoryDto, Category>();
 
             Maps.CreateMap<ProductCategory, ProductCategoryMappingDto>();
 
@@ -93,7 +94,9 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<ProductCategoryMappingsApiService>().As<IProductCategoryMappingsApiService>().InstancePerLifetimeScope();
             builder.RegisterType<OrderApiService>().As<IOrderApiService>().InstancePerLifetimeScope();
             builder.RegisterType<ShoppingCartItemApiService>().As<IShoppingCartItemApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<MappingHelper>().As<IMappingHelper>().InstancePerLifetimeScope();
             builder.RegisterType<AuthorizationHelper>().As<IAuthorizationHelper>().InstancePerLifetimeScope();
+            builder.RegisterType<JsonHelper>().As<IJsonHelper>().InstancePerLifetimeScope();
             builder.RegisterType<JsonFieldsSerializer>().As<IJsonFieldsSerializer>().InstancePerLifetimeScope();
             builder.RegisterType<FieldsValidator>().As<IFieldsValidator>().InstancePerLifetimeScope();
             builder.RegisterType<ObjectConverter>().As<IObjectConverter>().InstancePerLifetimeScope();

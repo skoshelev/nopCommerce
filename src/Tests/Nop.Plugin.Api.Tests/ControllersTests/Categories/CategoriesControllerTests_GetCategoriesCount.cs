@@ -1,9 +1,9 @@
 ﻿using System.Web.Http;
 using System.Web.Http.Results;
+using AutoMock;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.Categories;
 using Nop.Plugin.Api.Models.CategoriesParameters;
-using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 using NUnit.Framework;
 using Rhino.Mocks;
@@ -19,15 +19,11 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             var parameters = new CategoriesCountParametersModel();
 
             // arrange
-            var categoriesApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
-            categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(0);
+            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(0);
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            
-            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
-
-            // act
-            IHttpActionResult result = cut.GetCategoriesCount(parameters);
+            //  act
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetCategoriesCount(parameters);
 
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<CategoriesCountRootObject>>(result);
@@ -40,15 +36,11 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             var parameters = new CategoriesCountParametersModel();
 
             // arrange
-            var categoriesApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
-            categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(1);
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            
-            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
+            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(1);
 
             // act
-            IHttpActionResult result = cut.GetCategoriesCount(parameters);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetCategoriesCount(parameters);
 
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<CategoriesCountRootObject>>(result);
@@ -62,15 +54,11 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             int categoriesCount = 20;
 
             // arrange
-            var categoriesApiServiceStub = MockRepository.GenerateStub<ICategoryApiService>();
-            categoriesApiServiceStub.Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(categoriesCount);
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            
-            var cut = new CategoriesController(categoriesApiServiceStub, jsonFieldsSerializer);
+            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoriesCount()).IgnoreArguments().Return(categoriesCount);
 
             // act
-            IHttpActionResult result = cut.GetCategoriesCount(categoriesCountParametersModel);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetCategoriesCount(categoriesCountParametersModel);
 
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<CategoriesCountRootObject>>(result);

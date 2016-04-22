@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Routing;
 using Autofac.Integration.WebApi;
@@ -92,7 +93,8 @@ namespace Nop.Plugin.Api
             config.Routes.MapHttpRoute(
                name: "categories",
                routeTemplate: "api/categories",
-               defaults: new { controller = "Categories", action = "GetCategories" });
+               defaults: new { controller = "Categories", action = "GetCategories" },
+               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get)});
 
             config.Routes.MapHttpRoute(
                 name: "categoriesCount",
@@ -103,6 +105,12 @@ namespace Nop.Plugin.Api
                 name: "categoryById",
                 routeTemplate: "api/categories/{id}",
                 defaults: new { controller = "Categories", action = "GetCategoryById" });
+
+            config.Routes.MapHttpRoute(
+                name: "createCategory",
+                routeTemplate: "api/categories",
+                defaults: new { controller = "Categories", action = "CreateCategory" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
 
             config.Routes.MapHttpRoute(
               name: "products",
@@ -176,7 +184,15 @@ namespace Nop.Plugin.Api
                     c.OperationFilter<RemovePrefixesOperationFilter>();
                     c.OperationFilter<ChangeParameterTypeOperationFilter>();
                 })
-                .EnableSwaggerUi();
+                .EnableSwaggerUi(c =>
+                {
+                    var currentAssembly = Assembly.GetAssembly(this.GetType());
+                    var currentAssemblyName = currentAssembly.GetName().Name;
+
+                    // Needeed for removing the "Try It Out" button from the post and put methods.
+                    // http://stackoverflow.com/questions/36772032/swagger-5-2-3-supportedsubmitmethods-removed/36780806#36780806
+                    c.InjectJavaScript(currentAssembly, string.Format("{0}.Scripts.swaggerPostPutTryItOutButtonsRemoval.js", currentAssemblyName));
+                });
 
             app.UseWebApi(config);
             

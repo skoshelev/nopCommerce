@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Web.Mvc;
 using Newtonsoft.Json;
 
 namespace Nop.Plugin.Api.DTOs.Categories
@@ -117,5 +118,8 @@ namespace Nop.Plugin.Api.DTOs.Categories
         /// </summary>
         [JsonProperty("updated_on_utc")]
         public DateTime? UpdatedOnUtc { get; set; }
+        
+        [AllowHtml]
+        public string SeName { get; set; }
     }
 }
