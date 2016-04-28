@@ -59,6 +59,7 @@ namespace Nop.Plugin.Api.Infrastructure
         private void RegisterModelBinders(ContainerBuilder builder)
         {
             builder.RegisterGeneric(typeof(ParametersModelBinder<>)).InstancePerLifetimeScope();
+            builder.RegisterType<JsonModelBinder>().InstancePerLifetimeScope();
         }
 
         private void CreateModelMappings()
