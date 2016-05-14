@@ -19,7 +19,7 @@ namespace Nop.Plugin.Api.Helpers
             }
         }
 
-        public void SetValue(object objectToBeUpdated, KeyValuePair<string, object> property, Type propertyType)
+        private void SetValue(object objectToBeUpdated, KeyValuePair<string, object> property, Type propertyType)
         {
             string propertyName = property.Key.Replace("_", string.Empty);
             object propertyValue = property.Value;

@@ -33,12 +33,12 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
         private readonly IMappingHelper _mappingHelper;
 
-        public CategoriesController(ICategoryApiService categoryApiService, 
-            IJsonFieldsSerializer jsonFieldsSerializer, 
-            ICategoryService categoryService, 
-            IUrlRecordService urlRecordService, 
-            ICustomerActivityService customerActivityService, 
-            ILocalizationService localizationService, 
+        public CategoriesController(ICategoryApiService categoryApiService,
+            IJsonFieldsSerializer jsonFieldsSerializer,
+            ICategoryService categoryService,
+            IUrlRecordService urlRecordService,
+            ICustomerActivityService customerActivityService,
+            ILocalizationService localizationService,
             IMappingHelper mappingHelper)
         {
             _categoryApiService = categoryApiService;
@@ -133,9 +133,9 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             var categoriesRootObject = new CategoriesRootObject();
-            
+
             categoriesRootObject.Categories.Add(category.ToDto());
-        
+
             var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, fields);
 
             return new RawJsonActionResult(json);
@@ -152,42 +152,43 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest("Invalid category passed");
             }
 
-            if (categoryRoot.ContainsKey("category"))
+            if (!categoryRoot.ContainsKey("category"))
             {
-                var newCategoryDto = new CategoryDto();
-
-                Dictionary<string, object> categoryProperties = (Dictionary<string, object>)categoryRoot["category"];
-
-                _mappingHelper.SetValues(categoryProperties, newCategoryDto, typeof(CategoryDto));
-
-                Category newCategory = newCategoryDto.ToEntity();
-                newCategory.CreatedOnUtc = DateTime.UtcNow;
-                newCategory.UpdatedOnUtc = DateTime.UtcNow;
-                _categoryService.InsertCategory(newCategory);
-
-                // TODO: Localization
-                // TODO: Discounts
-                // TODO: Pictures
-                // TODO: ACL
-                // TODO: StoreMappings
-
-                //search engine name
-                newCategoryDto.SeName = newCategory.ValidateSeName(newCategoryDto.SeName, newCategory.Name, true);
-                _urlRecordService.SaveSlug(newCategory, newCategoryDto.SeName, 0);
-
-                _customerActivityService.InsertActivity("AddNewCategory",
-                    _localizationService.GetResource("ActivityLog.AddNewCategory"), newCategory.Name);
-
-                var categoriesRootObject = new CategoriesRootObject();
-
-                categoriesRootObject.Categories.Add(newCategoryDto);
-
-                var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, string.Empty);
-
-                return new RawJsonActionResult(json);
+                return BadRequest("Invalid category passed");
             }
-            
-            return BadRequest("Invalid category passed");
+
+
+            var newCategoryDto = new CategoryDto();
+
+            Dictionary<string, object> categoryProperties = (Dictionary<string, object>)categoryRoot["category"];
+
+            _mappingHelper.SetValues(categoryProperties, newCategoryDto, typeof(CategoryDto));
+
+            Category newCategory = newCategoryDto.ToEntity();
+            newCategory.CreatedOnUtc = DateTime.UtcNow;
+            newCategory.UpdatedOnUtc = DateTime.UtcNow;
+            _categoryService.InsertCategory(newCategory);
+
+            // TODO: Localization
+            // TODO: Discounts
+            // TODO: Pictures
+            // TODO: ACL
+            // TODO: StoreMappings
+
+            //search engine name
+            newCategoryDto.SeName = newCategory.ValidateSeName(newCategoryDto.SeName, newCategory.Name, true);
+            _urlRecordService.SaveSlug(newCategory, newCategoryDto.SeName, 0);
+
+            _customerActivityService.InsertActivity("AddNewCategory",
+                _localizationService.GetResource("ActivityLog.AddNewCategory"), newCategory.Name);
+
+            var categoriesRootObject = new CategoriesRootObject();
+
+            categoriesRootObject.Categories.Add(newCategoryDto);
+
+            var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, string.Empty);
+
+            return new RawJsonActionResult(json);
         }
     }
 }

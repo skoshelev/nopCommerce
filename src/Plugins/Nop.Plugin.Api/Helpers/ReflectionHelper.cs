@@ -17,30 +17,5 @@ namespace Nop.Plugin.Api.Helpers
         {
             return type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance) != null;
         }
-        
-        public static IHttpActionResult SerializeSpecificPropertiesOnly(object dto, Dictionary<string, bool> propertiesToSerialize, HttpRequestMessage request)
-        {
-            DynamicContractResolver dynamicContractResolver = new DynamicContractResolver(propertiesToSerialize);
-
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(dto,
-                Newtonsoft.Json.Formatting.Indented,
-                new Newtonsoft.Json.JsonSerializerSettings { ContractResolver = dynamicContractResolver });
-
-            var response = request.CreateResponse(HttpStatusCode.OK);
-            response.Content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            return new ResponseMessageResult(response);
-        }
-        
-        public static Dictionary<string, bool> GetPropertiesToSerialize(string fields)
-        {
-            var propertiesToSerialize = fields.ToLowerInvariant()
-                .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Trim())
-                .Distinct()
-                .ToDictionary(x => x, y => true);
-
-            return propertiesToSerialize;
-        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace Nop.Plugin.Api.Helpers
@@ -8,7 +9,15 @@ namespace Nop.Plugin.Api.Helpers
     {
         public object Deserialize(string json)
         {
-            return ToObject(JToken.Parse(json));
+            //TODO: JToken.Parse could throw an exeption if not valid JSON string is passed
+            try
+            {
+                return ToObject(JToken.Parse(json));
+            }
+            catch (Exception)
+            {
+                return null;
+            } 
         }
 
         private object ToObject(JToken token)

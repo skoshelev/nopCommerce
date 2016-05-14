@@ -24,7 +24,7 @@ namespace Nop.Plugin.Api.ModelBinders
                 if (!string.IsNullOrEmpty(requestPayload.Result))
                 {
                     Dictionary<string, object> result =
-                        (Dictionary<string, object>)_jsonHelper.Deserialize(requestPayload.Result);
+                        _jsonHelper.Deserialize(requestPayload.Result) as Dictionary<string, object>;
 
                     bindingContext.Model = result;
 

@@ -21,6 +21,8 @@ namespace Nop.Plugin.Api.ContractResolvers
             string jsonPropertyNameLowerWithUnderscores = jsonProperty.PropertyName.ToLowerInvariant();
             string jsonPropertyNameWithoutUnderscores = jsonPropertyNameLowerWithUnderscores.Replace("_", string.Empty);
 
+            // TODO: we should think if properties without underscore should be considered as valid ones
+            // With this line we allow client not to follow the underscore convention - is this really necessary?
             jsonProperty.ShouldSerialize = o => _propertiesToSerialize.ContainsKey(jsonPropertyNameLowerWithUnderscores) || 
                                                 _propertiesToSerialize.ContainsKey(jsonPropertyNameWithoutUnderscores);
 
