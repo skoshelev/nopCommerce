@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Nop.Plugin.Api.ContractResolvers;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.Validators;
@@ -26,17 +25,26 @@ namespace Nop.Plugin.Api.Serializers
                 throw new ArgumentNullException("objectToSerialize");
             }
 
-            string json;
+            string json = string.Empty;
+
+            // Always add the root manually
+            var validFields = new Dictionary<string, bool>();
 
             if (!string.IsNullOrEmpty(fields))
             {
                 string primaryPropertyName = objectToSerialize.GetPrimaryPropertyName();
-                Dictionary<string, bool> validFields = _fieldsValidator.GetValidFields(fields, objectToSerialize.GetPrimaryPropertyType());
+                validFields = _fieldsValidator.GetValidFields(fields, objectToSerialize.GetPrimaryPropertyType());
 
-                // Always add the root manually
-                validFields.Add(primaryPropertyName, true);
+                if (validFields.Count > 0)
+                {
+                    validFields.Add(primaryPropertyName, true);
 
-                json = Serialize(objectToSerialize, validFields);
+                    json = Serialize(objectToSerialize, validFields);
+                }
+                else
+                {
+                    json = string.Format("{{'{0}': []}}", primaryPropertyName);
+                }
             }
             else
             {
@@ -52,26 +60,16 @@ namespace Nop.Plugin.Api.Serializers
 
             string json = JsonConvert.SerializeObject(objectToSerialize,
                 Formatting.Indented,
-                new JsonSerializerSettings
-                {
-                    ContractResolver = dynamicContractResolver,
-                    DateFormatString = DateTimeIso8601Format
-                });
-
-            //var serializer = new JsonSerializer();
-            //serializer.Formatting = Formatting.Indented;
-            //serializer.ContractResolver = dynamicContractResolver;
-            //serializer.DateFormatString = DateTimeIso8601Format;
-            //return JToken.FromObject(objectToSerialize, serializer).RemoveEmptyChildren().ToString();
+                new JsonSerializerSettings { ContractResolver = dynamicContractResolver, DateFormatString = DateTimeIso8601Format });
 
             return json;
         }
 
         private string Serialize(object objectToSerialize)
         {
-            string json = JsonConvert.SerializeObject(objectToSerialize,
-                Formatting.Indented,
-                new JsonSerializerSettings() { DateFormatString = DateTimeIso8601Format });
+            string json = JsonConvert.SerializeObject(objectToSerialize, 
+                Formatting.Indented, 
+                new JsonSerializerSettings() {DateFormatString = DateTimeIso8601Format });
 
             return json;
         }
