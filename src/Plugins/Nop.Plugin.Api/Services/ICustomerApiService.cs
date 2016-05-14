@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DTOs.Customers;
-using Nop.Plugin.Api.MVC;
 
 namespace Nop.Plugin.Api.Services
 {

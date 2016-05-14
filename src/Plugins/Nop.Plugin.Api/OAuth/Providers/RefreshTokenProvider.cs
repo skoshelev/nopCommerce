@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Owin.Security.Infrastructure;
-using Nop.Plugin.Api.MVC;
+using Nop.Plugin.Api.Constants;
 
 namespace Nop.Plugin.Api.Owin.OAuth.Providers
 {

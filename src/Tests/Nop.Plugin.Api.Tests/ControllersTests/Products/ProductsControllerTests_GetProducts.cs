@@ -2,11 +2,11 @@
 using System.Web.Http;
 using System.Web.Http.Results;
 using Nop.Core.Domain.Catalog;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.Products;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models.ProductsParameters;
-using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 using NUnit.Framework;

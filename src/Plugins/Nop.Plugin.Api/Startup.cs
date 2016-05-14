@@ -9,7 +9,7 @@ using Microsoft.Owin.Extensions;
 using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json;
 using Nop.Core.Infrastructure;
-using Nop.Plugin.Api.MVC;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Owin.Middleware;
 using Nop.Plugin.Api.Owin.OAuth.Providers;
 using Nop.Plugin.Api.Swagger;

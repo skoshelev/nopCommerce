@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Nop.Core.Domain.Catalog;
-using Nop.Plugin.Api.MVC;
+using Nop.Plugin.Api.Constants;
 
 namespace Nop.Plugin.Api.Services
 {

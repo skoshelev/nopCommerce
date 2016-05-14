@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Web;
 using System.Web.Http;
 
-namespace Nop.Plugin.Api.Controllers
+namespace Nop.Plugin.Api.Controllers.OAuth
 {
     public class OAuthController : ApiController
     {

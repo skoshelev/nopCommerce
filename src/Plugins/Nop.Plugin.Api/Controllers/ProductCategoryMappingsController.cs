@@ -5,10 +5,10 @@ using System.Web.Http.Description;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.ActionResults;
 using Nop.Plugin.Api.Attributes;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DTOs.ProductCategoryMappings;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models.ProductCategoryMappingsParameters;
-using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 

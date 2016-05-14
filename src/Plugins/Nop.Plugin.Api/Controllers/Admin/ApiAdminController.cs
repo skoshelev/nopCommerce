@@ -11,7 +11,7 @@ using Nop.Services.Logging;
 using Nop.Services.Stores;
 using Nop.Web.Framework.Controllers;
 
-namespace Nop.Plugin.Api.Controllers
+namespace Nop.Plugin.Api.Controllers.Admin
 {
     [AdminAuthorize]
     public class ApiAdminController : BaseAdminController

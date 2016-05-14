@@ -3,9 +3,9 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using Nop.Plugin.Api.ActionResults;
 using Nop.Plugin.Api.Attributes;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.Models.CustomersParameters;
-using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 

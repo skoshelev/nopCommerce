@@ -9,7 +9,6 @@ using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.DTOs.Orders;
 using Nop.Plugin.Api.Models.OrdersParameters;
-using Nop.Plugin.Api.MVC;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 using NUnit.Framework;

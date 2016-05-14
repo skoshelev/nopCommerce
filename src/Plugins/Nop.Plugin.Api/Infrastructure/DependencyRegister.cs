@@ -1,5 +1,4 @@
-﻿using System.Web.Http.ModelBinding;
-using Autofac;
+﻿using Autofac;
 using Autofac.Core;
 using Nop.Core.Configuration;
 using Nop.Core.Data;

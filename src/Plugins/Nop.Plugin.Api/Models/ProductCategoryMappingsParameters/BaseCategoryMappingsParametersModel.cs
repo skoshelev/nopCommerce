@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Nop.Plugin.Api.MVC;
+using Nop.Plugin.Api.Constants;
 
 namespace Nop.Plugin.Api.Models.ProductCategoryMappingsParameters
 {

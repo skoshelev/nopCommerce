@@ -1,7 +1,7 @@
 ﻿using System.Web.Http.ModelBinding;
 using Newtonsoft.Json;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.ModelBinders;
-using Nop.Plugin.Api.MVC;
 
 namespace Nop.Plugin.Api.Models.ProductCategoryMappingsParameters
 {

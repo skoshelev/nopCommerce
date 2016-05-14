@@ -4,8 +4,8 @@ using System.Linq;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Vendors;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DataStructures;
-using Nop.Plugin.Api.MVC;
 
 namespace Nop.Plugin.Api.Services
 {

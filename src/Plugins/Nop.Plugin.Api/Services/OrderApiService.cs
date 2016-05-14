@@ -5,8 +5,8 @@ using Nop.Core.Data;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
 using Nop.Core.Domain.Shipping;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DataStructures;
-using Nop.Plugin.Api.MVC;
 
 namespace Nop.Plugin.Api.Services
 {

@@ -12,7 +12,7 @@ using Nop.Services.Localization;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Kendoui;
 
-namespace Nop.Plugin.Api.Controllers
+namespace Nop.Plugin.Api.Controllers.Admin
 {
     [AdminAuthorize]
     public class ManageClientsAdminController : BaseAdminController
@@ -54,7 +54,7 @@ namespace Nop.Plugin.Api.Controllers
             return View(ViewNames.AdminApiClientsCreate, clientModel);
         }
 
-        [HttpPost, ParameterBasedOnFormNameAttribute("save-continue", "continueEditing")]
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         public ActionResult Create(ClientModel model, bool continueEditing)
         {
             if (ModelState.IsValid)
@@ -84,7 +84,7 @@ namespace Nop.Plugin.Api.Controllers
             return View(ViewNames.AdminApiClientsEdit, clientModel);
         }
 
-        [HttpPost, ParameterBasedOnFormNameAttribute("save-continue", "continueEditing")]
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         public ActionResult Edit(ClientModel model, bool continueEditing)
         {
             if (ModelState.IsValid)
