@@ -41,20 +41,20 @@ namespace Nop.Plugin.Api.Services
 
         public int GetCustomersCount()
         {
-            return _customerRepository.Table.Count();
+            return _customerRepository.TableNoTracking.Count();
         }
 
         // Need to work with dto object so we can map the first and last name from generic attributes table.
-        public IList<CustomerDto> Search(string queryParams = "", string order = Configurations.DefaultOrder, 
+        public IList<CustomerDto> Search(string queryParams = "", string order = Configurations.DefaultOrder,
             int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit)
         {
             IList<CustomerDto> result = new List<CustomerDto>();
 
             Dictionary<string, string> searchParams = EnsureSearchQueryIsValid(queryParams, ParseSearchQuery);
-            
+
             if (searchParams != null)
             {
-                IQueryable<Customer> query = _customerRepository.Table;
+                IQueryable<Customer> query = _customerRepository.TableNoTracking;
 
                 foreach (var searchParam in searchParams)
                 {
@@ -79,7 +79,7 @@ namespace Nop.Plugin.Api.Services
 
         public Dictionary<string, string> GetFirstAndLastNameByCustomerId(int customerId)
         {
-            return _genericAttributeRepository.Table.Where(
+            return _genericAttributeRepository.TableNoTracking.Where(
                 x =>
                     x.KeyGroup == KeyGroup && x.EntityId == customerId &&
                     (x.Key == FirstName || x.Key == LastName)).ToDictionary(x => x.Key.ToLowerInvariant(), y => y.Value);
@@ -90,10 +90,37 @@ namespace Nop.Plugin.Api.Services
             if (id == 0)
                 return null;
 
-            Customer customer = _customerRepository.GetById(id);
-            if (customer != null)
+            // Here we expect to get two records, one for the first name and one for the last name.
+            List<CustomerAttributeMappingDto> customerAttributeMappings = (from customer in _customerRepository.TableNoTracking
+                                                                           join attribute in _genericAttributeRepository.TableNoTracking on customer.Id equals attribute.EntityId
+                                                                           where customer.Id == id &&
+                                                                                 attribute.KeyGroup.Equals(KeyGroup, StringComparison.InvariantCultureIgnoreCase) &&
+                                                                                 (attribute.Key.Equals(FirstName, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                                  attribute.Key.Equals(LastName, StringComparison.InvariantCultureIgnoreCase))
+                                                                           select new CustomerAttributeMappingDto()
+                                                                           {
+                                                                               Attribute = attribute,
+                                                                               Customer = customer
+                                                                           }).ToList();
+
+            if (customerAttributeMappings.Count > 0)
             {
-                return customer.ToDto();
+                // The customer object is the same in all mappings.
+                CustomerDto customerDto = customerAttributeMappings.First().Customer.ToDto();
+
+                foreach (var mapping in customerAttributeMappings)
+                {
+                    if (mapping.Attribute.Key.Equals(FirstName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        customerDto.FirstName = mapping.Attribute.Value;
+                    }
+                    else if (mapping.Attribute.Key.Equals(LastName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        customerDto.LastName = mapping.Attribute.Value;
+                    }
+                }
+
+                return customerDto;
             }
 
             return null;
@@ -144,7 +171,7 @@ namespace Nop.Plugin.Api.Services
         /// to be only those with specific search parameter (i.e. currently we focus only on first and last name).</param>
         /// <param name="query">Query parameter represents the current customer records which we will join with GenericAttributes table.</param>
         /// <returns></returns>
-        private IList<CustomerDto> HandleCustomerGenericAttributes(Dictionary<string, string> searchParams, IQueryable<Customer> query, 
+        private IList<CustomerDto> HandleCustomerGenericAttributes(Dictionary<string, string> searchParams, IQueryable<Customer> query,
             int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, string order = Configurations.DefaultOrder)
         {
             // Here we join the GenericAttribute records with the customers and making sure that we are working only with the attributes
@@ -159,9 +186,9 @@ namespace Nop.Plugin.Api.Services
             //      attribute that contains the last name of customer 2
             // etc.
 
-            IQueryable<IGrouping<int, CustomerAttributeMappingDto>> allRecordsGroupedByCustomerId = 
+            IQueryable<IGrouping<int, CustomerAttributeMappingDto>> allRecordsGroupedByCustomerId =
                 (from customer in query
-                 from attribute in _genericAttributeRepository.Table
+                 from attribute in _genericAttributeRepository.TableNoTracking
                      .Where(attr => attr.EntityId == customer.Id &&
                                     attr.KeyGroup.Equals(KeyGroup, StringComparison.InvariantCultureIgnoreCase) &&
                                     (attr.Key.Equals(FirstName, StringComparison.InvariantCultureIgnoreCase) ||
@@ -193,7 +220,7 @@ namespace Nop.Plugin.Api.Services
         /// <summary>
         /// This method is responsible for getting customer dto records with first and last names set from the attribute mappings.
         /// </summary>
-        private IList<CustomerDto> GetFullCustomerDtos(IQueryable<IGrouping<int, CustomerAttributeMappingDto>> customerAttributesMappings, 
+        private IList<CustomerDto> GetFullCustomerDtos(IQueryable<IGrouping<int, CustomerAttributeMappingDto>> customerAttributesMappings,
             int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit, string order = Configurations.DefaultOrder)
         {
             var customerDtos = new List<CustomerDto>();
@@ -223,7 +250,7 @@ namespace Nop.Plugin.Api.Services
             customerDto = mappingsForMerge.First().Customer.ToDto();
 
             List<GenericAttribute> attributes = mappingsForMerge.Select(x => x.Attribute).ToList();
-            
+
             foreach (var attribute in attributes)
             {
                 if (attribute != null)
@@ -248,7 +275,7 @@ namespace Nop.Plugin.Api.Services
             // Here we filter the customerAttributesGroups to be only the ones that have the passed key parameter as a key.
             var customerAttributesMappingByKey = from @group in customerAttributesGroups
                                                  where @group.Select(x => x.Attribute)
-                                                             .Any(x => x.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase) && 
+                                                             .Any(x => x.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase) &&
                                                                   x.Value.Equals(value, StringComparison.InvariantCultureIgnoreCase))
                                                  select @group;
 
@@ -257,7 +284,7 @@ namespace Nop.Plugin.Api.Services
 
         private IQueryable<Customer> GetCustomersQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, int sinceId = 0)
         {
-            var query = _customerRepository.Table;
+            var query = _customerRepository.TableNoTracking;
             if (createdAtMin != null)
             {
                 query = query.Where(c => c.CreatedOnUtc > createdAtMin.Value);
