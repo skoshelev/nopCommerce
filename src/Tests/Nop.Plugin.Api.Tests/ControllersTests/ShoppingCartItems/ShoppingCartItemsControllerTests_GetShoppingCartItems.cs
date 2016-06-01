@@ -98,7 +98,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
 
             //Arange
             IShoppingCartItemApiService shoppingCartItemsApiServiceMock = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-            shoppingCartItemsApiServiceMock.Stub(x => x.GetShoppingCartItems()).Return(returnedShoppingCartItemsCollection);
+            shoppingCartItemsApiServiceMock.Stub(x => x.GetShoppingCartItems()).Return(returnedShoppingCartItemsCollection).IgnoreArguments();
 
             IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
 
@@ -123,7 +123,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
 
             //Arange
             IShoppingCartItemApiService shoppingCartItemsApiServiceStub = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-            shoppingCartItemsApiServiceStub.Stub(x => x.GetShoppingCartItems()).Return(new List<ShoppingCartItem>());
+            shoppingCartItemsApiServiceStub.Stub(x => x.GetShoppingCartItems()).Return(new List<ShoppingCartItem>()).IgnoreArguments();
 
             IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
 
@@ -152,7 +152,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
 
             //Arange
             IShoppingCartItemApiService shoppingCartItemsApiServiceStub = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-            shoppingCartItemsApiServiceStub.Stub(x => x.GetShoppingCartItems()).Return(returnedShoppingCartItemsDtoCollection);
+            shoppingCartItemsApiServiceStub.Stub(x => x.GetShoppingCartItems()).Return(returnedShoppingCartItemsDtoCollection).IgnoreArguments();
 
             IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
 

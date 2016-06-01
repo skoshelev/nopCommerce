@@ -35,7 +35,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ShoppingCartItems.GetShoppingCartIt
                     CreatedOnUtc = _baseDate.AddMonths(randomNumber.Next(1, 10))
                 });
             }
-
+            
             var shoppingCartItemsRepo = MockRepository.GenerateStub<IRepository<ShoppingCartItem>>();
             shoppingCartItemsRepo.Stub(x => x.TableNoTracking).Return(_existigShoppingCartItems.AsQueryable());
 
@@ -47,6 +47,13 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ShoppingCartItems.GetShoppingCartIt
         {
             // Arange
             DateTime createdAtMinDate = _baseDate.AddMonths(5);
+
+            // Ensure that the date will be in the collection because in the setup method we are using a random number to generate the dates.
+            _existigShoppingCartItems.Add(new ShoppingCartItem()
+            {
+                Id = _existigShoppingCartItems.Count + 1,
+                CreatedOnUtc = createdAtMinDate
+            });
 
             var expectedCollection =
                 _existigShoppingCartItems.Where(x => x.CreatedOnUtc > createdAtMinDate).OrderBy(x => x.Id).Take(Configurations.DefaultLimit);
@@ -68,6 +75,13 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ShoppingCartItems.GetShoppingCartIt
             // Arange
             DateTime createdAtMinDate = _baseDate.AddMonths(11);
 
+            // Ensure that the date will be in the collection because in the setup method we are using a random number to generate the dates.
+            _existigShoppingCartItems.Add(new ShoppingCartItem()
+            {
+                Id = _existigShoppingCartItems.Count + 1,
+                CreatedOnUtc = createdAtMinDate
+            });
+
             // Act
             var shoppingCartItems = _shoppingCartItemsApiService.GetShoppingCartItems(createdAtMin: createdAtMinDate);
 
@@ -80,6 +94,14 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ShoppingCartItems.GetShoppingCartIt
         {
             // Arange
             DateTime createdAtMaxDate = _baseDate.AddMonths(5);
+
+            // Ensure that the date will be in the collection because in the setup method we are using a random number to generate the dates.
+            _existigShoppingCartItems.Add(new ShoppingCartItem()
+            {
+                Id = _existigShoppingCartItems.Count + 1,
+                CreatedOnUtc = createdAtMaxDate
+            });
+
             var expectedCollection = _existigShoppingCartItems.Where(x => x.CreatedOnUtc < createdAtMaxDate).OrderBy(x => x.Id).Take(Configurations.DefaultLimit);
             var expectedShoppingCartItemsCount = expectedCollection.Count();
 
@@ -97,7 +119,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ShoppingCartItems.GetShoppingCartIt
         {
             // Arange
             DateTime createdAtMaxDate = _baseDate.Subtract(new TimeSpan(365)); // subtract one year
-
+            
             // Act
             var shoppingCartItems = _shoppingCartItemsApiService.GetShoppingCartItems(createdAtMax: createdAtMaxDate);
 

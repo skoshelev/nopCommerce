@@ -45,6 +45,14 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ShoppingCartItems.GetShoppingCartIt
         {
             // Arange
             DateTime updatedAtMinDate = _baseDate.AddMonths(5);
+            
+            // Ensure that the date will be in the collection because in the setup method we are using a random number to generate the dates.
+            _existigShoppingCartItems.Add(new ShoppingCartItem()
+            {
+                Id = _existigShoppingCartItems.Count + 1,
+                UpdatedOnUtc = updatedAtMinDate
+            });
+
             var expectedCollection = _existigShoppingCartItems.Where(x => x.UpdatedOnUtc > updatedAtMinDate).OrderBy(x => x.Id).Take(Configurations.DefaultLimit);
             var expectedShoppingCartItemsCount = expectedCollection.Count();
 
@@ -62,6 +70,13 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ShoppingCartItems.GetShoppingCartIt
             // Arange
             DateTime updatedAtMinDate = _baseDate.AddMonths(11);
 
+            // Ensure that the date will be in the collection because in the setup method we are using a random number to generate the dates.
+            _existigShoppingCartItems.Add(new ShoppingCartItem()
+            {
+                Id = _existigShoppingCartItems.Count + 1,
+                UpdatedOnUtc = updatedAtMinDate
+            });
+
             // Act
             var result = _shoppingCartItemsApiService.GetShoppingCartItems(updatedAtMin: updatedAtMinDate);
 
@@ -74,6 +89,14 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ShoppingCartItems.GetShoppingCartIt
         {
             // Arange
             DateTime updatedAtMaxDate = _baseDate.AddMonths(5);
+
+            // Ensure that the date will be in the collection because in the setup method we are using a random number to generate the dates.
+            _existigShoppingCartItems.Add(new ShoppingCartItem()
+            {
+                Id = _existigShoppingCartItems.Count + 1,
+                UpdatedOnUtc = updatedAtMaxDate
+            });
+
             var expectedCollection =
                 _existigShoppingCartItems.Where(x => x.UpdatedOnUtc < updatedAtMaxDate).OrderBy(x => x.Id).Take(Configurations.DefaultLimit);
 
@@ -92,7 +115,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ShoppingCartItems.GetShoppingCartIt
         {
             // Arange
             DateTime updatedAtMaxDate = _baseDate.Subtract(new TimeSpan(365)); // subtract one year
-
+            
             // Act
             var result = _shoppingCartItemsApiService.GetShoppingCartItems(updatedAtMax: updatedAtMaxDate);
 
