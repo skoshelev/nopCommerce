@@ -52,18 +52,13 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ProductCategoryMappings.GetMappings
 
             var randomNumber = new Random();
 
-            var currentRepoSize = randomNumber.Next(10, 100);
-
-            for (int i = 0; i < currentRepoSize; i++)
-            {
-                repo.Add(new ProductCategory()
-                {
-                    CategoryId = randomNumber.Next(10, 20),
-                    ProductId = randomNumber.Next(1, 2),
-                });
-            }
-
             var productId = 1;
+
+            repo.Add(new ProductCategory()
+            {
+                CategoryId = randomNumber.Next(10, 20),
+                ProductId = productId,
+            });
 
             // Arange
             var mappingRepo = MockRepository.GenerateStub<IRepository<ProductCategory>>();
