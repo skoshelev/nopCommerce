@@ -62,7 +62,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ProductCategoryMappings.GetMappings
         [Test]
         [TestCase(0)]
         [TestCase(-10)]
-        public void WhenCalledZeroOrNegativeSinceId_ShouldReturnAllTheMappingsSortedById(int sinceId)
+        public void WhenCalledWithZeroOrNegativeSinceId_ShouldReturnAllTheMappingsSortedById(int sinceId)
         {
             // Arange
             var expectedCollection =
@@ -78,7 +78,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ProductCategoryMappings.GetMappings
         }
 
         [Test]
-        public void WhenCalledSinceIdOutsideOfTheCategoriesIdsRange_ShouldReturnEmptyCollection()
+        public void WhenCalledWithSinceIdOutsideOfTheCategoriesIdsRange_ShouldReturnEmptyCollection()
         {
             // Arange
             int sinceId = int.MaxValue;

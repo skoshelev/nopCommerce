@@ -14,41 +14,6 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ProductCategoryMappings.GetMappings
     public class ProductCategoryMappingsApiServiceTests_GetMappings_DefaultParameters
     {
         [Test]
-        public void GivenNonEmptyValidRepository_ShouldReturnDefaultLimitItemMappings()
-        {
-            var repo = new List<ProductCategory>();
-
-            var randomNumber = new Random();
-
-            var currentRepoSize = randomNumber.Next(10, 100);
-
-            for (int i = 0; i < currentRepoSize; i++)
-            {
-                repo.Add(new ProductCategory()
-                {
-                    CategoryId = randomNumber.Next(10, 20),
-                    ProductId = randomNumber.Next(1, 2),
-                });
-            }
-
-            // Arange
-            var mappingRepo = MockRepository.GenerateStub<IRepository<ProductCategory>>();
-            mappingRepo.Stub(x => x.TableNoTracking).Return(repo.AsQueryable());
-
-            // Act
-            var cut = new ProductCategoryMappingsApiService(mappingRepo);
-
-            var result = cut.GetMappings();
-
-            // Assert
-            Assert.IsNotEmpty(result);
-            Assert.IsTrue(result.Select(x => 
-                                            new { x.ProductId, x.CategoryId} )
-                                .SequenceEqual(repo.Take(Configurations.DefaultLimit).Select(x => 
-                                            new { x.ProductId, x.CategoryId })));
-        }
-
-        [Test]
         public void GivenNonEmptyValidRepositoryWithMoreThanTheMaxItems_ShouldReturnDefaultLimitItems()
         {
             var repo = new List<ProductCategory>();

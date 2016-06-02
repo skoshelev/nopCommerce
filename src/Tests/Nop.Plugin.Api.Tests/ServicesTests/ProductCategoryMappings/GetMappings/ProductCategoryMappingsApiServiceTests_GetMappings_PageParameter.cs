@@ -42,7 +42,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ProductCategoryMappings.GetMappings
         }
 
         [Test]
-        public void WhenCalledWithPageParameter_GivenLimitedMappingsCollection_ShouldReturnThePartOfTheCollectionThatCorrespondsToThePage()
+        public void WhenCalledWithLimitAndPageParameter_ShouldReturnTheItemsDeterminedByTheLimiAndPageParameters()
         {
             //Arange
             var limit = 5;
@@ -61,7 +61,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ProductCategoryMappings.GetMappings
         }
 
         [Test]
-        public void WhenCalledWithZeroPageParameter_GivenLimitedMappingsCollection_ShouldReturnTheFirstPage()
+        public void WhenCalledWithZeroPageParameterAndSomeLimit_ShouldReturnTheFirstPage()
         {
             //Arange
             var limit = 5;
@@ -81,7 +81,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ProductCategoryMappings.GetMappings
         }
 
         [Test]
-        public void WhenCalledWithNegativePageParameter_GivenLimitedMappingsCollection_ShouldReturnTheFirstPage()
+        public void WhenCalledWithNegativePageParameterAndSomeLimit_ShouldReturnTheFirstPage()
         {
             //Arange
             var limit = 5;
@@ -101,7 +101,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ProductCategoryMappings.GetMappings
         }
 
         [Test]
-        public void WhenCalledWithTooBigPageParameter_GivenLimitedMappingsCollection_ShouldReturnEmptyCollection()
+        public void WhenCalledWithLimitAndPageParameterWhichExceedTheTotalMappingsCount_ShouldReturnEmptyCollection()
         {
             //Arange
             var limit = 5;
