@@ -9,7 +9,7 @@ namespace Nop.Plugin.Api.Serializers
 {
     public class JsonFieldsSerializer : IJsonFieldsSerializer
     {
-        private const string DateTimeIso8601Format = "yyyy-MM-ddTHH:mm:sszzz";
+        private const string DateTimeIso8601Format = "yyyy-MM-ddTHH:mm:ssZ";
 
         private readonly IFieldsValidator _fieldsValidator;
 

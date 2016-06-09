@@ -128,7 +128,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\DtoAttribute.cs" />
+    <Compile Include="Delta\Delta.cs" />
+    <Compile Include="DTOs\Errors\ErrorsRootObject.cs" />
+    <Compile Include="Factories\IFactory.cs" />
+    <Compile Include="Factories\CategoryFactory.cs" />
+    <Compile Include="JSON\ActionResults\ErrorActionResult.cs" />
     <Compile Include="JSON\ActionResults\RawJsonActionResult.cs" />
+    <Compile Include="ModelBinders\JsonModelBinder.cs" />
     <Compile Include="OAuth\Attributes\BearerTokenAuthorizeAttribute.cs" />
     <Compile Include="Constants\ViewNames.cs" />
     <Compile Include="JSON\ContractResolvers\DynamicContractResolver.cs" />
@@ -197,7 +204,6 @@
     <Compile Include="MappingExtensions\OrderItemDtoMappings.cs" />
     <Compile Include="MappingExtensions\ProductDtoMappings.cs" />
     <Compile Include="MappingExtensions\ShoppingCartItemDtoMappings.cs" />
-    <Compile Include="ModelBinders\JsonModelBinder.cs" />
     <Compile Include="ModelBinders\ParametersModelBinder.cs" />
     <Compile Include="Models\CategoriesParameters\BaseCategoriesParametersModel.cs" />
     <Compile Include="Models\CategoriesParameters\CategoriesCountParametersModel.cs" />
@@ -245,9 +251,11 @@
     <Compile Include="Swagger\ChangeParameterTypeOperationFilter.cs" />
     <Compile Include="Swagger\ExcludeEnpointsDocumentFilter.cs" />
     <Compile Include="Swagger\RemovePrefixesOperationFilter.cs" />
+    <Compile Include="Validators\CategoryDtoValidator.cs" />
     <Compile Include="Validators\ClientValidator.cs" />
     <Compile Include="Validators\FieldsValidator.cs" />
     <Compile Include="Validators\IFieldsValidator.cs" />
+    <Compile Include="Validators\TypeValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Description.txt">
@@ -308,6 +316,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

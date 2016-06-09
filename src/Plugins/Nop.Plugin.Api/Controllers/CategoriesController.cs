@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Catalog;
-using Nop.Plugin.Api.ActionResults;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DTOs.Categories;
-using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.MappingExtensions;
-using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.Models.CategoriesParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
@@ -19,6 +15,11 @@ using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Seo;
+using Nop.Plugin.Api.Delta;
+using Nop.Plugin.Api.DTOs.Errors;
+using Nop.Plugin.Api.Factories;
+using Nop.Plugin.Api.JSON.ActionResults;
+using Nop.Plugin.Api.ModelBinders;
 
 namespace Nop.Plugin.Api.Controllers
 {
@@ -31,15 +32,15 @@ namespace Nop.Plugin.Api.Controllers
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ILocalizationService _localizationService;
         private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
-        private readonly IMappingHelper _mappingHelper;
+        private readonly IFactory<Category> _factory; 
 
         public CategoriesController(ICategoryApiService categoryApiService,
             IJsonFieldsSerializer jsonFieldsSerializer,
             ICategoryService categoryService,
             IUrlRecordService urlRecordService,
             ICustomerActivityService customerActivityService,
-            ILocalizationService localizationService,
-            IMappingHelper mappingHelper)
+            ILocalizationService localizationService, 
+            IFactory<Category> factory)
         {
             _categoryApiService = categoryApiService;
             _jsonFieldsSerializer = jsonFieldsSerializer;
@@ -47,7 +48,7 @@ namespace Nop.Plugin.Api.Controllers
             _urlRecordService = urlRecordService;
             _customerActivityService = customerActivityService;
             _localizationService = localizationService;
-            _mappingHelper = mappingHelper;
+            _factory = factory;
         }
 
         /// <summary>
@@ -143,37 +144,25 @@ namespace Nop.Plugin.Api.Controllers
 
         [HttpPost]
         [ResponseType(typeof(CategoriesRootObject))]
-        // Here we use JsonModelBinder so we don't have to create a special binder for the DTO objects and couple the DTO objects with it,
-        // which will make them a kind of parameter object which they are not. 
-        public IHttpActionResult CreateCategory([ModelBinder(typeof(JsonModelBinder))] Dictionary<string, object> categoryRoot)
+        public IHttpActionResult CreateCategory([ModelBinder(typeof(JsonModelBinder<CategoryDto>))] Delta<CategoryDto> categoryDelta)
         {
-            if (categoryRoot == null || string.IsNullOrEmpty(categoryRoot.ToString()))
+            // Validation
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid category passed");
+                return Error();
             }
 
-            if (!categoryRoot.ContainsKey("category"))
-            {
-                return BadRequest("Invalid category passed");
-            }
+            // Inserting the new category
+            Category newCategory = _factory.Initialize();
+            categoryDelta.Merge(newCategory);
 
-
-            var newCategoryDto = new CategoryDto();
-
-            Dictionary<string, object> categoryProperties = (Dictionary<string, object>)categoryRoot["category"];
-
-            _mappingHelper.SetValues(categoryProperties, newCategoryDto, typeof(CategoryDto));
-
-            Category newCategory = newCategoryDto.ToEntity();
-            newCategory.CreatedOnUtc = DateTime.UtcNow;
-            newCategory.UpdatedOnUtc = DateTime.UtcNow;
             _categoryService.InsertCategory(newCategory);
 
             // TODO: Localization
-            // TODO: Discounts
             // TODO: Pictures
-            // TODO: ACL
-            // TODO: StoreMappings
+
+            // Preparing the result dto of the new category
+            CategoryDto newCategoryDto = newCategory.ToDto();
 
             //search engine name
             newCategoryDto.SeName = newCategory.ValidateSeName(newCategoryDto.SeName, newCategory.Name, true);
@@ -189,6 +178,34 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, string.Empty);
 
             return new RawJsonActionResult(json);
+        }
+
+        private IHttpActionResult Error()
+        {
+            var errors = new Dictionary<string, List<string>>();
+
+            foreach (var item in ModelState)
+            {
+                var errorMessages = item.Value.Errors.Select(x => x.ErrorMessage);
+
+                if (errors.ContainsKey(item.Key))
+                {
+                    errors[item.Key].AddRange(errorMessages);
+                }
+                else
+                {
+                    errors.Add(item.Key, errorMessages.ToList());
+                }
+            }
+
+            var errorsRootObject = new ErrorsRootObject()
+            {
+                Errors = errors
+            };
+
+            var errorsJson = _jsonFieldsSerializer.Serialize(errorsRootObject, null);
+
+            return new ErrorActionResult(errorsJson);
         }
     }
 }

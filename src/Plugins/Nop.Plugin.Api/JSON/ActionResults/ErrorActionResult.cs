@@ -7,20 +7,20 @@ using System.Web.Http;
 
 namespace Nop.Plugin.Api.JSON.ActionResults
 {
-    public class RawJsonActionResult : IHttpActionResult
+    public class ErrorActionResult : IHttpActionResult 
     {
         private readonly string _jsonString;
 
-        public RawJsonActionResult(string jsonString)
+        public ErrorActionResult(string jsonString)
         {
             _jsonString = jsonString;
         }
-        
+
         public Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken)
         {
             var content = new StringContent(_jsonString);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = content };
+            var response = new HttpResponseMessage((HttpStatusCode)422) { Content = content };
             return Task.FromResult(response);
         }
     }

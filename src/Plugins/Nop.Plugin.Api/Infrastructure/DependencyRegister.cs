@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using Autofac.Core;
 using Nop.Core.Configuration;
 using Nop.Core.Data;
@@ -12,6 +13,7 @@ using Nop.Plugin.Api.Data;
 using Nop.Plugin.Api.Domain;
 using Nop.Plugin.Api.DTOs.Categories;
 using Nop.Plugin.Api.DTOs.ProductCategoryMappings;
+using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.ModelBinders;
@@ -58,7 +60,7 @@ namespace Nop.Plugin.Api.Infrastructure
         private void RegisterModelBinders(ContainerBuilder builder)
         {
             builder.RegisterGeneric(typeof(ParametersModelBinder<>)).InstancePerLifetimeScope();
-            builder.RegisterType<JsonModelBinder>().InstancePerLifetimeScope();
+            builder.RegisterGeneric(typeof(JsonModelBinder<>)).InstancePerLifetimeScope();
         }
 
         private void CreateModelMappings()
@@ -101,6 +103,8 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<FieldsValidator>().As<IFieldsValidator>().InstancePerLifetimeScope();
             builder.RegisterType<ObjectConverter>().As<IObjectConverter>().InstancePerLifetimeScope();
             builder.RegisterType<ApiTypeConverter>().As<IApiTypeConverter>().InstancePerLifetimeScope();
+
+            builder.RegisterType<CategoryFactory>().As<IFactory<Category>>().InstancePerLifetimeScope();
         }
 
         public int Order { get; }

@@ -1,71 +1,118 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using AutoMapper.Internal;
+using Newtonsoft.Json;
 
 namespace Nop.Plugin.Api.Helpers
 {
+    // TODO: Think of moving the mapping helper in teh delta folder
     public class MappingHelper : IMappingHelper
     {
-        public void SetValues(Dictionary<string, object> propertiesAsDictionary, object objectToBeUpdated, Type propertyType)
+        private Dictionary<string, object> _propertyAccessorsPairs = new Dictionary<string, object>(); 
+
+        public void SetValues(Dictionary<string, object> jsonPropertiesValuePairsPassed, object objectToBeUpdated, Type propertyType)
         {
             // TODO: handle the special case where some field was not set before, but values are send for it.
             if (objectToBeUpdated == null) return;
 
-            foreach (var property in propertiesAsDictionary)
+            var objectProperties = propertyType.GetProperties();
+            var jsonNamePropertyPaires = new Dictionary<string, PropertyInfo>();
+
+            foreach (var property in objectProperties)
             {
-                SetValue(objectToBeUpdated, property, propertyType);
+                JsonPropertyAttribute jsonPropertyAttribute = property.GetCustomAttribute(typeof(JsonPropertyAttribute)) as JsonPropertyAttribute;
+
+                if (jsonPropertyAttribute != null)
+                {
+                    if (!jsonNamePropertyPaires.ContainsKey(jsonPropertyAttribute.PropertyName))
+                    {
+                        jsonNamePropertyPaires.Add(jsonPropertyAttribute.PropertyName, property);
+                    }
+                }
+            }
+
+            foreach (var property in jsonPropertiesValuePairsPassed)
+            {
+                SetValue(objectToBeUpdated, property, jsonNamePropertyPaires);
             }
         }
 
-        private void SetValue(object objectToBeUpdated, KeyValuePair<string, object> property, Type propertyType)
+        public Dictionary<string, object> GetChangedProperties()
         {
-            string propertyName = property.Key.Replace("_", string.Empty);
-            object propertyValue = property.Value;
+            return _propertyAccessorsPairs;
+        }
 
-            var objectProperty = propertyType.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+        // Used in the SetValue private method and also in the Delta.
+        public void ConverAndSetValueIfValid(object objectToBeUpdated, PropertyInfo objectProperty, object propertyValue)
+        {
+            TypeConverter converter = TypeDescriptor.GetConverter(objectProperty.PropertyType);
 
-            // This case handles nested properties.
-            if (propertyValue != null && propertyValue is Dictionary<string, object>)
+            if (converter.IsValid(propertyValue))
             {
-                // We need to use GetValue method to get the actual instance of the property. objectProperty is the property info.
-                SetValues((Dictionary<string, object>)propertyValue, objectProperty.GetValue(objectToBeUpdated), objectProperty.PropertyType);
-                // We expect the nested properties to be classes which are refrence types.
-                return;
+                var convertedValue = converter.ConvertFrom(propertyValue);
+
+                objectProperty.SetValue(objectToBeUpdated, convertedValue);
             }
-            // This case hadles collections.
-            else if (propertyValue != null && propertyValue is ICollection<object>)
+        }
+
+        private void SetValue(object objectToBeUpdated, KeyValuePair<string, object> jsonPropertyValuePaires, Dictionary<string, PropertyInfo> jsonNamePropertyPaires)
+        {
+            string propertyName = jsonPropertyValuePaires.Key;
+            object propertyValue = jsonPropertyValuePaires.Value;
+
+            PropertyInfo objectProperty = null;
+
+            if (jsonNamePropertyPaires.ContainsKey(propertyName))
             {
-                ICollection<object> propertyValueAsCollection = propertyValue as ICollection<object>;
-
-                propertyValueAsCollection.Each(
-                    x =>
-
-                        CreateOrUpdateItemInCollection(x as Dictionary<string, object>,
-                                                       objectProperty.GetValue(objectToBeUpdated) as IList,
-                                                       objectProperty.PropertyType.GetGenericArguments()[0])
-                    );
-
-                return;
+                objectProperty = jsonNamePropertyPaires[propertyName];
             }
 
-            // This is where the new value is beeing set to the object property using the SetValue function part of System.Reflection.
             if (objectProperty != null)
             {
+                // This case handles nested properties.
+                if (propertyValue != null && propertyValue is Dictionary<string, object>)
+                {
+                    // We need to use GetValue method to get the actual instance of the jsonProperty. objectProperty is the jsonProperty info.
+                    SetValues((Dictionary<string, object>) propertyValue, objectProperty.GetValue(objectToBeUpdated),
+                        objectProperty.PropertyType);
+                    // We expect the nested properties to be classes which are refrence types.
+                    return;
+                }
+                // This case hadles collections.
+                else if (propertyValue != null && propertyValue is ICollection<object>)
+                {
+                    ICollection<object> propertyValueAsCollection = propertyValue as ICollection<object>;
+
+                    propertyValueAsCollection.Each(
+                        x =>
+
+                            CreateOrUpdateItemInCollection(x as Dictionary<string, object>,
+                                objectProperty.GetValue(objectToBeUpdated) as IList,
+                                objectProperty.PropertyType.GetGenericArguments()[0])
+                        );
+
+                    return;
+                }
+
+                // This is where the new value is beeing set to the object jsonProperty using the SetValue function part of System.Reflection.
                 if (propertyValue == null)
                 {
                     objectProperty.SetValue(objectToBeUpdated, null);
                 }
                 else if (propertyValue is IConvertible)
                 {
-                    objectProperty.SetValue(objectToBeUpdated,
-                        Convert.ChangeType(propertyValue, objectProperty.PropertyType));
+                    ConverAndSetValueIfValid(objectToBeUpdated, objectProperty, propertyValue);
+                    // otherwise ignore the passed value.
                 }
                 else
                 {
                     objectProperty.SetValue(objectToBeUpdated, propertyValue);
                 }
+
+                _propertyAccessorsPairs.Add(objectProperty.Name, propertyValue);
             }
         }
 
@@ -134,7 +181,7 @@ namespace Nop.Plugin.Api.Helpers
                 {
                     bool keyFound = false;
 
-                    // We need to loop through the keys, because the key may contain underscores in its name, which won't match the property name.
+                    // We need to loop through the keys, because the key may contain underscores in its name, which won't match the jsonProperty name.
                     foreach (var key in newProperties.Keys)
                     {
                         if (key.Replace("_", string.Empty)
