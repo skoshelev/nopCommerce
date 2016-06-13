@@ -58,6 +58,9 @@ namespace Nop.Plugin.Api.Plugin
             this.AddOrUpdatePluginLocaleResource("Api.InvalidRequest", "Invalid request");
             this.AddOrUpdatePluginLocaleResource("Api.NoJsonProvided", "No Json provided");
             this.AddOrUpdatePluginLocaleResource("Api.InvalidJsonFormat", "Json format is invalid");
+            this.AddOrUpdatePluginLocaleResource("Api.Category.InvalidImageAttachmentFormat", "Invalid image attachment base64 format");
+            this.AddOrUpdatePluginLocaleResource("Api.Category.InvalidImageSrc", "Invalid image source");
+            this.AddOrUpdatePluginLocaleResource("Api.Category.InvalidImageSrcType", "You have provided an invalid image source/attachment ");
 
             base.Install();
 

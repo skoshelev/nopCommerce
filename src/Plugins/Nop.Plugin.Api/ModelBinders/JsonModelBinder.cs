@@ -129,6 +129,7 @@ namespace Nop.Plugin.Api.ModelBinders
             {
                 foreach (var invalidProperty in typeValidator.InvalidProperties)
                 {
+                    // TODO: add the resource in the administration
                     var key = string.Format(_localizationService.GetResource("Api.InvalidType", languageId, false), invalidProperty);
 
                     if (!errors.ContainsKey(key))

@@ -38,14 +38,33 @@ namespace Nop.Plugin.Api.Validators
             
             foreach (var pair in propertyValuePaires)
             {
+                bool isCurrentPropertyValid = true;
+
                 if (jsonPropertyNameTypePair.ContainsKey(pair.Key))
                 {
-                    TypeConverter converter = TypeDescriptor.GetConverter(jsonPropertyNameTypePair[pair.Key]);
+                    var propertyType = jsonPropertyNameTypePair[pair.Key];
 
-                    if (!converter.IsValid(pair.Value))
+                    // handle nested properties
+                    if (pair.Value is Dictionary<string, object>)
                     {
-                        InvalidProperties.Add(pair.Key);
+                        Type constructedType = typeof (TypeValidator<>).MakeGenericType(propertyType);
+                        var typeValidatorForNestedProperty = Activator.CreateInstance(constructedType);
+
+                        var isValidMethod = constructedType.GetMethod("IsValid");
+
+                        isCurrentPropertyValid = (bool)isValidMethod.Invoke(typeValidatorForNestedProperty, new object[] {pair.Value});
+                    }
+                    else
+                    {
+                        TypeConverter converter = TypeDescriptor.GetConverter(jsonPropertyNameTypePair[pair.Key]);
+
+                        if (!converter.IsValid(pair.Value)) isCurrentPropertyValid = false;
+                    }
+
+                    if (!isCurrentPropertyValid)
+                    {
                         isValid = false;
+                        InvalidProperties.Add(pair.Key);
                     }
                 }
             }

@@ -2,6 +2,7 @@
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using Nop.Plugin.Api.Attributes;
+using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.Categories
@@ -10,6 +11,8 @@ namespace Nop.Plugin.Api.DTOs.Categories
     [JsonObject(Title = "categories")]
     public class CategoryDto
     {
+        private ImageDto _imageDto;
+
         [JsonProperty("id")]
         public string Id { get; set; }
 
@@ -121,6 +124,23 @@ namespace Nop.Plugin.Api.DTOs.Categories
         /// </summary>
         [JsonProperty("updated_on_utc")]
         public DateTime? UpdatedOnUtc { get; set; }
+
+        [JsonProperty("image")]
+        public ImageDto Image {
+            get
+            {
+                if (_imageDto == null)
+                {
+                    _imageDto = new ImageDto();
+                }
+
+                return _imageDto;
+            }
+            set
+            {
+                _imageDto = value;
+            }
+        }
         
         [AllowHtml]
         public string SeName { get; set; }

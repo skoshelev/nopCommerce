@@ -1,9 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Mime;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
+using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
+using Microsoft.Owin.Security.DataHandler.Encoder;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Media;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DTOs.Categories;
@@ -17,9 +28,12 @@ using Nop.Services.Logging;
 using Nop.Services.Seo;
 using Nop.Plugin.Api.Delta;
 using Nop.Plugin.Api.DTOs.Errors;
+using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.Factories;
+using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.ModelBinders;
+using Nop.Services.Media;
 
 namespace Nop.Plugin.Api.Controllers
 {
@@ -32,6 +46,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ILocalizationService _localizationService;
         private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
+        private readonly IPictureService _pictureService;
         private readonly IFactory<Category> _factory; 
 
         public CategoriesController(ICategoryApiService categoryApiService,
@@ -39,7 +54,8 @@ namespace Nop.Plugin.Api.Controllers
             ICategoryService categoryService,
             IUrlRecordService urlRecordService,
             ICustomerActivityService customerActivityService,
-            ILocalizationService localizationService, 
+            ILocalizationService localizationService,
+            IPictureService pictureService,
             IFactory<Category> factory)
         {
             _categoryApiService = categoryApiService;
@@ -49,6 +65,7 @@ namespace Nop.Plugin.Api.Controllers
             _customerActivityService = customerActivityService;
             _localizationService = localizationService;
             _factory = factory;
+            _pictureService = pictureService;
         }
 
         /// <summary>
@@ -146,23 +163,87 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(CategoriesRootObject))]
         public IHttpActionResult CreateCategory([ModelBinder(typeof(JsonModelBinder<CategoryDto>))] Delta<CategoryDto> categoryDelta)
         {
-            // Validation
+            bool bindingSuccessfull = categoryDelta != null;
+            bool imageSrcSet = !string.IsNullOrEmpty(categoryDelta.Dto.Image.Src);
+            bool imageAttachmentSet = !string.IsNullOrEmpty(categoryDelta.Dto.Image.Attachment);
+            
+            byte[] imageBytes = null;
+            string mimeType = string.Empty;
+            Picture insertedPicture = null;
+
+            if (bindingSuccessfull && (imageSrcSet || imageAttachmentSet))
+            {
+                // Validation of the image object
+
+                // We can't have both set.
+                CheckIfBothImageSourceTypesAreSet(imageSrcSet, imageAttachmentSet);
+                
+                // Here we ensure that the validation to this point has passed 
+                // and try to download the image or convert base64 format to byte array
+                // depending on which format is passed. In both cases we should get a byte array and mime type.
+                if (ModelState.IsValid)
+                {
+                    if (imageSrcSet)
+                    {
+                        DownloadFromSrc(categoryDelta.Dto.Image.Src, ref imageBytes, ref mimeType);
+                    }
+                    else if (imageAttachmentSet)
+                    {
+                        ValidateAttachmentFormat(categoryDelta.Dto.Image.Attachment);
+
+                        if (ModelState.IsValid)
+                        {
+                            ConvertAttachmentToByteArray(categoryDelta.Dto.Image.Attachment, ref imageBytes,
+                                ref mimeType);
+                        }
+                    }
+                }
+
+                // Here we handle the check if the file passed is actual image and if the image is valid according to the 
+                // restrictions set in the administration.
+                ValidatePictureBiteArray(imageBytes, mimeType);
+            }
+
+            // Here we display the errors if the validation has failed at some point.
             if (!ModelState.IsValid)
             {
                 return Error();
+            }
+
+            //If the validation has passed the categoryDelta object won't be null for sure so we don't need to check for this.
+            
+            // If all validation has passed insert the image in the database
+            // We need to insert the picture before the category so we can obtain the picture id and map it to the category.
+            if (ModelState.IsValid && imageBytes != null)
+            {
+                insertedPicture = _pictureService.InsertPicture(imageBytes, mimeType, string.Empty);
             }
 
             // Inserting the new category
             Category newCategory = _factory.Initialize();
             categoryDelta.Merge(newCategory);
 
+            if (insertedPicture != null)
+            {
+                newCategory.PictureId = insertedPicture.Id;
+            }
+
             _categoryService.InsertCategory(newCategory);
 
             // TODO: Localization
-            // TODO: Pictures
 
             // Preparing the result dto of the new category
             CategoryDto newCategoryDto = newCategory.ToDto();
+
+            // Here we prepare the resulted dto image.
+            if (insertedPicture != null)
+            {
+                newCategoryDto.Image = new ImageDto()
+                {
+                    // Here we don't use the attachment from the passed dto directly because the picture may be passed with src.
+                    Attachment = Convert.ToBase64String(insertedPicture.PictureBinary)
+                };
+            }
 
             //search engine name
             newCategoryDto.SeName = newCategory.ValidateSeName(newCategoryDto.SeName, newCategory.Name, true);
@@ -178,6 +259,95 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, string.Empty);
 
             return new RawJsonActionResult(json);
+        }
+
+        private void ValidatePictureBiteArray(byte[] imageBytes, string mimeType)
+        {
+            if (imageBytes != null)
+            {
+                try
+                {
+                    imageBytes = _pictureService.ValidatePicture(imageBytes, mimeType);
+                }
+                catch (Exception ex)
+                {
+                    var key = string.Format(_localizationService.GetResource("Api.InvalidType"), "image");
+                    string message = string.Format("{0} - {1}", _localizationService.GetResource("Api.Category.InvalidImageSrcType"), ex.Message);
+
+                    ModelState.AddModelError(key, message);
+                }
+            }
+            
+            if (imageBytes == null)
+            {
+                var key = string.Format(_localizationService.GetResource("Api.InvalidType"), "image");
+                string message = _localizationService.GetResource("Api.Category.InvalidImageSrcType");
+
+                ModelState.AddModelError(key, message);
+            }
+        }
+
+        private void ConvertAttachmentToByteArray(string attachment, ref byte[] imageBytes, ref string mimeType)
+        {
+            imageBytes = Convert.FromBase64String(attachment);
+            mimeType = GetMimeTypeFromByteArray(imageBytes);
+        }
+
+        private void DownloadFromSrc(string imageSrc, ref byte[] imageBytes, ref string mimeType)
+        {
+            var key = string.Format(_localizationService.GetResource("Api.InvalidType"), "image");
+            // TODO: discuss if we need our own web client so we can set a custom tmeout - this one's timeout is 100 sec.
+            var client = new WebClient();
+
+            try
+            {
+                imageBytes = client.DownloadData(imageSrc);
+                // This needs to be after the downloadData is called from client, otherwise there won't be any response headers.
+                mimeType = client.ResponseHeaders["content-type"];
+
+                if (imageBytes == null)
+                {
+                    ModelState.AddModelError(key, _localizationService.GetResource("Api.Category.InvalidImageSrc"));
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = string.Format("{0} - {1}",
+                    _localizationService.GetResource("Api.Category.InvalidImageSrc"), ex.Message);
+
+                ModelState.AddModelError(key, message);
+            }
+        }
+
+        private static string GetMimeTypeFromByteArray(byte[] imageBytes)
+        {
+            MemoryStream stream = new MemoryStream(imageBytes, 0, imageBytes.Length);
+            Image image = Image.FromStream(stream, true);
+            ImageFormat format = image.RawFormat;
+            ImageCodecInfo codec = ImageCodecInfo.GetImageDecoders().First(c => c.FormatID == format.Guid);
+            return codec.MimeType;
+        }
+
+        private void CheckIfBothImageSourceTypesAreSet(bool imageSrcSet, bool imageAttachmentSet)
+        {
+            if (imageSrcSet &&
+                imageAttachmentSet)
+            {
+                var key = string.Format(_localizationService.GetResource("Api.InvalidType"), "image");
+                ModelState.AddModelError(key, _localizationService.GetResource("Api.Category.ImageSrcAndAttachmentSet"));
+            }
+        }
+
+        private void ValidateAttachmentFormat(string attachment)
+        {
+            Regex validBase64Pattern =
+                new Regex("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$");
+            bool isMatch = validBase64Pattern.IsMatch(attachment);
+            if (!isMatch)
+            {
+                var key = string.Format(_localizationService.GetResource("Api.InvalidType"), "image");
+                ModelState.AddModelError(key, _localizationService.GetResource("Api.Category.InvalidImageAttachmentFormat"));
+            }
         }
 
         private IHttpActionResult Error()
