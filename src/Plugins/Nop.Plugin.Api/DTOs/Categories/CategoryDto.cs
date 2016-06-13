@@ -15,6 +15,7 @@ namespace Nop.Plugin.Api.DTOs.Categories
     {
         private ImageDto _imageDto;
         private List<int> _storeIds;
+        private List<int> _discountIds;
 
         [JsonProperty("id")]
         public string Id { get; set; }
@@ -127,6 +128,24 @@ namespace Nop.Plugin.Api.DTOs.Categories
         /// </summary>
         [JsonProperty("updated_on_utc")]
         public DateTime? UpdatedOnUtc { get; set; }
+
+        [JsonProperty("discount_ids")]
+        public List<int> DiscountIds
+        {
+            get
+            {
+                if (_discountIds == null)
+                {
+                    _discountIds = new List<int>();
+                }
+
+                return _discountIds;
+            }
+            set
+            {
+                _discountIds = value;
+            }
+        }
 
         [JsonProperty("store_ids")]
         public List<int> StoreIds

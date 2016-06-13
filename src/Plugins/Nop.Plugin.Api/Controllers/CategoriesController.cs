@@ -12,6 +12,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Discounts;
 using Nop.Core.Domain.Media;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
@@ -30,6 +31,7 @@ using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.ModelBinders;
+using Nop.Services.Discounts;
 using Nop.Services.Media;
 using Nop.Services.Stores;
 
@@ -47,6 +49,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IPictureService _pictureService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IStoreService _storeService;
+        private readonly IDiscountService _discountService;
         private readonly IFactory<Category> _factory; 
 
         public CategoriesController(ICategoryApiService categoryApiService,
@@ -58,6 +61,7 @@ namespace Nop.Plugin.Api.Controllers
             IPictureService pictureService,
             IStoreMappingService storeMappingService,
             IStoreService storeService,
+            IDiscountService discountService,
             IFactory<Category> factory)
         {
             _categoryApiService = categoryApiService;
@@ -67,6 +71,7 @@ namespace Nop.Plugin.Api.Controllers
             _customerActivityService = customerActivityService;
             _localizationService = localizationService;
             _factory = factory;
+            _discountService = discountService;
             _storeService = storeService;
             _storeMappingService = storeMappingService;
             _pictureService = pictureService;
@@ -234,7 +239,13 @@ namespace Nop.Plugin.Api.Controllers
 
             // TODO: Localization
             // TODO: ACL 
-            // TODO: Discounts 
+            List<int> discountIds = null;
+
+            if (categoryDelta.Dto.DiscountIds != null && categoryDelta.Dto.DiscountIds.Count > 0)
+            {
+                discountIds = ApplyDiscountsToCategory(newCategory, categoryDelta.Dto);
+            }
+
             List<int> storeIds = null;
 
             if (categoryDelta.Dto.StoreIds != null && categoryDelta.Dto.StoreIds.Count > 0)
@@ -244,6 +255,13 @@ namespace Nop.Plugin.Api.Controllers
 
             // Preparing the result dto of the new category
             CategoryDto newCategoryDto = newCategory.ToDto();
+
+            //search engine name
+            newCategoryDto.SeName = newCategory.ValidateSeName(newCategoryDto.SeName, newCategory.Name, true);
+            _urlRecordService.SaveSlug(newCategory, newCategoryDto.SeName, 0);
+
+            _customerActivityService.InsertActivity("AddNewCategory",
+                _localizationService.GetResource("ActivityLog.AddNewCategory"), newCategory.Name);
 
             // Here we prepare the resulted dto image.
             if (insertedPicture != null)
@@ -255,19 +273,16 @@ namespace Nop.Plugin.Api.Controllers
                     Attachment = Convert.ToBase64String(insertedPicture.PictureBinary)
                 };
             }
-
-            // Set the store ids for the new category dto.
+            
             if (storeIds != null)
             {
                 newCategoryDto.StoreIds = storeIds;
             }
 
-            //search engine name
-            newCategoryDto.SeName = newCategory.ValidateSeName(newCategoryDto.SeName, newCategory.Name, true);
-            _urlRecordService.SaveSlug(newCategory, newCategoryDto.SeName, 0);
-
-            _customerActivityService.InsertActivity("AddNewCategory",
-                _localizationService.GetResource("ActivityLog.AddNewCategory"), newCategory.Name);
+            if (discountIds != null)
+            {
+                newCategoryDto.DiscountIds = discountIds;
+            }
 
             var categoriesRootObject = new CategoriesRootObject();
 
@@ -403,6 +418,25 @@ namespace Nop.Plugin.Api.Controllers
             category.LimitedToStores = limitedToStores;
 
             return storeIds;
+        }
+
+        private List<int> ApplyDiscountsToCategory(Category category, CategoryDto dto)
+        {
+            var discountIds = new List<int>();
+            HashSet<int> uniqueDiscounts = new HashSet<int>(dto.DiscountIds);
+
+            var allDiscounts = _discountService.GetAllDiscounts(DiscountType.AssignedToCategories, showHidden: true);
+
+            foreach (var discount in allDiscounts)
+            {
+                if (dto.DiscountIds != null && uniqueDiscounts.Contains(discount.Id))
+                {
+                    category.AppliedDiscounts.Add(discount);
+                    discountIds.Add(discount.Id);
+                }
+            }
+
+            return discountIds;
         }
 
         private IHttpActionResult Error()

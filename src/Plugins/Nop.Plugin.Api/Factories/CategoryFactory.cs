@@ -30,7 +30,6 @@ namespace Nop.Plugin.Api.Factories
             }
             
             //TODO: ACL - default
-            //TODO: Discounts - default
 
             //default values
             defaultCategory.PageSize = _catalogSettings.DefaultCategoryPageSize;
