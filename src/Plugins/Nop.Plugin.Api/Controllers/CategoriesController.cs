@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Mime;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
-using Microsoft.Owin.Security.DataHandler.Encoder;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
 using Nop.Plugin.Api.Attributes;
@@ -30,10 +28,10 @@ using Nop.Plugin.Api.Delta;
 using Nop.Plugin.Api.DTOs.Errors;
 using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.Factories;
-using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.ModelBinders;
 using Nop.Services.Media;
+using Nop.Services.Stores;
 
 namespace Nop.Plugin.Api.Controllers
 {
@@ -47,6 +45,8 @@ namespace Nop.Plugin.Api.Controllers
         private readonly ILocalizationService _localizationService;
         private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
         private readonly IPictureService _pictureService;
+        private readonly IStoreMappingService _storeMappingService;
+        private readonly IStoreService _storeService;
         private readonly IFactory<Category> _factory; 
 
         public CategoriesController(ICategoryApiService categoryApiService,
@@ -56,6 +56,8 @@ namespace Nop.Plugin.Api.Controllers
             ICustomerActivityService customerActivityService,
             ILocalizationService localizationService,
             IPictureService pictureService,
+            IStoreMappingService storeMappingService,
+            IStoreService storeService,
             IFactory<Category> factory)
         {
             _categoryApiService = categoryApiService;
@@ -65,6 +67,8 @@ namespace Nop.Plugin.Api.Controllers
             _customerActivityService = customerActivityService;
             _localizationService = localizationService;
             _factory = factory;
+            _storeService = storeService;
+            _storeMappingService = storeMappingService;
             _pictureService = pictureService;
         }
 
@@ -163,15 +167,14 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(CategoriesRootObject))]
         public IHttpActionResult CreateCategory([ModelBinder(typeof(JsonModelBinder<CategoryDto>))] Delta<CategoryDto> categoryDelta)
         {
-            bool bindingSuccessfull = categoryDelta != null;
-            bool imageSrcSet = !string.IsNullOrEmpty(categoryDelta.Dto.Image.Src);
-            bool imageAttachmentSet = !string.IsNullOrEmpty(categoryDelta.Dto.Image.Attachment);
+            bool imageSrcSet = ModelState.IsValid && !string.IsNullOrEmpty(categoryDelta.Dto.Image.Src);
+            bool imageAttachmentSet = ModelState.IsValid && !string.IsNullOrEmpty(categoryDelta.Dto.Image.Attachment);
             
             byte[] imageBytes = null;
             string mimeType = string.Empty;
             Picture insertedPicture = null;
 
-            if (bindingSuccessfull && (imageSrcSet || imageAttachmentSet))
+            if (imageSrcSet || imageAttachmentSet)
             {
                 // Validation of the image object
 
@@ -212,9 +215,8 @@ namespace Nop.Plugin.Api.Controllers
 
             //If the validation has passed the categoryDelta object won't be null for sure so we don't need to check for this.
             
-            // If all validation has passed insert the image in the database
             // We need to insert the picture before the category so we can obtain the picture id and map it to the category.
-            if (ModelState.IsValid && imageBytes != null)
+            if (imageBytes != null)
             {
                 insertedPicture = _pictureService.InsertPicture(imageBytes, mimeType, string.Empty);
             }
@@ -231,6 +233,14 @@ namespace Nop.Plugin.Api.Controllers
             _categoryService.InsertCategory(newCategory);
 
             // TODO: Localization
+            // TODO: ACL 
+            // TODO: Discounts 
+            List<int> storeIds = null;
+
+            if (categoryDelta.Dto.StoreIds != null && categoryDelta.Dto.StoreIds.Count > 0)
+            {
+                storeIds = MapCategoryToStores(newCategory, categoryDelta.Dto);
+            }
 
             // Preparing the result dto of the new category
             CategoryDto newCategoryDto = newCategory.ToDto();
@@ -238,11 +248,18 @@ namespace Nop.Plugin.Api.Controllers
             // Here we prepare the resulted dto image.
             if (insertedPicture != null)
             {
+                // We don't use the image from the passed dto directly 
+                // because the picture may be passed with src and the result should only include the base64 format.
                 newCategoryDto.Image = new ImageDto()
                 {
-                    // Here we don't use the attachment from the passed dto directly because the picture may be passed with src.
                     Attachment = Convert.ToBase64String(insertedPicture.PictureBinary)
                 };
+            }
+
+            // Set the store ids for the new category dto.
+            if (storeIds != null)
+            {
+                newCategoryDto.StoreIds = storeIds;
             }
 
             //search engine name
@@ -348,6 +365,44 @@ namespace Nop.Plugin.Api.Controllers
                 var key = string.Format(_localizationService.GetResource("Api.InvalidType"), "image");
                 ModelState.AddModelError(key, _localizationService.GetResource("Api.Category.InvalidImageAttachmentFormat"));
             }
+        }
+
+        private List<int> MapCategoryToStores(Category category, CategoryDto dto)
+        {
+            var existingStoreMappings = _storeMappingService.GetStoreMappings(category);
+            var allStores = _storeService.GetAllStores();
+
+            var storeIds = new List<int>();
+
+            // TODO: Discuss the case where you have storeids but they are all non existing stores.
+            var limitedToStores = dto.StoreIds != null && dto.StoreIds.Count > 0;
+
+            foreach (var store in allStores)
+            {
+                if (limitedToStores && dto.StoreIds.Contains(store.Id))
+                {
+                    //new store
+                    if (existingStoreMappings.Count(sm => sm.StoreId == store.Id) == 0)
+                    {
+                        _storeMappingService.InsertStoreMapping(category, store.Id);
+                        storeIds.Add(store.Id);
+                    }
+                }
+                else
+                {
+                    //remove store
+                    var storeMappingToDelete = existingStoreMappings.FirstOrDefault(sm => sm.StoreId == store.Id);
+                    if (storeMappingToDelete != null)
+                    {
+                        _storeMappingService.DeleteStoreMapping(storeMappingToDelete);
+                        storeIds.Remove(store.Id);
+                    }
+                }
+            }
+
+            category.LimitedToStores = limitedToStores;
+
+            return storeIds;
         }
 
         private IHttpActionResult Error()

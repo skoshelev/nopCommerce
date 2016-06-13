@@ -8,6 +8,9 @@ namespace Nop.Plugin.Api.Delta
     {
         private TDto _dto;
 
+        // TODO: think of creating an instance of the mapping helper instead of using the same instance every time.
+        // I think this will be nessecary because of the changed properties dictionary, so we can work with different 
+        // dictionary every time an request is made.
         private IMappingHelper _mappingHelper = EngineContext.Current.Resolve<IMappingHelper>();
 
         public TDto Dto

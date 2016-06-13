@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using Nop.Plugin.Api.Attributes;
@@ -12,6 +14,7 @@ namespace Nop.Plugin.Api.DTOs.Categories
     public class CategoryDto
     {
         private ImageDto _imageDto;
+        private List<int> _storeIds;
 
         [JsonProperty("id")]
         public string Id { get; set; }
@@ -124,6 +127,24 @@ namespace Nop.Plugin.Api.DTOs.Categories
         /// </summary>
         [JsonProperty("updated_on_utc")]
         public DateTime? UpdatedOnUtc { get; set; }
+
+        [JsonProperty("store_ids")]
+        public List<int> StoreIds
+        {
+            get
+            {
+                if (_storeIds == null)
+                {
+                    _storeIds = new List<int>();
+                }
+
+                return _storeIds;
+            }
+            set
+            {
+                _storeIds = value;
+            }
+        }
 
         [JsonProperty("image")]
         public ImageDto Image {

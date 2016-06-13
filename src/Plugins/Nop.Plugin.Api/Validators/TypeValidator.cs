@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using AutoMapper.Internal;
 using Newtonsoft.Json;
 
 namespace Nop.Plugin.Api.Validators
@@ -54,11 +56,25 @@ namespace Nop.Plugin.Api.Validators
 
                         isCurrentPropertyValid = (bool)isValidMethod.Invoke(typeValidatorForNestedProperty, new object[] {pair.Value});
                     }
+                    // This case hadles collections.
+                    else if (pair.Value != null && pair.Value is ICollection<object> && 
+                        propertyType.GetInterface("IEnumerable") != null)
+                    {
+                        var elementsType = propertyType.GetGenericElementType();
+
+                        ICollection<object> propertyValueAsCollection = pair.Value as ICollection<object>;
+
+                        // Validate the collection items.
+                        foreach (var item in propertyValueAsCollection)
+                        {
+                            isCurrentPropertyValid = IsCurrentPropertyValid(elementsType, item);
+
+                            if(!isCurrentPropertyValid) break;
+                        }
+                    }
                     else
                     {
-                        TypeConverter converter = TypeDescriptor.GetConverter(jsonPropertyNameTypePair[pair.Key]);
-
-                        if (!converter.IsValid(pair.Value)) isCurrentPropertyValid = false;
+                        isCurrentPropertyValid = IsCurrentPropertyValid(jsonPropertyNameTypePair[pair.Key], pair.Value);
                     }
 
                     if (!isCurrentPropertyValid)
@@ -70,6 +86,25 @@ namespace Nop.Plugin.Api.Validators
             }
 
             return isValid;
+        }
+
+        private bool IsCurrentPropertyValid(Type type, object value)
+        {
+            bool isCurrentPropertyValid = true;
+
+            TypeConverter converter = TypeDescriptor.GetConverter(type);
+
+            var valueToValidate = value;
+
+            // This is needed because the isValid method does not work well if the value it is trying to validate is object.
+            if (value != null)
+            {
+                valueToValidate = value.ToString();
+            }
+
+            if (!converter.IsValid(valueToValidate)) isCurrentPropertyValid = false;
+
+            return isCurrentPropertyValid;
         }
     }
 }

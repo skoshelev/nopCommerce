@@ -86,13 +86,23 @@ namespace Nop.Plugin.Api.Helpers
                 {
                     ICollection<object> propertyValueAsCollection = propertyValue as ICollection<object>;
 
+                    Type collectionElementsType = objectProperty.PropertyType.GetGenericArguments()[0];
+                    var collection = objectProperty.GetValue(objectToBeUpdated) as IList;
+
                     propertyValueAsCollection.Each(
                         x =>
-
-                            CreateOrUpdateItemInCollection(x as Dictionary<string, object>,
-                                objectProperty.GetValue(objectToBeUpdated) as IList,
-                                objectProperty.PropertyType.GetGenericArguments()[0])
-                        );
+                        {
+                            if (collectionElementsType.Namespace != "System")
+                            {
+                                AddOrUpdateComplexItemInCollection(x as Dictionary<string, object>,
+                                    collection,
+                                    collectionElementsType);
+                            }
+                            else
+                            {
+                                AddBaseItemInCollection(x, collection, collectionElementsType);
+                            }
+                        });
 
                     return;
                 }
@@ -116,46 +126,55 @@ namespace Nop.Plugin.Api.Helpers
             }
         }
 
-        private void CreateOrUpdateItemInCollection(Dictionary<string, object> newProperties, IList collection, Type collectionElementsType)
+        private void AddBaseItemInCollection(object newItem, IList collection, Type collectionElementsType)
         {
-            if (collectionElementsType.Namespace != "System" && collection != null)
+            TypeConverter converter = TypeDescriptor.GetConverter(collectionElementsType);
+
+            var newItemValueToString = newItem.ToString();
+
+            if (converter.IsValid(newItemValueToString))
             {
-                if (newProperties.ContainsKey("id"))
+                collection.Add(converter.ConvertFrom(newItemValueToString));
+            }
+        }
+
+        private void AddOrUpdateComplexItemInCollection(Dictionary<string, object> newProperties, IList collection, Type collectionElementsType)
+        {
+            if (newProperties.ContainsKey("id"))
+            {
+                // Every element in collection, that is not System type should have an id.
+                int id = int.Parse(newProperties["id"].ToString());
+
+                object itemToBeUpdated = null;
+
+                // Check if there is already an item with this id in the collection.
+                foreach (var item in collection)
                 {
-                    // Every element in collection, that is not System type should have an id.
-                    int id = int.Parse(newProperties["id"].ToString());
-
-                    object itemToBeUpdated = null;
-
-                    // Check if there is already an item with this id in the collection.
-                    foreach (var item in collection)
+                    if (int.Parse(item.GetType()
+                        .GetProperty("id", BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)
+                        .GetValue(item)
+                        .ToString()) == id)
                     {
-                        if (int.Parse(item.GetType()
-                            .GetProperty("id", BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)
-                            .GetValue(item)
-                            .ToString()) == id)
-                        {
-                            itemToBeUpdated = item;
-                            break;
-                        }
-                    }
-
-                    if (itemToBeUpdated == null)
-                    {
-                        // We should create a new item and put it in the collection.
-                        AddNewItemInCollection(newProperties, collection, collectionElementsType);
-                    }
-                    else
-                    {
-                        // We should update the existing element.
-                        SetValues(newProperties, itemToBeUpdated, collectionElementsType);
+                        itemToBeUpdated = item;
+                        break;
                     }
                 }
-                // It is a new item.
-                else
+
+                if (itemToBeUpdated == null)
                 {
+                    // We should create a new item and put it in the collection.
                     AddNewItemInCollection(newProperties, collection, collectionElementsType);
                 }
+                else
+                {
+                    // We should update the existing element.
+                    SetValues(newProperties, itemToBeUpdated, collectionElementsType);
+                }
+            }
+            // It is a new item.
+            else
+            {
+                AddNewItemInCollection(newProperties, collection, collectionElementsType);
             }
         }
 

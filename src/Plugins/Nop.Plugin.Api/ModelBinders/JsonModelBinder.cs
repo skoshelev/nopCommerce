@@ -48,8 +48,12 @@ namespace Nop.Plugin.Api.ModelBinders
                         // Needed so we can call the get the root name and validator type.
                         DtoAttribute dtoAttribute = typeof (T).GetCustomAttribute(typeof (DtoAttribute)) as DtoAttribute;
 
+                        // special validation for the dto.
                         if (dtoAttribute == null)
                         {
+                            // TODO: should this be present. The store owner shouldn't be able to get to this error if he does not create his own dtos.
+                            bindingContext.ModelState.AddModelError("dto", "invalid category dto");
+
                             return false;
                         }
 
@@ -129,7 +133,6 @@ namespace Nop.Plugin.Api.ModelBinders
             {
                 foreach (var invalidProperty in typeValidator.InvalidProperties)
                 {
-                    // TODO: add the resource in the administration
                     var key = string.Format(_localizationService.GetResource("Api.InvalidType", languageId, false), invalidProperty);
 
                     if (!errors.ContainsKey(key))

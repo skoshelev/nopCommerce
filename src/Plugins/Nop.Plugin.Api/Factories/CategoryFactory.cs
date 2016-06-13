@@ -29,9 +29,8 @@ namespace Nop.Plugin.Api.Factories
                 defaultCategory.CategoryTemplateId = firstTemplate.Id;
             }
             
-            //TODO: ACL
-            //TODO: Discounts
-            //TODO: Store mappings 
+            //TODO: ACL - default
+            //TODO: Discounts - default
 
             //default values
             defaultCategory.PageSize = _catalogSettings.DefaultCategoryPageSize;
