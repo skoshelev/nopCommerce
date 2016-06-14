@@ -7,7 +7,7 @@ using Rhino.Mocks;
 namespace Nop.Plugin.Api.Tests.ServicesTests.ProductCategoryMappings.GetMappingById
 {
     [TestFixture]
-    public class ProductCategoryMappingsApiServiceTests_GetOrderById
+    public class ProductCategoryMappingsApiServiceTests_GetById
     {
         [Test]
         public void WhenNullIsReturnedByTheRepository_ShouldReturnNull()

@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Results;
-using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.Controllers;
-using Nop.Plugin.Api.DTOs.Products;
 using Nop.Plugin.Api.DTOs.ShoppingCarts;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models.ShoppingCartsParameters;
