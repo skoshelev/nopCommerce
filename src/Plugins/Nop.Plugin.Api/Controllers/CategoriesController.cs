@@ -14,6 +14,7 @@ using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Discounts;
 using Nop.Core.Domain.Media;
+using Nop.Core.Domain.Stores;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DTOs.Categories;
@@ -248,7 +249,7 @@ namespace Nop.Plugin.Api.Controllers
 
             List<int> storeIds = null;
 
-            if (categoryDelta.Dto.StoreIds != null && categoryDelta.Dto.StoreIds.Count > 0)
+            if (categoryDelta.Dto.StoreIds.Count > 0)
             {
                 storeIds = MapCategoryToStores(newCategory, categoryDelta.Dto);
             }
@@ -384,17 +385,14 @@ namespace Nop.Plugin.Api.Controllers
 
         private List<int> MapCategoryToStores(Category category, CategoryDto dto)
         {
-            var existingStoreMappings = _storeMappingService.GetStoreMappings(category);
-            var allStores = _storeService.GetAllStores();
+            IList<StoreMapping> existingStoreMappings = _storeMappingService.GetStoreMappings(category);
+            IList<Store> allStores = _storeService.GetAllStores();
 
             var storeIds = new List<int>();
-
-            // TODO: Discuss the case where you have storeids but they are all non existing stores.
-            var limitedToStores = dto.StoreIds != null && dto.StoreIds.Count > 0;
-
+            
             foreach (var store in allStores)
             {
-                if (limitedToStores && dto.StoreIds.Contains(store.Id))
+                if (dto.StoreIds.Contains(store.Id))
                 {
                     //new store
                     if (existingStoreMappings.Count(sm => sm.StoreId == store.Id) == 0)
@@ -406,7 +404,8 @@ namespace Nop.Plugin.Api.Controllers
                 else
                 {
                     //remove store
-                    var storeMappingToDelete = existingStoreMappings.FirstOrDefault(sm => sm.StoreId == store.Id);
+                    StoreMapping storeMappingToDelete = existingStoreMappings.FirstOrDefault(sm => sm.StoreId == store.Id);
+
                     if (storeMappingToDelete != null)
                     {
                         _storeMappingService.DeleteStoreMapping(storeMappingToDelete);
@@ -415,7 +414,7 @@ namespace Nop.Plugin.Api.Controllers
                 }
             }
 
-            category.LimitedToStores = limitedToStores;
+            category.LimitedToStores = storeIds.Count > 0;
 
             return storeIds;
         }
