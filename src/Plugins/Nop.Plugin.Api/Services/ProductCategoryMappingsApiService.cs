@@ -16,8 +16,8 @@ namespace Nop.Plugin.Api.Services
             _productCategoryMappingsRepository = productCategoryMappingsRepository;
         }
 
-        public IList<ProductCategory> GetMappings(int productId = Configurations.DefaultProductId, 
-            int categoryId = Configurations.DefaultCategoryId, int limit = Configurations.DefaultLimit, 
+        public IList<ProductCategory> GetMappings(int? productId = null, 
+            int? categoryId = null, int limit = Configurations.DefaultLimit, 
             int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId)
         {
             var query = GetMappingsQuery(productId, categoryId, sinceId);
@@ -25,7 +25,7 @@ namespace Nop.Plugin.Api.Services
             return new ApiList<ProductCategory>(query, page - 1, limit);
         }
 
-        public int GetMappingsCount(int productId = Configurations.DefaultProductId, int categoryId = Configurations.DefaultCategoryId)
+        public int GetMappingsCount(int? productId = null, int? categoryId = null)
         {
             return GetMappingsQuery(productId, categoryId).Count();
         }
@@ -38,17 +38,17 @@ namespace Nop.Plugin.Api.Services
             return _productCategoryMappingsRepository.GetById(id);
         }
 
-        private IQueryable<ProductCategory> GetMappingsQuery(int productId = Configurations.DefaultProductId, 
-            int categoryId = Configurations.DefaultCategoryId, int sinceId = Configurations.DefaultSinceId)
+        private IQueryable<ProductCategory> GetMappingsQuery(int? productId = null, 
+            int? categoryId = null, int sinceId = Configurations.DefaultSinceId)
         {
             var query = _productCategoryMappingsRepository.TableNoTracking;
 
-            if (productId > 0)
+            if (productId != null)
             {
                 query = query.Where(mapping => mapping.ProductId == productId);
             }
 
-            if (categoryId > 0)
+            if (categoryId != null)
             {
                 query = query.Where(mapping => mapping.CategoryId == categoryId);
             }
