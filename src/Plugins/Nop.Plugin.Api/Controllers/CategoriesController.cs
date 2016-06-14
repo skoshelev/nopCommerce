@@ -314,6 +314,26 @@ namespace Nop.Plugin.Api.Controllers
 
             return new RawJsonActionResult(json);
         }
+
+        [HttpDelete]
+        public IHttpActionResult DeleteCategory(int categoryId)
+        {
+            if (categoryId <= 0)
+            {
+                return NotFound();
+            }
+
+            Category categoryToDelete = _categoryService.GetCategoryById(categoryId);
+
+            if (categoryToDelete == null)
+            {
+                return NotFound();
+            }
+
+            _categoryService.DeleteCategory(categoryToDelete);
+
+            return new RawJsonActionResult("{}");
+        }
         
         private void ValidatePictureBiteArray(byte[] imageBytes, string mimeType)
         {
