@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using NUnit.Framework;
 using Nop.Plugin.Api.Tests.SerializersTests.DummyObjects;
 using Nop.Plugin.Api.Validators;
-using NUnit.Framework;
 
 namespace Nop.Plugin.Api.Tests.ValidatorTests
 {
@@ -16,7 +16,7 @@ namespace Nop.Plugin.Api.Tests.ValidatorTests
             var cut = new FieldsValidator();
 
             //Act
-            Dictionary<string, bool> result = cut.GetValidFields(emptyFields, typeof(DummyObject));
+            Dictionary<string, bool> result = cut.GetValidFields(emptyFields, typeof(DummyObjectWithSimpleTypes));
 
             // Assert
             Assert.IsEmpty(result);
@@ -34,7 +34,7 @@ namespace Nop.Plugin.Api.Tests.ValidatorTests
             var cut = new FieldsValidator();
 
             //Act
-            Dictionary<string, bool> result = cut.GetValidFields(validFields, typeof(DummyObject));
+            Dictionary<string, bool> result = cut.GetValidFields(validFields, typeof(DummyObjectWithSimpleTypes));
 
             Assert.IsNotEmpty(result);
         }
@@ -49,7 +49,7 @@ namespace Nop.Plugin.Api.Tests.ValidatorTests
             var cut = new FieldsValidator();
 
             //Act
-            Dictionary<string, bool> result = cut.GetValidFields(validFields, typeof(DummyObject));
+            Dictionary<string, bool> result = cut.GetValidFields(validFields, typeof(DummyObjectWithSimpleTypes));
 
             Assert.True(result.ContainsKey("firstproperty"));
             Assert.True(result.ContainsKey("secondproperty"));
@@ -65,7 +65,7 @@ namespace Nop.Plugin.Api.Tests.ValidatorTests
             var cut = new FieldsValidator();
 
             //Act
-            Dictionary<string, bool> result = cut.GetValidFields(validFields, typeof(DummyObject));
+            Dictionary<string, bool> result = cut.GetValidFields(validFields, typeof(DummyObjectWithSimpleTypes));
 
             Assert.True(result.ContainsKey("firstproperty"));
             Assert.True(result.ContainsKey("secondproperty"));
@@ -79,7 +79,7 @@ namespace Nop.Plugin.Api.Tests.ValidatorTests
             var cut = new FieldsValidator();
 
             //Act
-            Dictionary<string, bool> result = cut.GetValidFields(validField, typeof(DummyObject));
+            Dictionary<string, bool> result = cut.GetValidFields(validField, typeof(DummyObjectWithSimpleTypes));
 
             Assert.True(result.ContainsKey("firstproperty"));
         }
@@ -94,7 +94,7 @@ namespace Nop.Plugin.Api.Tests.ValidatorTests
             var cut = new FieldsValidator();
 
             //Act
-            Dictionary<string, bool> result = cut.GetValidFields(mixedFields, typeof(DummyObject));
+            Dictionary<string, bool> result = cut.GetValidFields(mixedFields, typeof(DummyObjectWithSimpleTypes));
 
             Assert.AreEqual(2, result.Count);
             Assert.True(result.ContainsKey("firstproperty"));
@@ -110,7 +110,7 @@ namespace Nop.Plugin.Api.Tests.ValidatorTests
             var cut = new FieldsValidator();
 
             //Act
-            Dictionary<string, bool> result = cut.GetValidFields(invalidFields, typeof(DummyObject));
+            Dictionary<string, bool> result = cut.GetValidFields(invalidFields, typeof(DummyObjectWithSimpleTypes));
 
             Assert.IsEmpty(result);
         }
@@ -130,7 +130,7 @@ namespace Nop.Plugin.Api.Tests.ValidatorTests
             var cut = new FieldsValidator();
 
             //Act
-            Dictionary<string, bool> result = cut.GetValidFields(invalidFields, typeof(DummyObject));
+            Dictionary<string, bool> result = cut.GetValidFields(invalidFields, typeof(DummyObjectWithSimpleTypes));
 
             Assert.IsEmpty(result);
         }

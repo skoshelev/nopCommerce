@@ -128,6 +128,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\JTokenHelper.cs" />
     <Compile Include="JSON\ActionResults\RawJsonActionResult.cs" />
     <Compile Include="OAuth\Attributes\BearerTokenAuthorizeAttribute.cs" />
     <Compile Include="Constants\ViewNames.cs" />

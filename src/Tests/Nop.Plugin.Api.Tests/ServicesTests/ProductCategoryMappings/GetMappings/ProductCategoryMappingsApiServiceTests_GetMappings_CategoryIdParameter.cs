@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Services;
 using NUnit.Framework;
 using Rhino.Mocks;
@@ -52,7 +53,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ProductCategoryMappings.GetMappings
 
             var randomNumber = new Random();
 
-            var currentRepoSize = randomNumber.Next(10, 100);
+            var currentRepoSize = randomNumber.Next(51, 100);
             
             for (int i = 0; i < currentRepoSize; i++)
             {
@@ -82,7 +83,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.ProductCategoryMappings.GetMappings
 
             // Assert
             Assert.IsTrue(result.Select(x => new { x.CategoryId, x.ProductId })
-                                .SequenceEqual(repo.Where(x => x.CategoryId == categoryId).Select(x => new { x.CategoryId, x.ProductId })));
+                                .SequenceEqual(repo.Where(x => x.CategoryId == categoryId).Take(Configurations.DefaultLimit).Select(x => new { x.CategoryId, x.ProductId })));
         }
     }
 }
