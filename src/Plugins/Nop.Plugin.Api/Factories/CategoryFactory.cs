@@ -29,8 +29,6 @@ namespace Nop.Plugin.Api.Factories
                 defaultCategory.CategoryTemplateId = firstTemplate.Id;
             }
             
-            //TODO: ACL - default
-
             //default values
             defaultCategory.PageSize = _catalogSettings.DefaultCategoryPageSize;
             defaultCategory.PageSizeOptions = _catalogSettings.DefaultCategoryPageSizeOptions;

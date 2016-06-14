@@ -12,9 +12,11 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Discounts;
 using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Stores;
+using Nop.Core.Domain.Security;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DTOs.Categories;
@@ -32,8 +34,10 @@ using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.ModelBinders;
+using Nop.Services.Customers;
 using Nop.Services.Discounts;
 using Nop.Services.Media;
+using Nop.Services.Security;
 using Nop.Services.Stores;
 
 namespace Nop.Plugin.Api.Controllers
@@ -51,6 +55,8 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IStoreMappingService _storeMappingService;
         private readonly IStoreService _storeService;
         private readonly IDiscountService _discountService;
+        private readonly IAclService _aclService;
+        private readonly ICustomerService _customerService;
         private readonly IFactory<Category> _factory; 
 
         public CategoriesController(ICategoryApiService categoryApiService,
@@ -63,6 +69,8 @@ namespace Nop.Plugin.Api.Controllers
             IStoreMappingService storeMappingService,
             IStoreService storeService,
             IDiscountService discountService,
+            IAclService aclService,
+            ICustomerService customerService,
             IFactory<Category> factory)
         {
             _categoryApiService = categoryApiService;
@@ -72,6 +80,8 @@ namespace Nop.Plugin.Api.Controllers
             _customerActivityService = customerActivityService;
             _localizationService = localizationService;
             _factory = factory;
+            _customerService = customerService;
+            _aclService = aclService;
             _discountService = discountService;
             _storeService = storeService;
             _storeMappingService = storeMappingService;
@@ -239,7 +249,13 @@ namespace Nop.Plugin.Api.Controllers
             _categoryService.InsertCategory(newCategory);
 
             // TODO: Localization
-            // TODO: ACL 
+            List<int> aclIds = null;
+
+            if (categoryDelta.Dto.AclIds.Count > 0)
+            {
+                aclIds = MapAclToCategory(newCategory, categoryDelta.Dto);
+            }
+
             List<int> discountIds = null;
 
             if (categoryDelta.Dto.DiscountIds.Count > 0)
@@ -260,9 +276,6 @@ namespace Nop.Plugin.Api.Controllers
             //search engine name
             newCategoryDto.SeName = newCategory.ValidateSeName(newCategoryDto.SeName, newCategory.Name, true);
             _urlRecordService.SaveSlug(newCategory, newCategoryDto.SeName, 0);
-
-            _customerActivityService.InsertActivity("AddNewCategory",
-                _localizationService.GetResource("ActivityLog.AddNewCategory"), newCategory.Name);
 
             // Here we prepare the resulted dto image.
             if (insertedPicture != null)
@@ -285,6 +298,14 @@ namespace Nop.Plugin.Api.Controllers
                 newCategoryDto.DiscountIds = discountIds;
             }
 
+            if (aclIds != null)
+            {
+                newCategoryDto.AclIds = aclIds;
+            }
+
+            _customerActivityService.InsertActivity("AddNewCategory",
+                _localizationService.GetResource("ActivityLog.AddNewCategory"), newCategory.Name);
+
             var categoriesRootObject = new CategoriesRootObject();
 
             categoriesRootObject.Categories.Add(newCategoryDto);
@@ -293,7 +314,7 @@ namespace Nop.Plugin.Api.Controllers
 
             return new RawJsonActionResult(json);
         }
-
+        
         private void ValidatePictureBiteArray(byte[] imageBytes, string mimeType)
         {
             if (imageBytes != null)
@@ -436,6 +457,50 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             return discountIds;
+        }
+
+        private List<int> MapAclToCategory(Category category, CategoryDto dto)
+        {
+            var aclIds = new List<int>();
+
+            IList<AclRecord> existingAclRecords = _aclService.GetAclRecords(category);
+            IList<CustomerRole> allCustomerRoles = _customerService.GetAllCustomerRoles(true);
+            
+            foreach (var customerRole in allCustomerRoles)
+            {
+                if (dto.AclIds.Contains(customerRole.Id))
+                {
+                    //new role
+                    if (existingAclRecords.Count(acl => acl.CustomerRoleId == customerRole.Id) == 0)
+                    {
+                        // Need to create it here so we can obtain its id after it is inserted.
+                        var aclRecord = new AclRecord
+                        {
+                            EntityId = category.Id,
+                            EntityName = typeof(Category).Name,
+                            CustomerRoleId = customerRole.Id
+                        };
+
+                        _aclService.InsertAclRecord(aclRecord);
+                        aclIds.Add(aclRecord.Id);
+                    }
+                }
+                else
+                {
+                    //remove role
+                    var aclRecordToDelete = existingAclRecords.FirstOrDefault(acl => acl.CustomerRoleId == customerRole.Id);
+
+                    if (aclRecordToDelete != null)
+                    {
+                        _aclService.DeleteAclRecord(aclRecordToDelete);
+                        aclIds.Add(aclRecordToDelete.Id);
+                    }
+                }
+            }
+
+            category.SubjectToAcl = aclIds.Count > 0;
+
+            return aclIds;
         }
 
         private IHttpActionResult Error()
