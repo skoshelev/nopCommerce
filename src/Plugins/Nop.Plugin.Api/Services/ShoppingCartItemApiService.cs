@@ -17,7 +17,7 @@ namespace Nop.Plugin.Api.Services
             _shoppingCartItemsRepository = shoppingCartItemsRepository;
         }
 
-        public List<ShoppingCartItem> GetShoppingCartItems(int customerId = Configurations.DefaultCustomerId, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
+        public List<ShoppingCartItem> GetShoppingCartItems(int? customerId = null, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
                                                            DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, int limit = Configurations.DefaultLimit,
                                                            int page = Configurations.DefaultPageValue)
         {
@@ -27,12 +27,12 @@ namespace Nop.Plugin.Api.Services
             return new ApiList<ShoppingCartItem>(query, page - 1, limit);
         }
         
-        private IQueryable<ShoppingCartItem> GetShoppingCartItemsQuery(int customerId = Configurations.DefaultCategoryId, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
+        private IQueryable<ShoppingCartItem> GetShoppingCartItemsQuery(int? customerId = null, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
                                                                        DateTime? updatedAtMin = null, DateTime? updatedAtMax = null)
         {
-            var query = _shoppingCartItemsRepository.Table;
+            var query = _shoppingCartItemsRepository.TableNoTracking;
 
-            if (customerId > 0)
+            if (customerId != null)
             {
                 query = query.Where(shoppingCartItem => shoppingCartItem.CustomerId == customerId);
             }

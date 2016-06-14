@@ -180,6 +180,11 @@
     <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_UpdatedParameters.cs" />
     <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_CreatedParameters.cs" />
     <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_DefaultParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_PageParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_LimitParameter.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_UpdatedParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_CustomerIdParameter.cs" />
     <Compile Include="ServicesTests\StateProvinceApiServiceTests.cs" />
     <Compile Include="ServicesTests\Customers\CustomerApiServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
