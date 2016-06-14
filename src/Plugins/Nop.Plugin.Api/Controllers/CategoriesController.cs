@@ -241,7 +241,7 @@ namespace Nop.Plugin.Api.Controllers
             // TODO: ACL 
             List<int> discountIds = null;
 
-            if (categoryDelta.Dto.DiscountIds != null && categoryDelta.Dto.DiscountIds.Count > 0)
+            if (categoryDelta.Dto.DiscountIds.Count > 0)
             {
                 discountIds = ApplyDiscountsToCategory(newCategory, categoryDelta.Dto);
             }
