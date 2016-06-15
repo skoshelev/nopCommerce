@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
-using Nop.Plugin.Api.ContractResolvers;
+using Newtonsoft.Json.Linq;
 using Nop.Plugin.Api.DTOs.Customers;
-using Nop.Plugin.Api.Validators;
+using Nop.Plugin.Api.Helpers;
 
 namespace Nop.Plugin.Api.Serializers
 {
@@ -11,67 +12,58 @@ namespace Nop.Plugin.Api.Serializers
     {
         private const string DateTimeIso8601Format = "yyyy-MM-ddTHH:mm:ssZ";
 
-        private readonly IFieldsValidator _fieldsValidator;
-
-        public JsonFieldsSerializer(IFieldsValidator fieldsValidator)
-        {
-            _fieldsValidator = fieldsValidator;
-        }
-
-        public string Serialize(ISerializableObject objectToSerialize, string fields)
+        public string Serialize(ISerializableObject objectToSerialize, string jsonFields)
         {
             if (objectToSerialize == null)
             {
                 throw new ArgumentNullException("objectToSerialize");
             }
 
-            string json = string.Empty;
+            IList<string> fieldsList = null;
 
-            // Always add the root manually
-            var validFields = new Dictionary<string, bool>();
-
-            if (!string.IsNullOrEmpty(fields))
+            if (!string.IsNullOrEmpty(jsonFields))
             {
                 string primaryPropertyName = objectToSerialize.GetPrimaryPropertyName();
-                validFields = _fieldsValidator.GetValidFields(fields, objectToSerialize.GetPrimaryPropertyType());
 
-                if (validFields.Count > 0)
-                {
-                    validFields.Add(primaryPropertyName, true);
+                fieldsList = GetPropertiesIntoList(jsonFields);
 
-                    json = Serialize(objectToSerialize, validFields);
-                }
-                else
-                {
-                    json = string.Format("{{'{0}': []}}", primaryPropertyName);
-                }
+                // Always add the root manually
+                fieldsList.Add(primaryPropertyName);
             }
-            else
+
+            string json = Serialize(objectToSerialize, fieldsList);
+
+            return json;
+        }
+
+        private string Serialize(object objectToSerialize, IList<string> jsonFields = null)
+        {
+            var serializer = new JsonSerializer
             {
-                json = Serialize(objectToSerialize);
+                DateFormatString = DateTimeIso8601Format
+            };
+
+            JToken jToken = JToken.FromObject(objectToSerialize, serializer);
+
+            if (jsonFields != null)
+            {
+                jToken = jToken.RemoveEmptyChildrenAndFilterByFields(jsonFields);
             }
 
-            return json;
+            string jTokenResult = jToken.ToString();
+
+            return jTokenResult;
         }
 
-        private string Serialize(object objectToSerialize, Dictionary<string, bool> fieldsToSerialize)
+        private IList<string> GetPropertiesIntoList(string fields)
         {
-            DynamicContractResolver dynamicContractResolver = new DynamicContractResolver(fieldsToSerialize);
+            IList<string> properties = fields.ToLowerInvariant()
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .Distinct()
+                .ToList();
 
-            string json = JsonConvert.SerializeObject(objectToSerialize,
-                Formatting.Indented,
-                new JsonSerializerSettings { ContractResolver = dynamicContractResolver, DateFormatString = DateTimeIso8601Format });
-
-            return json;
-        }
-
-        private string Serialize(object objectToSerialize)
-        {
-            string json = JsonConvert.SerializeObject(objectToSerialize, 
-                Formatting.Indented, 
-                new JsonSerializerSettings() {DateFormatString = DateTimeIso8601Format });
-
-            return json;
+            return properties;
         }
     }
 }

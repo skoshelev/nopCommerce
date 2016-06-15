@@ -122,7 +122,9 @@
     <Compile Include="ModelBinderTests\DummyObjects\DummyModel.cs" />
     <Compile Include="ModelBinderTests\JsonModelBinderTests_BindModel.cs" />
     <Compile Include="ModelBinderTests\ParametersModelBinderTests_BindModel.cs" />
-    <Compile Include="SerializersTests\DummyObjects\DummyObject.cs" />
+    <Compile Include="SerializersTests\DummyObjects\DummyObjectWithComplexTypes.cs" />
+    <Compile Include="SerializersTests\DummyObjects\SerializableDummyObjectWithComplexTypes.cs" />
+    <Compile Include="SerializersTests\DummyObjects\DummyObjectWithSimpleTypes.cs" />
     <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_ProductIdParameter.cs" />
     <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_UpdatedParameters.cs" />
     <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_CreatedParameters.cs" />
@@ -132,7 +134,7 @@
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_DefaultParameters.cs" />
     <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_DefaultParameters.cs" />
     <Compile Include="ServicesTests\Categories\GetCategoryById\CategoryApiServiceTests_GetCategoryById.cs" />
-    <Compile Include="SerializersTests\DummyObjects\DummySerializableObject.cs" />
+    <Compile Include="SerializersTests\DummyObjects\SerializableDummyObjectWithSimpleTypes.cs" />
     <Compile Include="SerializersTests\JsonFieldsSerializerTests_Serialize.cs" />
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_CreatedParameters.cs" />
     <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_IdsParameter.cs" />
@@ -148,7 +150,7 @@
     <Compile Include="ServicesTests\Orders\GetOrdersCount\OrderApiServiceTests_GetOrdersCount_DefaultParameters.cs" />
     <Compile Include="ServicesTests\Orders\GetOrdersCount\OrderApiServiceTests_GetOrdersCount_CustomerIdParameter.cs" />
     <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_StatusesParameters.cs" />
-    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappingById\ProductCategoryMappingsApiServiceTests_GetOrderById.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappingById\ProductCategoryMappingsApiServiceTests_GetById.cs" />
     <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_IdsParameter.cs" />
     <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_DefaultParameters.cs" />
     <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_CreatedParameters.cs" />
@@ -156,6 +158,13 @@
     <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_PageParameter.cs" />
     <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_SinceIdParameter.cs" />
     <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_CustomerIdParameter.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappingsCount\ProductCategoryMappingsApiServiceTests_GetMappingsCount.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_PageParameter.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_LimitParameter.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_DefaultParameters.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_CategoryIdParameter.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_ProductIdParameter.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_SinceIdParameter.cs" />
     <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_VendorNameParameter.cs" />
     <Compile Include="ServicesTests\Products\GetProductById\ProductApiServiceTests_GetProductById.cs" />
     <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_CategoryIdParameter.cs" />
@@ -173,6 +182,11 @@
     <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_UpdatedParameters.cs" />
     <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_CreatedParameters.cs" />
     <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_DefaultParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_PageParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_LimitParameter.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_UpdatedParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_CustomerIdParameter.cs" />
     <Compile Include="ServicesTests\StateProvinceApiServiceTests.cs" />
     <Compile Include="ServicesTests\Customers\CustomerApiServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

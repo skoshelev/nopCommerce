@@ -78,7 +78,6 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
             var categories = _categoryApiService.GetCategories(limit: expectedLimit);
 
             // Assert
-            // Not Empty assert is a good practice when you assert something about collection. Because you can get a false positive if the collection is empty.
             CollectionAssert.IsEmpty(categories);
         }
 
@@ -92,7 +91,6 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategories
             var categories = _categoryApiService.GetCategories(limit: expectedLimit);
 
             // Assert
-            // Not Empty assert is a good practice when you assert something about collection. Because you can get a false positive if the collection is empty.
             CollectionAssert.IsEmpty(categories);
         }
     }

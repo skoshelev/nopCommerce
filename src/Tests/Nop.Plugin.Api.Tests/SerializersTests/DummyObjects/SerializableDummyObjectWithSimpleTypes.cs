@@ -5,15 +5,15 @@ using Nop.Plugin.Api.DTOs.Customers;
 
 namespace Nop.Plugin.Api.Tests.SerializersTests.DummyObjects
 {
-    public class DummySerializableObject : ISerializableObject
+    public class SerializableDummyObjectWithSimpleTypes : ISerializableObject
     {
-        public DummySerializableObject()
+        public SerializableDummyObjectWithSimpleTypes()
         {
-            Items = new List<DummyObject>();    
+            Items = new List<DummyObjectWithSimpleTypes>();    
         }
 
         [JsonProperty("primary_property")]
-        public IList<DummyObject> Items { get; set; }
+        public IList<DummyObjectWithSimpleTypes> Items { get; set; }
 
         public string GetPrimaryPropertyName()
         {
@@ -22,7 +22,7 @@ namespace Nop.Plugin.Api.Tests.SerializersTests.DummyObjects
 
         public Type GetPrimaryPropertyType()
         {
-            return typeof (DummyObject);
+            return typeof (DummyObjectWithSimpleTypes);
         }
     }
 }

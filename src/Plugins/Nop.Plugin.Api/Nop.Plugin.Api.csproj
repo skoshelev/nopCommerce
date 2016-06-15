@@ -129,6 +129,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\JTokenHelper.cs" />
     <Compile Include="Attributes\DtoAttribute.cs" />
     <Compile Include="Delta\Delta.cs" />
     <Compile Include="DTOs\Errors\ErrorsRootObject.cs" />
