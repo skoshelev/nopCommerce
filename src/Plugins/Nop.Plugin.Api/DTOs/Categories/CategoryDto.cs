@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using Nop.Plugin.Api.Attributes;
@@ -16,7 +15,7 @@ namespace Nop.Plugin.Api.DTOs.Categories
         private ImageDto _imageDto;
         private List<int> _storeIds;
         private List<int> _discountIds;
-        private List<int> _aclIds;
+        private List<int> _roleIds;
 
         [JsonProperty("id")]
         public string Id { get; set; }
@@ -130,21 +129,21 @@ namespace Nop.Plugin.Api.DTOs.Categories
         [JsonProperty("updated_on_utc")]
         public DateTime? UpdatedOnUtc { get; set; }
 
-        [JsonProperty("acl_ids")]
-        public List<int> AclIds
+        [JsonProperty("role_ids")]
+        public List<int> RoleIds
         {
             get
             {
-                if (_aclIds == null)
+                if (_roleIds == null)
                 {
-                    _aclIds = new List<int>();
+                    _roleIds = new List<int>();
                 }
 
-                return _aclIds;
+                return _roleIds;
             }
             set
             {
-                _aclIds = value;
+                _roleIds = value;
             }
         }
 

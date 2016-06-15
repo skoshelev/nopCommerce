@@ -52,7 +52,7 @@ namespace Nop.Plugin.Api.Plugin
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Edit", "Edit");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.BackToList", "Back To List");
 
-            this.AddOrUpdatePluginLocaleResource("Api.Categories.Fields.Id.Required", "Id is required");
+            this.AddOrUpdatePluginLocaleResource("Api.Categories.Fields.Id.Invalid", "Id is invalid");
             this.AddOrUpdatePluginLocaleResource("Api.InvalidPropertyType", "Invalid Property Type");
             this.AddOrUpdatePluginLocaleResource("Api.InvalidType", "Invalid {0} type");
             this.AddOrUpdatePluginLocaleResource("Api.InvalidRequest", "Invalid request");

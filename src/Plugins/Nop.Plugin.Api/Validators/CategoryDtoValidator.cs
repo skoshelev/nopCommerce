@@ -21,10 +21,13 @@ namespace Nop.Plugin.Api.Validators
             }
             else if (httpMethod.Equals("put", StringComparison.InvariantCultureIgnoreCase))
             {
+                int parsedId = 0;
+
                 RuleFor(x => x.Id)
                         .NotNull()
                         .NotEmpty()
-                        .WithMessage(_localizationService.GetResource("Admin.Catalog.Categories.Fields.Id.Required"));
+                        .Must(id => int.TryParse(id, out parsedId) && parsedId > 0)
+                        .WithMessage(_localizationService.GetResource("Admin.Catalog.Categories.Fields.Id.Invalid"));
 
                 if (passedPropertyValuePaires.ContainsKey("name"))
                 {

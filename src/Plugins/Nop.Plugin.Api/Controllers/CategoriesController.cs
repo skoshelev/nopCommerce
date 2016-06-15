@@ -218,9 +218,13 @@ namespace Nop.Plugin.Api.Controllers
                     }
                 }
 
-                // Here we handle the check if the file passed is actual image and if the image is valid according to the 
-                // restrictions set in the administration.
-                ValidatePictureBiteArray(imageBytes, mimeType);
+                // We need to check because some of the validation above may have render the models state invalid.
+                if (ModelState.IsValid)
+                {
+                    // Here we handle the check if the file passed is actual image and if the image is valid according to the 
+                    // restrictions set in the administration.
+                    ValidatePictureBiteArray(imageBytes, mimeType);
+                }
             }
 
             // Here we display the errors if the validation has failed at some point.
@@ -249,11 +253,11 @@ namespace Nop.Plugin.Api.Controllers
             _categoryService.InsertCategory(newCategory);
 
             // TODO: Localization
-            List<int> aclIds = null;
+            List<int> roleIds = null;
 
-            if (categoryDelta.Dto.AclIds.Count > 0)
+            if (categoryDelta.Dto.RoleIds.Count > 0)
             {
-                aclIds = MapAclToCategory(newCategory, categoryDelta.Dto);
+                roleIds = MapRoleToCategory(newCategory, categoryDelta.Dto);
             }
 
             List<int> discountIds = null;
@@ -278,15 +282,7 @@ namespace Nop.Plugin.Api.Controllers
             _urlRecordService.SaveSlug(newCategory, newCategoryDto.SeName, 0);
 
             // Here we prepare the resulted dto image.
-            if (insertedPicture != null)
-            {
-                // We don't use the image from the passed dto directly 
-                // because the picture may be passed with src and the result should only include the base64 format.
-                newCategoryDto.Image = new ImageDto()
-                {
-                    Attachment = Convert.ToBase64String(insertedPicture.PictureBinary)
-                };
-            }
+            PrepareImageDto(insertedPicture, newCategoryDto);
             
             if (storeIds != null)
             {
@@ -298,9 +294,9 @@ namespace Nop.Plugin.Api.Controllers
                 newCategoryDto.DiscountIds = discountIds;
             }
 
-            if (aclIds != null)
+            if (roleIds != null)
             {
-                newCategoryDto.AclIds = aclIds;
+                newCategoryDto.RoleIds = roleIds;
             }
 
             _customerActivityService.InsertActivity("AddNewCategory",
@@ -315,15 +311,99 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult(json);
         }
 
-        [HttpDelete]
-        public IHttpActionResult DeleteCategory(int categoryId)
+        [HttpPut]
+        [ResponseType(typeof(CategoriesRootObject))]
+        public IHttpActionResult UpdateCategory(
+            [ModelBinder(typeof (JsonModelBinder<CategoryDto>))] Delta<CategoryDto> categoryDelta)
         {
-            if (categoryId <= 0)
+            bool imageAttachmentSet = ModelState.IsValid && !string.IsNullOrEmpty(categoryDelta.Dto.Image.Attachment);
+
+            byte[] imageBytes = null;
+            string mimeType = string.Empty;
+            Picture insertedPicture = null;
+
+            // Here we don't need to validate if both (src and attachment) are set. 
+            // In this case it doesn't matter because we will use only the attachment.
+
+            if (imageAttachmentSet)
+            {
+                ValidateAttachmentFormat(categoryDelta.Dto.Image.Attachment);
+
+                if (ModelState.IsValid)
+                {
+                    ConvertAttachmentToByteArray(categoryDelta.Dto.Image.Attachment, ref imageBytes,
+                        ref mimeType);
+                }
+
+                // We need to check because some of the validation above may have render the models state invalid.
+                if (ModelState.IsValid)
+                {
+                    // Here we handle the check if the file passed is actual image and if the image is valid according to the 
+                    // restrictions set in the administration.
+                    ValidatePictureBiteArray(imageBytes, mimeType);
+                }
+            }
+
+            // Here we display the errors if the validation has failed at some point.
+            if (!ModelState.IsValid)
+            {
+                return Error();
+            }
+
+            // We do not need to validate the category id, because this will happen in the model binder using the dto validator.
+            int updateCategoryId = int.Parse(categoryDelta.Dto.Id);
+
+            Category categoryEntityToUpdate = _categoryService.GetCategoryById(updateCategoryId);
+            categoryDelta.Merge(categoryEntityToUpdate);
+
+            // We need this because the image dto does not present in the category entity so the merge method won't detect it.
+            // TODO: should we support the src attribute on update? 
+            // According to shopify examples, they support only attachment - https://help.shopify.com/api/reference/customcollection#update
+            Picture updatedPicture = null;
+            if (categoryDelta.ChangedProperties.ContainsKey("Attachment"))
+            {
+                updatedPicture = UpdatePicture(categoryEntityToUpdate, imageAttachmentSet, imageBytes, mimeType);
+            }
+
+            List<int> storeIds = MapCategoryToStores(categoryEntityToUpdate, categoryDelta.Dto);
+         
+            List<int> roleIds = MapRoleToCategory(categoryEntityToUpdate, categoryDelta.Dto);
+
+            List<int> discountIds = ApplyDiscountsToCategory(categoryEntityToUpdate, categoryDelta.Dto);
+
+            _categoryService.UpdateCategory(categoryEntityToUpdate);
+
+            _customerActivityService.InsertActivity("UpdateCategory",
+                _localizationService.GetResource("ActivityLog.UpdateCategory"), categoryEntityToUpdate.Name);
+
+            CategoryDto updatedCategoryDto = categoryEntityToUpdate.ToDto();
+
+            PrepareImageDto(updatedPicture, updatedCategoryDto);
+            
+            updatedCategoryDto.StoreIds = storeIds;
+            
+            updatedCategoryDto.RoleIds = roleIds;
+
+            updatedCategoryDto.DiscountIds = discountIds;
+
+            var categoriesRootObject = new CategoriesRootObject();
+
+            categoriesRootObject.Categories.Add(updatedCategoryDto);
+
+            var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, string.Empty);
+
+            return new RawJsonActionResult(json);
+        }
+
+        [HttpDelete]
+        public IHttpActionResult DeleteCategory(int id)
+        {
+            if (id <= 0)
             {
                 return NotFound();
             }
 
-            Category categoryToDelete = _categoryService.GetCategoryById(categoryId);
+            Category categoryToDelete = _categoryService.GetCategoryById(id);
 
             if (categoryToDelete == null)
             {
@@ -424,6 +504,53 @@ namespace Nop.Plugin.Api.Controllers
             }
         }
 
+        private Picture UpdatePicture(Category categoryEntityToUpdate, bool imageAttachmentSet, byte[] imageBytes, string mimeType)
+        {
+            Picture updatedPicture = null;
+            Picture currentCategoryPicture = _pictureService.GetPictureById(categoryEntityToUpdate.PictureId);
+
+            // when there is a picture set for the category
+            if (currentCategoryPicture != null)
+            {
+                _pictureService.DeletePicture(currentCategoryPicture);
+
+                // When the image attachment is null or empty.
+                if (!imageAttachmentSet)
+                {
+                    categoryEntityToUpdate.PictureId = 0;
+                }
+                else
+                {
+                    updatedPicture = _pictureService.InsertPicture(imageBytes, mimeType, string.Empty);
+                    categoryEntityToUpdate.PictureId = updatedPicture.Id;
+                }
+            }
+            // when there isn't a picture set for the category
+            else
+            {
+                if (imageBytes != null)
+                {
+                    updatedPicture = _pictureService.InsertPicture(imageBytes, mimeType, string.Empty);
+                    categoryEntityToUpdate.PictureId = updatedPicture.Id;
+                }
+            }
+
+            return updatedPicture;
+        }
+
+        private void PrepareImageDto(Picture picture, CategoryDto newCategoryDto)
+        {
+            if (picture != null)
+            {
+                // We don't use the image from the passed dto directly 
+                // because the picture may be passed with src and the result should only include the base64 format.
+                newCategoryDto.Image = new ImageDto()
+                {
+                    Attachment = Convert.ToBase64String(picture.PictureBinary)
+                };
+            }
+        }
+
         private List<int> MapCategoryToStores(Category category, CategoryDto dto)
         {
             IList<StoreMapping> existingStoreMappings = _storeMappingService.GetStoreMappings(category);
@@ -439,8 +566,9 @@ namespace Nop.Plugin.Api.Controllers
                     if (existingStoreMappings.Count(sm => sm.StoreId == store.Id) == 0)
                     {
                         _storeMappingService.InsertStoreMapping(category, store.Id);
-                        storeIds.Add(store.Id);
                     }
+
+                    storeIds.Add(store.Id);
                 }
                 else
                 {
@@ -463,47 +591,50 @@ namespace Nop.Plugin.Api.Controllers
         private List<int> ApplyDiscountsToCategory(Category category, CategoryDto dto)
         {
             var discountIds = new List<int>();
-            HashSet<int> uniqueDiscounts = new HashSet<int>(dto.DiscountIds);
+            Dictionary<int, bool> appliedDiscounts = category.AppliedDiscounts.ToDictionary(x => x.Id, x => true);
+
+            // Ensure that there won't be repeating discounts.
+            var uniqueDiscounts = new HashSet<int>(dto.DiscountIds);
 
             var allDiscounts = _discountService.GetAllDiscounts(DiscountType.AssignedToCategories, showHidden: true);
 
             foreach (var discount in allDiscounts)
             {
-                if (dto.DiscountIds != null && uniqueDiscounts.Contains(discount.Id))
+                // Apply the discount
+                if (!appliedDiscounts.ContainsKey(discount.Id) && uniqueDiscounts.Contains(discount.Id))
                 {
                     category.AppliedDiscounts.Add(discount);
                     discountIds.Add(discount.Id);
+                }
+                // Remove the discount
+                else if(appliedDiscounts.ContainsKey(discount.Id) && !uniqueDiscounts.Contains(discount.Id))
+                {
+                    category.AppliedDiscounts.Remove(discount);
+                    discountIds.Remove(discount.Id);
                 }
             }
 
             return discountIds;
         }
 
-        private List<int> MapAclToCategory(Category category, CategoryDto dto)
+        private List<int> MapRoleToCategory(Category category, CategoryDto dto)
         {
-            var aclIds = new List<int>();
+            var roleIds = new List<int>();
 
             IList<AclRecord> existingAclRecords = _aclService.GetAclRecords(category);
             IList<CustomerRole> allCustomerRoles = _customerService.GetAllCustomerRoles(true);
             
             foreach (var customerRole in allCustomerRoles)
             {
-                if (dto.AclIds.Contains(customerRole.Id))
+                if (dto.RoleIds.Contains(customerRole.Id))
                 {
                     //new role
                     if (existingAclRecords.Count(acl => acl.CustomerRoleId == customerRole.Id) == 0)
                     {
-                        // Need to create it here so we can obtain its id after it is inserted.
-                        var aclRecord = new AclRecord
-                        {
-                            EntityId = category.Id,
-                            EntityName = typeof(Category).Name,
-                            CustomerRoleId = customerRole.Id
-                        };
-
-                        _aclService.InsertAclRecord(aclRecord);
-                        aclIds.Add(aclRecord.Id);
+                        _aclService.InsertAclRecord(category, customerRole.Id);
                     }
+
+                    roleIds.Add(customerRole.Id);
                 }
                 else
                 {
@@ -513,14 +644,14 @@ namespace Nop.Plugin.Api.Controllers
                     if (aclRecordToDelete != null)
                     {
                         _aclService.DeleteAclRecord(aclRecordToDelete);
-                        aclIds.Add(aclRecordToDelete.Id);
+                        roleIds.Remove(customerRole.Id);
                     }
                 }
             }
 
-            category.SubjectToAcl = aclIds.Count > 0;
+            category.SubjectToAcl = roleIds.Count > 0;
 
-            return aclIds;
+            return roleIds;
         }
 
         private IHttpActionResult Error()

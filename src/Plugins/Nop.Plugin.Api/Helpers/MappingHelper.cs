@@ -50,9 +50,11 @@ namespace Nop.Plugin.Api.Helpers
         {
             TypeConverter converter = TypeDescriptor.GetConverter(objectProperty.PropertyType);
 
-            if (converter.IsValid(propertyValue))
+            string propertyValueAsString = propertyValue.ToString();
+
+            if (converter.IsValid(propertyValueAsString))
             {
-                var convertedValue = converter.ConvertFrom(propertyValue);
+                var convertedValue = converter.ConvertFrom(propertyValueAsString);
 
                 objectProperty.SetValue(objectToBeUpdated, convertedValue);
             }

@@ -13,6 +13,8 @@ namespace Nop.Plugin.Api.Delta
         // dictionary every time an request is made.
         private IMappingHelper _mappingHelper = EngineContext.Current.Resolve<IMappingHelper>();
 
+        public Dictionary<string, object> ChangedProperties { get; set; }
+
         public TDto Dto
         {
             get
@@ -30,11 +32,13 @@ namespace Nop.Plugin.Api.Delta
         public Delta(Dictionary<string, object> passedJsonPropertyValuePaires)
         {
             FillDto(passedJsonPropertyValuePaires);
+            ChangedProperties = _mappingHelper.GetChangedProperties();
         }
 
         public void Merge<TEntity>(TEntity entity)
         {
-            Dictionary<string, object> changedProperties = _mappingHelper.GetChangedProperties();
+            // here we work with object copy so we can perform the below optimization without affecting the actual object.
+            Dictionary<string, object> changedProperties = ChangedProperties;
 
             var entityProperties = entity.GetType().GetProperties();
 
