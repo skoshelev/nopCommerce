@@ -320,7 +320,6 @@ namespace Nop.Plugin.Api.Controllers
 
             byte[] imageBytes = null;
             string mimeType = string.Empty;
-            Picture insertedPicture = null;
 
             // Here we don't need to validate if both (src and attachment) are set. 
             // In this case it doesn't matter because we will use only the attachment.
