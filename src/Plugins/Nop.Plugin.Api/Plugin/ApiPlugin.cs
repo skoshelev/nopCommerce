@@ -56,6 +56,7 @@ namespace Nop.Plugin.Api.Plugin
             this.AddOrUpdatePluginLocaleResource("Api.InvalidPropertyType", "Invalid Property Type");
             this.AddOrUpdatePluginLocaleResource("Api.InvalidType", "Invalid {0} type");
             this.AddOrUpdatePluginLocaleResource("Api.InvalidRequest", "Invalid request");
+            this.AddOrUpdatePluginLocaleResource("Api.InvalidRootProperty", "Invalid root property");
             this.AddOrUpdatePluginLocaleResource("Api.NoJsonProvided", "No Json provided");
             this.AddOrUpdatePluginLocaleResource("Api.InvalidJsonFormat", "Json format is invalid");
             this.AddOrUpdatePluginLocaleResource("Api.Category.InvalidImageAttachmentFormat", "Invalid image attachment base64 format");
