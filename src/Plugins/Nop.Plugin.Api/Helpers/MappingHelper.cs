@@ -8,17 +8,17 @@ using Newtonsoft.Json;
 
 namespace Nop.Plugin.Api.Helpers
 {
-    // TODO: Think of moving the mapping helper in teh delta folder
+    // TODO: Think of moving the mapping helper in the delta folder
     public class MappingHelper : IMappingHelper
     {
-        private Dictionary<string, object> _propertyAccessorsPairs = new Dictionary<string, object>(); 
+        private Dictionary<string, object> _propertyValuePairs = new Dictionary<string, object>(); 
 
-        public void SetValues(Dictionary<string, object> jsonPropertiesValuePairsPassed, object objectToBeUpdated, Type propertyType)
+        public void SetValues(Dictionary<string, object> jsonPropertiesValuePairsPassed, object objectToBeUpdated, Type objectToBeUpdatedType)
         {
             // TODO: handle the special case where some field was not set before, but values are send for it.
             if (objectToBeUpdated == null) return;
 
-            var objectProperties = propertyType.GetProperties();
+            var objectProperties = objectToBeUpdatedType.GetProperties();
             var jsonNamePropertyPaires = new Dictionary<string, PropertyInfo>();
 
             foreach (var property in objectProperties)
@@ -42,7 +42,7 @@ namespace Nop.Plugin.Api.Helpers
 
         public Dictionary<string, object> GetChangedProperties()
         {
-            return _propertyAccessorsPairs;
+            return _propertyValuePairs;
         }
 
         // Used in the SetValue private method and also in the Delta.
@@ -124,7 +124,7 @@ namespace Nop.Plugin.Api.Helpers
                     objectProperty.SetValue(objectToBeUpdated, propertyValue);
                 }
 
-                _propertyAccessorsPairs.Add(objectProperty.Name, propertyValue);
+                _propertyValuePairs.Add(objectProperty.Name, propertyValue);
             }
         }
 

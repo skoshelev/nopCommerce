@@ -8,10 +8,7 @@ namespace Nop.Plugin.Api.Delta
     {
         private TDto _dto;
 
-        // TODO: think of creating an instance of the mapping helper instead of using the same instance every time.
-        // I think this will be nessecary because of the changed properties dictionary, so we can work with different 
-        // dictionary every time an request is made.
-        private IMappingHelper _mappingHelper = EngineContext.Current.Resolve<IMappingHelper>();
+        private readonly IMappingHelper _mappingHelper = new MappingHelper();
 
         public Dictionary<string, object> ChangedProperties { get; set; }
 
@@ -26,7 +23,6 @@ namespace Nop.Plugin.Api.Delta
 
                 return _dto;
             }
-            set { _dto = value; }
         }
         
         public Delta(Dictionary<string, object> passedJsonPropertyValuePaires)
