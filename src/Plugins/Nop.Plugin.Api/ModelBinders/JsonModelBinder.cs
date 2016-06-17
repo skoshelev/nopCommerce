@@ -74,7 +74,7 @@ namespace Nop.Plugin.Api.ModelBinders
 
                 if (bindingContext.ModelState.IsValid)
                 {
-                    modelBined = BindModel(actionContext, bindingContext, propertyValuePaires, dtoAttribute);
+                    modelBined = BindModel(actionContext, bindingContext, propertyValuePaires, dtoAttribute.ValidatorType);
                 }
             }
 
@@ -216,13 +216,11 @@ namespace Nop.Plugin.Api.ModelBinders
         }
 
         private bool BindModel(HttpActionContext actionContext, ModelBindingContext bindingContext,
-            Dictionary<string, object> propertyValuePaires, DtoAttribute dtoAttribute)
+            Dictionary<string, object> propertyValuePaires, Type validatorType)
         {
             bool modelBined = false;
 
             Delta<T> delta = new Delta<T>(propertyValuePaires);
-
-            Type validatorType = dtoAttribute.ValidatorType;
 
             // We need to pass the http method because there are some differences between the validation rules for post and put
             // We need to pass the propertyValuePaires from the passed json because there are cases in which one field is required
@@ -248,11 +246,37 @@ namespace Nop.Plugin.Api.ModelBinders
             }
             else
             {
+                HandleAttributeInvokers(delta.Dto, bindingContext);
+
                 bindingContext.Model = delta;
                 modelBined = true;
             }
 
             return modelBined;
+        }
+
+        private void HandleAttributeInvokers(T dto, ModelBindingContext bindingContext)
+        {
+            var dtoProperties = dto.GetType().GetProperties();
+
+            foreach (var property in dtoProperties)
+            {
+                BaseAttributeInvoker invokerAttribute = property.PropertyType.GetCustomAttribute(typeof (BaseAttributeInvoker)) as BaseAttributeInvoker;
+
+                if (invokerAttribute != null)
+                {
+                    invokerAttribute.Invoke(property.GetValue(dto));
+                    Dictionary<string, string> errors = invokerAttribute.GetErrors();
+
+                    if (errors.Count > 0)
+                    {
+                        foreach (var error in errors)
+                        {
+                            bindingContext.ModelState.AddModelError(error.Key, error.Value);
+                        }
+                    }
+                }
+            }
         }
 
         private void InsertIdInTheValuePaires(Dictionary<string, object> propertyValuePaires, object requestId)

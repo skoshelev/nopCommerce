@@ -129,6 +129,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\BaseAttributeInvoker.cs" />
+    <Compile Include="Attributes\ImageAttribute.cs" />
     <Compile Include="Helpers\JTokenHelper.cs" />
     <Compile Include="Attributes\DtoAttribute.cs" />
     <Compile Include="Delta\Delta.cs" />

@@ -183,50 +183,6 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(CategoriesRootObject))]
         public IHttpActionResult CreateCategory([ModelBinder(typeof(JsonModelBinder<CategoryDto>))] Delta<CategoryDto> categoryDelta)
         {
-            bool imageSrcSet = ModelState.IsValid && !string.IsNullOrEmpty(categoryDelta.Dto.Image.Src);
-            bool imageAttachmentSet = ModelState.IsValid && !string.IsNullOrEmpty(categoryDelta.Dto.Image.Attachment);
-            
-            byte[] imageBytes = null;
-            string mimeType = string.Empty;
-            Picture insertedPicture = null;
-
-            if (imageSrcSet || imageAttachmentSet)
-            {
-                // Validation of the image object
-
-                // We can't have both set.
-                CheckIfBothImageSourceTypesAreSet(imageSrcSet, imageAttachmentSet);
-                
-                // Here we ensure that the validation to this point has passed 
-                // and try to download the image or convert base64 format to byte array
-                // depending on which format is passed. In both cases we should get a byte array and mime type.
-                if (ModelState.IsValid)
-                {
-                    if (imageSrcSet)
-                    {
-                        DownloadFromSrc(categoryDelta.Dto.Image.Src, ref imageBytes, ref mimeType);
-                    }
-                    else if (imageAttachmentSet)
-                    {
-                        ValidateAttachmentFormat(categoryDelta.Dto.Image.Attachment);
-
-                        if (ModelState.IsValid)
-                        {
-                            ConvertAttachmentToByteArray(categoryDelta.Dto.Image.Attachment, ref imageBytes,
-                                ref mimeType);
-                        }
-                    }
-                }
-
-                // We need to check because some of the validation above may have render the models state invalid.
-                if (ModelState.IsValid)
-                {
-                    // Here we handle the check if the file passed is actual image and if the image is valid according to the 
-                    // restrictions set in the administration.
-                    ValidatePictureBiteArray(imageBytes, mimeType);
-                }
-            }
-
             // Here we display the errors if the validation has failed at some point.
             if (!ModelState.IsValid)
             {
@@ -234,11 +190,13 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             //If the validation has passed the categoryDelta object won't be null for sure so we don't need to check for this.
-            
+
+            Picture insertedPicture = null;
+
             // We need to insert the picture before the category so we can obtain the picture id and map it to the category.
-            if (imageBytes != null)
+            if (categoryDelta.Dto.Image.Binary != null)
             {
-                insertedPicture = _pictureService.InsertPicture(imageBytes, mimeType, string.Empty);
+                insertedPicture = _pictureService.InsertPicture(categoryDelta.Dto.Image.Binary, categoryDelta.Dto.Image.MimeType, string.Empty);
             }
 
             // Inserting the new category
@@ -316,33 +274,6 @@ namespace Nop.Plugin.Api.Controllers
         public IHttpActionResult UpdateCategory(
             [ModelBinder(typeof (JsonModelBinder<CategoryDto>))] Delta<CategoryDto> categoryDelta)
         {
-            bool imageAttachmentSet = ModelState.IsValid && !string.IsNullOrEmpty(categoryDelta.Dto.Image.Attachment);
-
-            byte[] imageBytes = null;
-            string mimeType = string.Empty;
-
-            // Here we don't need to validate if both (src and attachment) are set. 
-            // In this case it doesn't matter because we will use only the attachment.
-
-            if (imageAttachmentSet)
-            {
-                ValidateAttachmentFormat(categoryDelta.Dto.Image.Attachment);
-
-                if (ModelState.IsValid)
-                {
-                    ConvertAttachmentToByteArray(categoryDelta.Dto.Image.Attachment, ref imageBytes,
-                        ref mimeType);
-                }
-
-                // We need to check because some of the validation above may have render the models state invalid.
-                if (ModelState.IsValid)
-                {
-                    // Here we handle the check if the file passed is actual image and if the image is valid according to the 
-                    // restrictions set in the administration.
-                    ValidatePictureBiteArray(imageBytes, mimeType);
-                }
-            }
-
             // Here we display the errors if the validation has failed at some point.
             if (!ModelState.IsValid)
             {
@@ -354,15 +285,8 @@ namespace Nop.Plugin.Api.Controllers
 
             Category categoryEntityToUpdate = _categoryService.GetCategoryById(updateCategoryId);
             categoryDelta.Merge(categoryEntityToUpdate);
-
-            // We need this because the image dto does not present in the category entity so the merge method won't detect it.
-            // TODO: should we support the src attribute on update? 
-            // According to shopify examples, they support only attachment - https://help.shopify.com/api/reference/customcollection#update
-            Picture updatedPicture = null;
-            if (categoryDelta.ChangedProperties.ContainsKey("Attachment"))
-            {
-                updatedPicture = UpdatePicture(categoryEntityToUpdate, imageAttachmentSet, imageBytes, mimeType);
-            }
+     
+            Picture updatedPicture = UpdatePicture(categoryEntityToUpdate, categoryDelta.Dto.Image.Binary, categoryDelta.Dto.Image.MimeType);
 
             List<int> storeIds = MapCategoryToStores(categoryEntityToUpdate, categoryDelta.Dto);
          
@@ -413,97 +337,8 @@ namespace Nop.Plugin.Api.Controllers
 
             return new RawJsonActionResult("{}");
         }
-        
-        private void ValidatePictureBiteArray(byte[] imageBytes, string mimeType)
-        {
-            if (imageBytes != null)
-            {
-                try
-                {
-                    imageBytes = _pictureService.ValidatePicture(imageBytes, mimeType);
-                }
-                catch (Exception ex)
-                {
-                    var key = string.Format(_localizationService.GetResource("Api.InvalidType"), "image");
-                    string message = string.Format("{0} - {1}", _localizationService.GetResource("Api.Category.InvalidImageSrcType"), ex.Message);
 
-                    ModelState.AddModelError(key, message);
-                }
-            }
-            
-            if (imageBytes == null)
-            {
-                var key = string.Format(_localizationService.GetResource("Api.InvalidType"), "image");
-                string message = _localizationService.GetResource("Api.Category.InvalidImageSrcType");
-
-                ModelState.AddModelError(key, message);
-            }
-        }
-
-        private void ConvertAttachmentToByteArray(string attachment, ref byte[] imageBytes, ref string mimeType)
-        {
-            imageBytes = Convert.FromBase64String(attachment);
-            mimeType = GetMimeTypeFromByteArray(imageBytes);
-        }
-
-        private void DownloadFromSrc(string imageSrc, ref byte[] imageBytes, ref string mimeType)
-        {
-            var key = string.Format(_localizationService.GetResource("Api.InvalidType"), "image");
-            // TODO: discuss if we need our own web client so we can set a custom tmeout - this one's timeout is 100 sec.
-            var client = new WebClient();
-
-            try
-            {
-                imageBytes = client.DownloadData(imageSrc);
-                // This needs to be after the downloadData is called from client, otherwise there won't be any response headers.
-                mimeType = client.ResponseHeaders["content-type"];
-
-                if (imageBytes == null)
-                {
-                    ModelState.AddModelError(key, _localizationService.GetResource("Api.Category.InvalidImageSrc"));
-                }
-            }
-            catch (Exception ex)
-            {
-                string message = string.Format("{0} - {1}",
-                    _localizationService.GetResource("Api.Category.InvalidImageSrc"), ex.Message);
-
-                ModelState.AddModelError(key, message);
-            }
-        }
-
-        private static string GetMimeTypeFromByteArray(byte[] imageBytes)
-        {
-            MemoryStream stream = new MemoryStream(imageBytes, 0, imageBytes.Length);
-            Image image = Image.FromStream(stream, true);
-            ImageFormat format = image.RawFormat;
-            ImageCodecInfo codec = ImageCodecInfo.GetImageDecoders().First(c => c.FormatID == format.Guid);
-            return codec.MimeType;
-        }
-
-        private void CheckIfBothImageSourceTypesAreSet(bool imageSrcSet, bool imageAttachmentSet)
-        {
-            if (imageSrcSet &&
-                imageAttachmentSet)
-            {
-                var key = string.Format(_localizationService.GetResource("Api.InvalidType"), "image");
-                ModelState.AddModelError(key, _localizationService.GetResource("Api.Category.ImageSrcAndAttachmentSet"));
-            }
-        }
-
-        private void ValidateAttachmentFormat(string attachment)
-        {
-            Regex validBase64Pattern =
-                new Regex("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$");
-            bool isMatch = validBase64Pattern.IsMatch(attachment);
-            if (!isMatch)
-            {
-                var key = string.Format(_localizationService.GetResource("Api.InvalidType"), "image");
-                ModelState.AddModelError(key, _localizationService.GetResource("Api.Category.InvalidImageAttachmentFormat"));
-            }
-        }
-
-        private Picture UpdatePicture(Category categoryEntityToUpdate, bool imageAttachmentSet, byte[] imageBytes, string mimeType)
+        private Picture UpdatePicture(Category categoryEntityToUpdate, byte[] imageBytes, string mimeType)
         {
             Picture updatedPicture = null;
             Picture currentCategoryPicture = _pictureService.GetPictureById(categoryEntityToUpdate.PictureId);
@@ -514,7 +349,7 @@ namespace Nop.Plugin.Api.Controllers
                 _pictureService.DeletePicture(currentCategoryPicture);
 
                 // When the image attachment is null or empty.
-                if (!imageAttachmentSet)
+                if (imageBytes == null)
                 {
                     categoryEntityToUpdate.PictureId = 0;
                 }
