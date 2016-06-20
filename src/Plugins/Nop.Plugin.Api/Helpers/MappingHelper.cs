@@ -8,17 +8,17 @@ using Newtonsoft.Json;
 
 namespace Nop.Plugin.Api.Helpers
 {
-    // TODO: Think of moving the mapping helper in the delta folder
+    // TODO: Think of moving the mapping helper in teh delta folder
     public class MappingHelper : IMappingHelper
     {
-        private Dictionary<string, object> _propertyValuePairs = new Dictionary<string, object>(); 
+        private Dictionary<string, object> _changedPropertyValuePairs = new Dictionary<string, object>(); 
 
-        public void SetValues(Dictionary<string, object> jsonPropertiesValuePairsPassed, object objectToBeUpdated, Type objectToBeUpdatedType)
+        public void SetValues(Dictionary<string, object> jsonPropertiesValuePairsPassed, object objectToBeUpdated, Type propertyType)
         {
             // TODO: handle the special case where some field was not set before, but values are send for it.
             if (objectToBeUpdated == null) return;
 
-            var objectProperties = objectToBeUpdatedType.GetProperties();
+            var objectProperties = propertyType.GetProperties();
             var jsonNamePropertyPaires = new Dictionary<string, PropertyInfo>();
 
             foreach (var property in objectProperties)
@@ -42,7 +42,7 @@ namespace Nop.Plugin.Api.Helpers
 
         public Dictionary<string, object> GetChangedProperties()
         {
-            return _propertyValuePairs;
+            return _changedPropertyValuePairs;
         }
 
         // Used in the SetValue private method and also in the Delta.
@@ -124,7 +124,15 @@ namespace Nop.Plugin.Api.Helpers
                     objectProperty.SetValue(objectToBeUpdated, propertyValue);
                 }
 
-                _propertyValuePairs.Add(objectProperty.Name, propertyValue);
+                string key = string.Format("{0}.{1}", objectProperty.PropertyType.Name, objectProperty.Name);
+                if (_changedPropertyValuePairs.ContainsKey(key))
+                {
+                    _changedPropertyValuePairs[key] = propertyValue;
+                }
+                else
+                {
+                    _changedPropertyValuePairs.Add(key, propertyValue);
+                }
             }
         }
 
