@@ -46,7 +46,7 @@ namespace Nop.Plugin.Api.Helpers
         }
 
         // Used in the SetValue private method and also in the Delta.
-        public void ConverAndSetValueIfValid(object objectToBeUpdated, PropertyInfo objectProperty, object propertyValue)
+        public void ConvertAndSetValueIfValid(object objectToBeUpdated, PropertyInfo objectProperty, object propertyValue)
         {
             TypeConverter converter = TypeDescriptor.GetConverter(objectProperty.PropertyType);
 
@@ -116,7 +116,7 @@ namespace Nop.Plugin.Api.Helpers
                 }
                 else if (propertyValue is IConvertible)
                 {
-                    ConverAndSetValueIfValid(objectToBeUpdated, objectProperty, propertyValue);
+                    ConvertAndSetValueIfValid(objectToBeUpdated, objectProperty, propertyValue);
                     // otherwise ignore the passed value.
                 }
                 else

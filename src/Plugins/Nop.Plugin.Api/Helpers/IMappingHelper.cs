@@ -8,6 +8,6 @@ namespace Nop.Plugin.Api.Helpers
     {
         void SetValues(Dictionary<string, object> jsonPropertiesValuePairsPassed, object objectToBeUpdated, Type objectToBeUpdatedType);
         Dictionary<string, object> GetChangedProperties();
-        void ConverAndSetValueIfValid(object objectToBeUpdated, PropertyInfo objectProperty, object propertyValue);
+        void ConvertAndSetValueIfValid(object objectToBeUpdated, PropertyInfo objectProperty, object propertyValue);
     }
 }

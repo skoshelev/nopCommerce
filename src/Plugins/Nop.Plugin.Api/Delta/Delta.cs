@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Nop.Core.Infrastructure;
 using Nop.Plugin.Api.Helpers;
 
 namespace Nop.Plugin.Api.Delta
@@ -34,7 +33,7 @@ namespace Nop.Plugin.Api.Delta
         public void Merge<TEntity>(TEntity entity)
         {
             // here we work with object copy so we can perform the below optimization without affecting the actual object.
-            Dictionary<string, object> changedProperties = ChangedProperties;
+            var changedProperties = new Dictionary<string, object>(ChangedProperties);
 
             var entityProperties = entity.GetType().GetProperties();
 
@@ -45,7 +44,7 @@ namespace Nop.Plugin.Api.Delta
                 if (changedProperties.ContainsKey(property.Name))
                 {
                     // The value-type validation will happen in the model binder so here we expect the values to correspond to the types.
-                    _mappingHelper.ConverAndSetValueIfValid(entity, property, changedProperties[property.Name]);
+                    _mappingHelper.ConvertAndSetValueIfValid(entity, property, changedProperties[property.Name]);
                   
                     // The remove operation is O(1) complexity. We are doing this for optimization purposes. 
                     // So we can break the loop if there are no more changed properties.
