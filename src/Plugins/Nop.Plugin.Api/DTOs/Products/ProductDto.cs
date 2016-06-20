@@ -1,16 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.Attributes;
+using Nop.Plugin.Api.DTOs.BaseDtoTypes;
 using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.Products
 {
     [Dto(ValidatorType = typeof(ProductDtoValidator), RootProperty = "product")]
     [JsonObject(Title = "products")]
-    public class ProductDto
+    public class ProductDto : IStoreMappable, IRoleMappable, IDiscountsSupported
     {
         private int? _productTypeId;
+        private List<int> _storeIds;
+        private List<int> _discountIds;
+        private List<int> _roleIds;
 
         /// <summary>
         /// Gets or sets the product id
@@ -468,6 +473,60 @@ namespace Nop.Plugin.Api.DTOs.Products
                     this._productTypeId = (int)productTypeId;
                 }
                 else this._productTypeId = null;
+            }
+        }
+
+        [JsonProperty("role_ids")]
+        public List<int> RoleIds
+        {
+            get
+            {
+                if (_roleIds == null)
+                {
+                    _roleIds = new List<int>();
+                }
+
+                return _roleIds;
+            }
+            set
+            {
+                _roleIds = value;
+            }
+        }
+
+        [JsonProperty("discount_ids")]
+        public List<int> DiscountIds
+        {
+            get
+            {
+                if (_discountIds == null)
+                {
+                    _discountIds = new List<int>();
+                }
+
+                return _discountIds;
+            }
+            set
+            {
+                _discountIds = value;
+            }
+        }
+
+        [JsonProperty("store_ids")]
+        public List<int> StoreIds
+        {
+            get
+            {
+                if (_storeIds == null)
+                {
+                    _storeIds = new List<int>();
+                }
+
+                return _storeIds;
+            }
+            set
+            {
+                _storeIds = value;
             }
         }
 

@@ -4,10 +4,10 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Discounts;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Delta;
-using Nop.Plugin.Api.DTOs.Categories;
 using Nop.Plugin.Api.DTOs.Products;
 using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.JSON.ActionResults;
@@ -17,9 +17,13 @@ using Nop.Plugin.Api.Models.ProductsParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 using Nop.Services.Catalog;
+using Nop.Services.Customers;
+using Nop.Services.Discounts;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
+using Nop.Services.Security;
 using Nop.Services.Seo;
+using Nop.Services.Stores;
 
 namespace Nop.Plugin.Api.Controllers
 {
@@ -31,7 +35,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IUrlRecordService _urlRecordService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ILocalizationService _localizationService;
-        private readonly IFactory<Product> _factory; 
+        private readonly IFactory<Product> _factory;
 
         public ProductsController(IProductApiService productApiService, 
                                   IJsonFieldsSerializer jsonFieldsSerializer,
@@ -39,7 +43,12 @@ namespace Nop.Plugin.Api.Controllers
                                   IUrlRecordService urlRecordService, 
                                   ICustomerActivityService customerActivityService, 
                                   ILocalizationService localizationService,
-                                  IFactory<Product> factory) : base(jsonFieldsSerializer)
+                                  IFactory<Product> factory, 
+                                  IAclService aclService, 
+                                  IStoreMappingService storeMappingService, 
+                                  IStoreService storeService, 
+                                  ICustomerService customerService, 
+                                  IDiscountService discountService) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService)
         {
             _productApiService = productApiService;
             _factory = factory;
@@ -159,12 +168,50 @@ namespace Nop.Plugin.Api.Controllers
 
             _productService.InsertProduct(newProduct);
 
+            // We need to insert the entity first so we can have its id in order to map it to anything.
+            // TODO: Localization
+            List<int> roleIds = null;
+
+            if (productDelta.Dto.RoleIds.Count > 0)
+            {
+                roleIds = MapRoleToEntity(newProduct, productDelta.Dto);
+            }
+
+            List<int> discountIds = null;
+
+            if (productDelta.Dto.DiscountIds.Count > 0)
+            {
+                discountIds = ApplyDiscountsToEntity(newProduct, productDelta.Dto, DiscountType.AssignedToSkus);
+            }
+
+            List<int> storeIds = null;
+
+            if (productDelta.Dto.StoreIds.Count > 0)
+            {
+                storeIds = MapEntityToStores(newProduct, productDelta.Dto);
+            }
+
             // Preparing the result dto of the new product
             ProductDto newProductDto = newProduct.ToDto();
 
             //search engine name
             newProductDto.SeName = newProduct.ValidateSeName(newProductDto.SeName, newProduct.Name, true);
             _urlRecordService.SaveSlug(newProduct, newProductDto.SeName, 0);
+
+            if (storeIds != null)
+            {
+                newProductDto.StoreIds = storeIds;
+            }
+
+            if (discountIds != null)
+            {
+                newProductDto.DiscountIds = discountIds;
+            }
+
+            if (roleIds != null)
+            {
+                newProductDto.RoleIds = roleIds;
+            }
 
             _customerActivityService.InsertActivity("AddNewProduct",
                 _localizationService.GetResource("ActivityLog.AddNewProduct"), newProduct.Name);
