@@ -42,14 +42,15 @@ namespace Nop.Plugin.Api.Delta
             foreach (var property in entityProperties)
             {
                 // its a changed property so we need to update its value.
-                if (changedProperties.ContainsKey(property.Name))
+                string changedPropertyKey = string.Format("{0}.{1}", property.PropertyType.Name, property.Name);
+                if (changedProperties.ContainsKey(changedPropertyKey))
                 {
                     // The value-type validation will happen in the model binder so here we expect the values to correspond to the types.
-                    _mappingHelper.ConverAndSetValueIfValid(entity, property, changedProperties[property.Name]);
+                    _mappingHelper.ConverAndSetValueIfValid(entity, property, changedProperties[changedPropertyKey]);
                   
                     // The remove operation is O(1) complexity. We are doing this for optimization purposes. 
                     // So we can break the loop if there are no more changed properties.
-                    changedProperties.Remove(property.Name);
+                    changedProperties.Remove(changedPropertyKey);
                 }
 
                 if (changedProperties.Count == 0) break;
