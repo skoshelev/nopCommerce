@@ -1,9 +1,12 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Nop.Core.Domain.Catalog;
+using Nop.Plugin.Api.Attributes;
+using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.Products
 {
+    [Dto(ValidatorType = typeof(ProductDtoValidator), RootProperty = "product")]
     [JsonObject(Title = "products")]
     public class ProductDto
     {
@@ -13,7 +16,7 @@ namespace Nop.Plugin.Api.DTOs.Products
         /// Gets or sets the product id
         /// </summary>
         [JsonProperty("id")]
-        public int? Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the values indicating whether this product is visible in catalog or search results.
@@ -467,5 +470,8 @@ namespace Nop.Plugin.Api.DTOs.Products
                 else this._productTypeId = null;
             }
         }
+
+        [JsonProperty("se_name")]
+        public string SeName { get; set; }
     }
 }

@@ -43,14 +43,13 @@ using Nop.Services.Stores;
 namespace Nop.Plugin.Api.Controllers
 {
     [BearerTokenAuthorize]
-    public class CategoriesController : ApiController
+    public class CategoriesApiController : BaseApiController
     {
         private readonly ICategoryApiService _categoryApiService;
         private readonly ICategoryService _categoryService;
         private readonly IUrlRecordService _urlRecordService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ILocalizationService _localizationService;
-        private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
         private readonly IPictureService _pictureService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IStoreService _storeService;
@@ -59,7 +58,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly ICustomerService _customerService;
         private readonly IFactory<Category> _factory; 
 
-        public CategoriesController(ICategoryApiService categoryApiService,
+        public CategoriesApiController(ICategoryApiService categoryApiService,
             IJsonFieldsSerializer jsonFieldsSerializer,
             ICategoryService categoryService,
             IUrlRecordService urlRecordService,
@@ -71,10 +70,9 @@ namespace Nop.Plugin.Api.Controllers
             IDiscountService discountService,
             IAclService aclService,
             ICustomerService customerService,
-            IFactory<Category> factory)
+            IFactory<Category> factory) : base(jsonFieldsSerializer)
         {
             _categoryApiService = categoryApiService;
-            _jsonFieldsSerializer = jsonFieldsSerializer;
             _categoryService = categoryService;
             _urlRecordService = urlRecordService;
             _customerActivityService = customerActivityService;
@@ -486,34 +484,6 @@ namespace Nop.Plugin.Api.Controllers
             category.SubjectToAcl = roleIds.Count > 0;
 
             return roleIds;
-        }
-
-        private IHttpActionResult Error()
-        {
-            var errors = new Dictionary<string, List<string>>();
-
-            foreach (var item in ModelState)
-            {
-                var errorMessages = item.Value.Errors.Select(x => x.ErrorMessage);
-
-                if (errors.ContainsKey(item.Key))
-                {
-                    errors[item.Key].AddRange(errorMessages);
-                }
-                else
-                {
-                    errors.Add(item.Key, errorMessages.ToList());
-                }
-            }
-
-            var errorsRootObject = new ErrorsRootObject()
-            {
-                Errors = errors
-            };
-
-            var errorsJson = _jsonFieldsSerializer.Serialize(errorsRootObject, null);
-
-            return new ErrorActionResult(errorsJson);
         }
     }
 }

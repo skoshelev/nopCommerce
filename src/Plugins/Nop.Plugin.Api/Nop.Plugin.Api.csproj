@@ -131,6 +131,8 @@
   <ItemGroup>
     <Compile Include="Attributes\BaseAttributeInvoker.cs" />
     <Compile Include="Attributes\ImageAttribute.cs" />
+    <Compile Include="Controllers\BaseApiController.cs" />
+    <Compile Include="Factories\ProductFactory.cs" />
     <Compile Include="Helpers\JTokenHelper.cs" />
     <Compile Include="Attributes\DtoAttribute.cs" />
     <Compile Include="Delta\Delta.cs" />
@@ -256,6 +258,7 @@
     <Compile Include="Swagger\ChangeParameterTypeOperationFilter.cs" />
     <Compile Include="Swagger\ExcludeEnpointsDocumentFilter.cs" />
     <Compile Include="Swagger\RemovePrefixesOperationFilter.cs" />
+    <Compile Include="Validators\ProductDtoValidator.cs" />
     <Compile Include="Validators\CategoryDtoValidator.cs" />
     <Compile Include="Validators\ClientValidator.cs" />
     <Compile Include="Validators\FieldsValidator.cs" />
