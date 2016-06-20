@@ -123,16 +123,8 @@ namespace Nop.Plugin.Api.Helpers
                 {
                     objectProperty.SetValue(objectToBeUpdated, propertyValue);
                 }
-
-                string key = string.Format("{0}.{1}", objectProperty.PropertyType.Name, objectProperty.Name);
-                if (_changedPropertyValuePairs.ContainsKey(key))
-                {
-                    _changedPropertyValuePairs[key] = propertyValue;
-                }
-                else
-                {
-                    _changedPropertyValuePairs.Add(key, propertyValue);
-                }
+                
+                _changedPropertyValuePairs.Add(objectProperty.Name, propertyValue);
             }
         }
 
