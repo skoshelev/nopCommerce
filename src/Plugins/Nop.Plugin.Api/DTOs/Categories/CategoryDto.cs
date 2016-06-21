@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using Nop.Plugin.Api.Attributes;
-using Nop.Plugin.Api.DTOs.BaseDtoTypes;
 using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.Validators;
 
@@ -11,7 +10,7 @@ namespace Nop.Plugin.Api.DTOs.Categories
 {
     [Dto(ValidatorType = typeof(CategoryDtoValidator), RootProperty="category")]
     [JsonObject(Title = "categories")]
-    public class CategoryDto : IStoreMappable, IRoleMappable, IDiscountsSupported
+    public class CategoryDto
     {
         private ImageDto _imageDto;
         private List<int> _storeIds;

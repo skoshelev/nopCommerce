@@ -39,6 +39,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ILocalizationService _localizationService;
         private readonly IPictureService _pictureService;
+        private readonly IManufacturerService _manufacturerService;
         private readonly IFactory<Product> _factory;
 
         public ProductsController(IProductApiService productApiService, 
@@ -53,11 +54,13 @@ namespace Nop.Plugin.Api.Controllers
                                   IStoreService storeService, 
                                   ICustomerService customerService, 
                                   IDiscountService discountService, 
-                                  IPictureService pictureService) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService)
+                                  IPictureService pictureService, 
+                                  IManufacturerService manufacturerService) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService)
         {
             _productApiService = productApiService;
             _factory = factory;
             _pictureService = pictureService;
+            _manufacturerService = manufacturerService;
             _urlRecordService = urlRecordService;
             _customerActivityService = customerActivityService;
             _localizationService = localizationService;
@@ -195,28 +198,39 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             _productService.UpdateProduct(newProduct);
-            
+
             // We need to insert the entity first so we can have its id in order to map it to anything.
             // TODO: Localization
+
+            List<int> manufacturerIds = null;
+
+            if (productDelta.Dto.ManufacturerIds.Count > 0)
+            {
+                manufacturerIds = MapProductToManufacturers(newProduct.Id, productDelta.Dto.ManufacturerIds);
+            }
+
             List<int> roleIds = null;
 
             if (productDelta.Dto.RoleIds.Count > 0)
             {
-                roleIds = MapRoleToEntity(newProduct, productDelta.Dto);
+                roleIds = MapRoleToEntity(newProduct, productDelta.Dto.RoleIds);
             }
 
             List<int> discountIds = null;
 
             if (productDelta.Dto.DiscountIds.Count > 0)
             {
-                discountIds = ApplyDiscountsToEntity(newProduct, productDelta.Dto, DiscountType.AssignedToSkus);
+                discountIds = ApplyDiscountsToEntity(newProduct, productDelta.Dto.DiscountIds, DiscountType.AssignedToSkus);
+                // Unable to add it to the method above (like it is implemented for the stores and roles) 
+                // because the property is not part of any specific interface
+                newProduct.HasDiscountsApplied = discountIds.Count > 0;
             }
 
             List<int> storeIds = null;
 
             if (productDelta.Dto.StoreIds.Count > 0)
             {
-                storeIds = MapEntityToStores(newProduct, productDelta.Dto);
+                storeIds = MapEntityToStores(newProduct, productDelta.Dto.StoreIds);
             }
 
             // Preparing the result dto of the new product
@@ -227,6 +241,11 @@ namespace Nop.Plugin.Api.Controllers
             //search engine name
             newProductDto.SeName = newProduct.ValidateSeName(newProductDto.SeName, newProduct.Name, true);
             _urlRecordService.SaveSlug(newProduct, newProductDto.SeName, 0);
+
+            if (manufacturerIds != null)
+            {
+                newProductDto.ManufacturerIds = manufacturerIds;
+            }
 
             if (storeIds != null)
             {
@@ -267,6 +286,57 @@ namespace Nop.Plugin.Api.Controllers
                     newProductDto.Images.Add(imageDto);
                 }
             }
+        }
+
+        private List<int> MapProductToManufacturers(int entityId, List<int> passedManufacturerIds)
+        {
+            // Needed so we can easily check if an id is valid.
+            Dictionary<int, bool> allManufacturers = _manufacturerService.GetAllManufacturers()
+                .ToDictionary(manufacturer => manufacturer.Id, manufacturer => true);
+
+            var mappedManufacturers = new List<int>();
+            IList<ProductManufacturer> manufacturerMappingsForCurrentProduct = _manufacturerService.GetProductManufacturersByProductId(entityId);
+
+            Dictionary<int, ProductManufacturer> existingMappings =
+                manufacturerMappingsForCurrentProduct.ToDictionary(mapping => mapping.ManufacturerId, manufacturer => manufacturer);
+
+            foreach (var manufacturerId in passedManufacturerIds)
+            {
+                if (!allManufacturers.ContainsKey(manufacturerId))
+                {
+                    // invalid manufacturer id so we just ignore it.
+                    continue;
+                }
+
+                if (!existingMappings.ContainsKey(manufacturerId))
+                {
+                    // new mapping
+                    var productManufacturer = new ProductManufacturer
+                    {
+                        ProductId = entityId,
+                        ManufacturerId = manufacturerId
+                    };
+
+                    _manufacturerService.InsertProductManufacturer(productManufacturer);
+
+                    mappedManufacturers.Add(manufacturerId);
+                }
+                else
+                {
+                    // Remove existing mapping to get the subset of all existing mappings that are not contained in the passed manufacturer ids.
+                    existingMappings.Remove(manufacturerId);
+                }       
+            }
+
+            // Remove all the existingMappings that have left. This will be used in the update to delete mappings.
+            foreach (var mapping in existingMappings)
+            {
+                // This will delete the mapping not the manufacturer itself. The method name is little confusing.
+                _manufacturerService.DeleteProductManufacturer(mapping.Value);
+                mappedManufacturers.Add(mapping.Key);
+            }
+
+            return mappedManufacturers;
         }
     }
 }

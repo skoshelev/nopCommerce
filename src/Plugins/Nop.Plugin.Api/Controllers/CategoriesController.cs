@@ -193,21 +193,21 @@ namespace Nop.Plugin.Api.Controllers
 
             if (categoryDelta.Dto.RoleIds.Count > 0)
             {
-                roleIds = MapRoleToEntity(newCategory, categoryDelta.Dto);
+                roleIds = MapRoleToEntity(newCategory, categoryDelta.Dto.RoleIds);
             }
 
             List<int> discountIds = null;
 
             if (categoryDelta.Dto.DiscountIds.Count > 0)
             {
-                discountIds = ApplyDiscountsToEntity(newCategory, categoryDelta.Dto, DiscountType.AssignedToCategories);
+                discountIds = ApplyDiscountsToEntity(newCategory, categoryDelta.Dto.DiscountIds, DiscountType.AssignedToCategories);
             }
 
             List<int> storeIds = null;
 
             if (categoryDelta.Dto.StoreIds.Count > 0)
             {
-                storeIds = MapEntityToStores(newCategory, categoryDelta.Dto);
+                storeIds = MapEntityToStores(newCategory, categoryDelta.Dto.StoreIds);
             }
 
             // Preparing the result dto of the new category
@@ -271,11 +271,11 @@ namespace Nop.Plugin.Api.Controllers
      
             Picture updatedPicture = UpdatePicture(categoryEntityToUpdate, categoryDelta.Dto.Image.Binary, categoryDelta.Dto.Image.MimeType);
 
-            List<int> storeIds = MapEntityToStores(categoryEntityToUpdate, categoryDelta.Dto);
+            List<int> storeIds = MapEntityToStores(categoryEntityToUpdate, categoryDelta.Dto.StoreIds);
          
-            List<int> roleIds = MapRoleToEntity(categoryEntityToUpdate, categoryDelta.Dto);
+            List<int> roleIds = MapRoleToEntity(categoryEntityToUpdate, categoryDelta.Dto.RoleIds);
 
-            List<int> discountIds = ApplyDiscountsToEntity(categoryEntityToUpdate, categoryDelta.Dto, DiscountType.AssignedToCategories);
+            List<int> discountIds = ApplyDiscountsToEntity(categoryEntityToUpdate, categoryDelta.Dto.DiscountIds, DiscountType.AssignedToCategories);
 
             _categoryService.UpdateCategory(categoryEntityToUpdate);
 

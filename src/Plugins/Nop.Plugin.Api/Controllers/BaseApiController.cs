@@ -8,8 +8,6 @@ using Nop.Core.Domain.Discounts;
 using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Stores;
-using Nop.Plugin.Api.DTOs.BaseDtoTypes;
-using Nop.Plugin.Api.DTOs.Categories;
 using Nop.Plugin.Api.DTOs.Errors;
 using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.JSON.ActionResults;
@@ -73,8 +71,7 @@ namespace Nop.Plugin.Api.Controllers
             return new ErrorActionResult(errorsJson);
         }
 
-        protected List<int> MapRoleToEntity<TEntity, TDto>(TEntity entity, TDto dto) where TEntity: BaseEntity, IAclSupported
-                                                                                       where TDto: IRoleMappable
+        protected List<int> MapRoleToEntity<TEntity>(TEntity entity, List<int> passedRoleIds) where TEntity: BaseEntity, IAclSupported
         {
             var roleIds = new List<int>();
 
@@ -83,7 +80,7 @@ namespace Nop.Plugin.Api.Controllers
 
             foreach (var customerRole in allCustomerRoles)
             {
-                if (dto.RoleIds.Contains(customerRole.Id))
+                if (passedRoleIds.Contains(customerRole.Id))
                 {
                     //new role
                     if (existingAclRecords.Count(acl => acl.CustomerRoleId == customerRole.Id) == 0)
@@ -111,8 +108,7 @@ namespace Nop.Plugin.Api.Controllers
             return roleIds;
         }
 
-        protected List<int> MapEntityToStores<TEntity, TDto>(TEntity entity, TDto dto) where TEntity : BaseEntity, IStoreMappingSupported
-                                                                                       where TDto : IStoreMappable
+        protected List<int> MapEntityToStores<TEntity>(TEntity entity, List<int> passedStoreIds) where TEntity : BaseEntity, IStoreMappingSupported
         {
             IList<StoreMapping> existingStoreMappings = _storeMappingService.GetStoreMappings(entity);
             IList<Store> allStores = _storeService.GetAllStores();
@@ -121,7 +117,7 @@ namespace Nop.Plugin.Api.Controllers
 
             foreach (var store in allStores)
             {
-                if (dto.StoreIds.Contains(store.Id))
+                if (passedStoreIds.Contains(store.Id))
                 {
                     //new store
                     if (existingStoreMappings.Count(sm => sm.StoreId == store.Id) == 0)
@@ -149,8 +145,7 @@ namespace Nop.Plugin.Api.Controllers
             return storeIds;
         }
 
-        protected List<int> ApplyDiscountsToEntity<TEntity, TDto>(TEntity entity, TDto dto, DiscountType discountType) where TEntity : BaseEntity
-                                                                                            where TDto : IDiscountsSupported
+        protected List<int> ApplyDiscountsToEntity<TEntity>(TEntity entity, List<int> passedDiscountIds, DiscountType discountType) where TEntity : BaseEntity
         {
             // Because there is no interface to ensure that the applied discounts property will be present in the entity we are doing the below logic in trust.
             var discountIds = new List<int>();
@@ -161,7 +156,7 @@ namespace Nop.Plugin.Api.Controllers
             Dictionary<int, bool> appliedDiscounts = appliedDiscountsProperty.ToDictionary(x => x.Id, x => true);
 
             // Ensure that there won't be repeating discounts.
-            var uniqueDiscounts = new HashSet<int>(dto.DiscountIds);
+            var uniqueDiscounts = new HashSet<int>(passedDiscountIds);
 
             var allDiscounts = _discountService.GetAllDiscounts(discountType, showHidden: true);
 

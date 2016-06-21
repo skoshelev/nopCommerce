@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.Attributes;
-using Nop.Plugin.Api.DTOs.BaseDtoTypes;
 using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.Validators;
 
@@ -11,12 +10,15 @@ namespace Nop.Plugin.Api.DTOs.Products
 {
     [Dto(ValidatorType = typeof(ProductDtoValidator), RootProperty = "product")]
     [JsonObject(Title = "products")]
-    public class ProductDto : IStoreMappable, IRoleMappable, IDiscountsSupported
+    public class ProductDto
     {
         private int? _productTypeId;
         private List<int> _storeIds;
         private List<int> _discountIds;
         private List<int> _roleIds;
+        private List<int> _manufacturerIds;
+        private List<int> _specificationAttributeIds;
+        private List<int> _productAttributeIds;
         private List<ImageDto> _images;
 
         /// <summary>
@@ -532,6 +534,60 @@ namespace Nop.Plugin.Api.DTOs.Products
             }
         }
 
+        [JsonProperty("manufacturer_ids")]
+        public List<int> ManufacturerIds
+        {
+            get
+            {
+                if (_manufacturerIds == null)
+                {
+                    _manufacturerIds = new List<int>();
+                }
+
+                return _manufacturerIds;
+            }
+            set
+            {
+                _manufacturerIds = value;
+            }
+        }
+
+        [JsonProperty("specification_attribute_ids")]
+        public List<int> SpecificationAttributeIds
+        {
+            get
+            {
+                if (_specificationAttributeIds == null)
+                {
+                    _specificationAttributeIds = new List<int>();
+                }
+
+                return _specificationAttributeIds;
+            }
+            set
+            {
+                _specificationAttributeIds = value;
+            }
+        }
+
+        [JsonProperty("product_attribute_ids")]
+        public List<int> ProductAttributeIds
+        {
+            get
+            {
+                if (_productAttributeIds == null)
+                {
+                    _productAttributeIds = new List<int>();
+                }
+
+                return _productAttributeIds;
+            }
+            set
+            {
+                _productAttributeIds = value;
+            }
+        }
+
         [ImageCollection]
         [JsonProperty("images")]
         public List<ImageDto> Images
@@ -550,6 +606,9 @@ namespace Nop.Plugin.Api.DTOs.Products
                 _images = value;
             }
         }
+
+        [JsonProperty("vendor_id")]
+        public string VendorId { get; set; }
 
         [JsonProperty("se_name")]
         public string SeName { get; set; }
