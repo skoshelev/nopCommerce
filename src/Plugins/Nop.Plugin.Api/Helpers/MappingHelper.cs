@@ -11,8 +11,6 @@ namespace Nop.Plugin.Api.Helpers
     // TODO: Think of moving the mapping helper in teh delta folder
     public class MappingHelper : IMappingHelper
     {
-        private Dictionary<string, object> _changedPropertyValuePairs = new Dictionary<string, object>(); 
-
         public void SetValues(Dictionary<string, object> jsonPropertiesValuePairsPassed, object objectToBeUpdated, Type propertyType)
         {
             // TODO: handle the special case where some field was not set before, but values are send for it.
@@ -39,12 +37,7 @@ namespace Nop.Plugin.Api.Helpers
                 SetValue(objectToBeUpdated, property, jsonNamePropertyPaires);
             }
         }
-
-        public Dictionary<string, object> GetChangedProperties()
-        {
-            return _changedPropertyValuePairs;
-        }
-
+        
         // Used in the SetValue private method and also in the Delta.
         public void ConvertAndSetValueIfValid(object objectToBeUpdated, PropertyInfo objectProperty, object propertyValue)
         {
@@ -123,8 +116,6 @@ namespace Nop.Plugin.Api.Helpers
                 {
                     objectProperty.SetValue(objectToBeUpdated, propertyValue);
                 }
-                
-                _changedPropertyValuePairs.Add(objectProperty.Name, propertyValue);
             }
         }
 

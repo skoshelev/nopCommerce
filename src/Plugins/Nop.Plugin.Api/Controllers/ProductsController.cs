@@ -5,9 +5,11 @@ using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Discounts;
+using Nop.Core.Domain.Media;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Delta;
+using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.DTOs.Products;
 using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.JSON.ActionResults;
@@ -21,6 +23,7 @@ using Nop.Services.Customers;
 using Nop.Services.Discounts;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
+using Nop.Services.Media;
 using Nop.Services.Security;
 using Nop.Services.Seo;
 using Nop.Services.Stores;
@@ -35,6 +38,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IUrlRecordService _urlRecordService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ILocalizationService _localizationService;
+        private readonly IPictureService _pictureService;
         private readonly IFactory<Product> _factory;
 
         public ProductsController(IProductApiService productApiService, 
@@ -48,10 +52,12 @@ namespace Nop.Plugin.Api.Controllers
                                   IStoreMappingService storeMappingService, 
                                   IStoreService storeService, 
                                   ICustomerService customerService, 
-                                  IDiscountService discountService) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService)
+                                  IDiscountService discountService, 
+                                  IPictureService pictureService) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService)
         {
             _productApiService = productApiService;
             _factory = factory;
+            _pictureService = pictureService;
             _urlRecordService = urlRecordService;
             _customerActivityService = customerActivityService;
             _localizationService = localizationService;
@@ -160,7 +166,17 @@ namespace Nop.Plugin.Api.Controllers
                 return Error();
             }
 
-            //handle pictures.
+            //If the validation has passed the productDelta object won't be null for sure so we don't need to check for this.
+
+            var insertedPictures = new List<Picture>();
+
+            // We need to insert the picture before the product so we can obtain the picture id and map it to the product.
+            foreach (var image in productDelta.Dto.Images)
+            {
+                Picture newPicture = _pictureService.InsertPicture(image.Binary, image.MimeType, string.Empty);
+
+                insertedPictures.Add(newPicture);
+            }
 
             // Inserting the new product
             Product newProduct = _factory.Initialize();
@@ -168,6 +184,18 @@ namespace Nop.Plugin.Api.Controllers
 
             _productService.InsertProduct(newProduct);
 
+            foreach (var picture in insertedPictures)
+            {
+                newProduct.ProductPictures.Add(new ProductPicture()
+                {
+                    PictureId = picture.Id,
+                    ProductId = newProduct.Id
+                    //TODO: display order
+                });
+            }
+
+            _productService.UpdateProduct(newProduct);
+            
             // We need to insert the entity first so we can have its id in order to map it to anything.
             // TODO: Localization
             List<int> roleIds = null;
@@ -193,6 +221,8 @@ namespace Nop.Plugin.Api.Controllers
 
             // Preparing the result dto of the new product
             ProductDto newProductDto = newProduct.ToDto();
+
+            PrepareProductImages(insertedPictures, newProductDto);
 
             //search engine name
             newProductDto.SeName = newProduct.ValidateSeName(newProductDto.SeName, newProduct.Name, true);
@@ -223,6 +253,20 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(productsRootObject, string.Empty);
 
             return new RawJsonActionResult(json);
+        }
+
+        private void PrepareProductImages(List<Picture> insertedPictures, ProductDto newProductDto)
+        {
+            // Here we prepare the resulted dto image.
+            foreach (var insertedPicture in insertedPictures)
+            {
+                ImageDto imageDto = PrepareImageDto(insertedPicture, newProductDto);
+
+                if (imageDto != null)
+                {
+                    newProductDto.Images.Add(imageDto);
+                }
+            }
         }
     }
 }

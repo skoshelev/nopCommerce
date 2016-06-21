@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.DTOs.BaseDtoTypes;
+using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.Products
@@ -16,6 +17,7 @@ namespace Nop.Plugin.Api.DTOs.Products
         private List<int> _storeIds;
         private List<int> _discountIds;
         private List<int> _roleIds;
+        private List<ImageDto> _images;
 
         /// <summary>
         /// Gets or sets the product id
@@ -527,6 +529,25 @@ namespace Nop.Plugin.Api.DTOs.Products
             set
             {
                 _storeIds = value;
+            }
+        }
+
+        [ImageCollection]
+        [JsonProperty("images")]
+        public List<ImageDto> Images
+        {
+            get
+            {
+                if (_images == null)
+                {
+                    _images = new List<ImageDto>();
+                }
+
+                return _images;
+            }
+            set
+            {
+                _images = value;
             }
         }
 

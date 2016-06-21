@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using Nop.Core;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Discounts;
+using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Stores;
 using Nop.Plugin.Api.DTOs.BaseDtoTypes;
+using Nop.Plugin.Api.DTOs.Categories;
 using Nop.Plugin.Api.DTOs.Errors;
+using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.Serializers;
 using Nop.Services.Customers;
@@ -178,6 +182,23 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             return discountIds;
+        }
+
+        protected ImageDto PrepareImageDto<TDto>(Picture picture, TDto dto)
+        {
+            ImageDto image = null;
+
+            if (picture != null)
+            {
+                // We don't use the image from the passed dto directly 
+                // because the picture may be passed with src and the result should only include the base64 format.
+                image = new ImageDto()
+                {
+                    Attachment = Convert.ToBase64String(picture.PictureBinary)
+                };
+            }
+
+            return image;
         }
     }
 }

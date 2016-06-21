@@ -218,7 +218,12 @@ namespace Nop.Plugin.Api.Controllers
             _urlRecordService.SaveSlug(newCategory, newCategoryDto.SeName, 0);
 
             // Here we prepare the resulted dto image.
-            PrepareImageDto(insertedPicture, newCategoryDto);
+            ImageDto imageDto = PrepareImageDto(insertedPicture, newCategoryDto);
+
+            if (imageDto != null)
+            {
+                newCategoryDto.Image = imageDto;
+            }
             
             if (storeIds != null)
             {
@@ -348,19 +353,6 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             return updatedPicture;
-        }
-
-        private void PrepareImageDto(Picture picture, CategoryDto newCategoryDto)
-        {
-            if (picture != null)
-            {
-                // We don't use the image from the passed dto directly 
-                // because the picture may be passed with src and the result should only include the base64 format.
-                newCategoryDto.Image = new ImageDto()
-                {
-                    Attachment = Convert.ToBase64String(picture.PictureBinary)
-                };
-            }
         }
     }
 }

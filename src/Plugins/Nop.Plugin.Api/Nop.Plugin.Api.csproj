@@ -131,6 +131,7 @@
   <ItemGroup>
     <Compile Include="Attributes\BaseAttributeInvoker.cs" />
     <Compile Include="Attributes\ImageAttribute.cs" />
+    <Compile Include="Attributes\ImageCollectionAttribute.cs" />
     <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="DTOs\BaseDtoTypes\IDiscountSupported.cs" />
     <Compile Include="DTOs\BaseDtoTypes\IRoleMappable.cs" />
