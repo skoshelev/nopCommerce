@@ -17,8 +17,6 @@ namespace Nop.Plugin.Api.DTOs.Products
         private List<int> _discountIds;
         private List<int> _roleIds;
         private List<int> _manufacturerIds;
-        private List<int> _specificationAttributeIds;
-        private List<int> _productAttributeIds;
         private List<ImageDto> _images;
 
         /// <summary>
@@ -551,43 +549,7 @@ namespace Nop.Plugin.Api.DTOs.Products
                 _manufacturerIds = value;
             }
         }
-
-        [JsonProperty("specification_attribute_ids")]
-        public List<int> SpecificationAttributeIds
-        {
-            get
-            {
-                if (_specificationAttributeIds == null)
-                {
-                    _specificationAttributeIds = new List<int>();
-                }
-
-                return _specificationAttributeIds;
-            }
-            set
-            {
-                _specificationAttributeIds = value;
-            }
-        }
-
-        [JsonProperty("product_attribute_ids")]
-        public List<int> ProductAttributeIds
-        {
-            get
-            {
-                if (_productAttributeIds == null)
-                {
-                    _productAttributeIds = new List<int>();
-                }
-
-                return _productAttributeIds;
-            }
-            set
-            {
-                _productAttributeIds = value;
-            }
-        }
-
+        
         [ImageCollection]
         [JsonProperty("images")]
         public List<ImageDto> Images
@@ -607,8 +569,9 @@ namespace Nop.Plugin.Api.DTOs.Products
             }
         }
 
+        [ValidateVendor]
         [JsonProperty("vendor_id")]
-        public string VendorId { get; set; }
+        public int? VendorId { get; set; }
 
         [JsonProperty("se_name")]
         public string SeName { get; set; }
