@@ -318,6 +318,9 @@ namespace Nop.Plugin.Api.Controllers
 
             _categoryService.DeleteCategory(categoryToDelete);
 
+            //activity log
+            _customerActivityService.InsertActivity("DeleteCategory", _localizationService.GetResource("ActivityLog.DeleteCategory"), categoryToDelete.Name);
+
             return new RawJsonActionResult("{}");
         }
 

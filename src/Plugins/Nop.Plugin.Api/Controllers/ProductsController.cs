@@ -293,7 +293,7 @@ namespace Nop.Plugin.Api.Controllers
             List<Picture> updatedPictures = UpdatePictures(productEntityToUpdate, productDelta.Dto.Images);
 
             MapTagsToProduct(productEntityToUpdate, productDelta.Dto.Tags);
-
+            
             List<int> manufacturerIds = MapProductToManufacturers(productEntityToUpdate.Id, productDelta.Dto.ManufacturerIds);
 
             List<int> storeIds = MapEntityToStores(productEntityToUpdate, productDelta.Dto.StoreIds);
@@ -328,6 +328,29 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(productsRootObject, string.Empty);
 
             return new RawJsonActionResult(json);
+        }
+
+        [HttpDelete]
+        public IHttpActionResult DeleteProduct(int id)
+        {
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            Product product = _productService.GetProductById(id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+            
+            _productService.DeleteProduct(product);
+
+            //activity log
+            _customerActivityService.InsertActivity("DeleteProduct", _localizationService.GetResource("ActivityLog.DeleteProduct"), product.Name);
+
+            return new RawJsonActionResult("{}");
         }
 
         private List<Picture> UpdatePictures(Product entityToUpdate, List<ImageDto> setPictures)
