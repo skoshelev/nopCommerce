@@ -173,15 +173,8 @@ namespace Nop.Plugin.Api.Controllers
 
             //If the validation has passed the productDelta object won't be null for sure so we don't need to check for this.
 
-            var insertedPictures = new List<Picture>();
-
             // We need to insert the picture before the product so we can obtain the picture id and map it to the product.
-            foreach (var image in productDelta.Dto.Images)
-            {
-                Picture newPicture = _pictureService.InsertPicture(image.Binary, image.MimeType, string.Empty);
-
-                insertedPictures.Add(newPicture);
-            }
+            List<Picture> insertedPictures = InsertPicturesFromDtoInDatabase(productDelta.Dto.Images); 
 
             // Inserting the new product
             Product newProduct = _factory.Initialize();
@@ -277,6 +270,102 @@ namespace Nop.Plugin.Api.Controllers
 
             return new RawJsonActionResult(json);
         }
+        
+        [HttpPut]
+        [ResponseType(typeof(ProductsRootObjectDto))]
+        public IHttpActionResult UpdateProduct([ModelBinder(typeof(JsonModelBinder<ProductDto>))] Delta<ProductDto> productDelta)
+        {
+            // Here we display the errors if the validation has failed at some point.
+            if (!ModelState.IsValid)
+            {
+                return Error();
+            }
+
+            //If the validation has passed the productDelta object won't be null for sure so we don't need to check for this.
+
+            // We do not need to validate the product id, because this will happen in the model binder using the dto validator.
+            int updateProductId = int.Parse(productDelta.Dto.Id);
+
+            Product productEntityToUpdate = _productService.GetProductById(updateProductId);
+
+            productDelta.Merge(productEntityToUpdate);
+
+            List<Picture> updatedPictures = UpdatePictures(productEntityToUpdate, productDelta.Dto.Images);
+
+            MapTagsToProduct(productEntityToUpdate, productDelta.Dto.Tags);
+
+            List<int> manufacturerIds = MapProductToManufacturers(productEntityToUpdate.Id, productDelta.Dto.ManufacturerIds);
+
+            List<int> storeIds = MapEntityToStores(productEntityToUpdate, productDelta.Dto.StoreIds);
+
+            List<int> roleIds = MapRoleToEntity(productEntityToUpdate, productDelta.Dto.RoleIds);
+
+            List<int> discountIds = ApplyDiscountsToEntity(productEntityToUpdate, productDelta.Dto.DiscountIds, DiscountType.AssignedToSkus);
+            productEntityToUpdate.HasDiscountsApplied = discountIds.Count > 0;
+
+            _productService.UpdateProduct(productEntityToUpdate);
+
+            _customerActivityService.InsertActivity("UpdateProduct",
+               _localizationService.GetResource("ActivityLog.UpdateProduct"), productEntityToUpdate.Name);
+
+            ProductDto newProductDto = productEntityToUpdate.ToDto();
+
+            PrepareProductImages(updatedPictures, newProductDto);
+
+            //search engine name
+            newProductDto.SeName = productEntityToUpdate.ValidateSeName(newProductDto.SeName, productEntityToUpdate.Name, true);
+            _urlRecordService.SaveSlug(productEntityToUpdate, newProductDto.SeName, 0);
+
+            newProductDto.ManufacturerIds = manufacturerIds;
+            newProductDto.StoreIds = storeIds;
+            newProductDto.RoleIds = roleIds;
+            newProductDto.DiscountIds = discountIds;
+
+            var productsRootObject = new ProductsRootObjectDto();
+
+            productsRootObject.Products.Add(newProductDto);
+
+            var json = _jsonFieldsSerializer.Serialize(productsRootObject, string.Empty);
+
+            return new RawJsonActionResult(json);
+        }
+
+        private List<Picture> UpdatePictures(Product entityToUpdate, List<ImageDto> setPictures)
+        {
+            List<Picture> productPictures = entityToUpdate.ProductPictures.Select(x => x.Picture).ToList();
+
+            foreach (var productPicture in productPictures)
+            {
+                _pictureService.DeletePicture(productPicture);
+            }
+
+            List<Picture> updatedPictures = InsertPicturesFromDtoInDatabase(setPictures);
+
+            foreach (var picture in updatedPictures)
+            {
+                entityToUpdate.ProductPictures.Add(new ProductPicture()
+                {
+                    ProductId = entityToUpdate.Id,
+                    PictureId = picture.Id
+                });
+            }
+            
+            return updatedPictures;
+        }
+
+        private List<Picture> InsertPicturesFromDtoInDatabase(List<ImageDto> setPictures)
+        {
+            var insertedPictures = new List<Picture>();
+
+            foreach (var image in setPictures)
+            {
+                Picture newPicture = _pictureService.InsertPicture(image.Binary, image.MimeType, string.Empty);
+
+                insertedPictures.Add(newPicture);
+            }
+
+            return insertedPictures;
+        }
 
         private void MapTagsToProduct(Product newProduct, List<string> passedTags)
         {
@@ -360,14 +449,14 @@ namespace Nop.Plugin.Api.Controllers
                     };
 
                     _manufacturerService.InsertProductManufacturer(productManufacturer);
-
-                    mappedManufacturers.Add(manufacturerId);
                 }
                 else
                 {
                     // Remove existing mapping to get the subset of all existing mappings that are not contained in the passed manufacturer ids.
                     existingMappings.Remove(manufacturerId);
-                }       
+                }
+
+                mappedManufacturers.Add(manufacturerId);
             }
 
             // Remove all the existingMappings that have left. This will be used in the update to delete mappings.
@@ -375,7 +464,7 @@ namespace Nop.Plugin.Api.Controllers
             {
                 // This will delete the mapping not the manufacturer itself. The method name is little confusing.
                 _manufacturerService.DeleteProductManufacturer(mapping.Value);
-                mappedManufacturers.Add(mapping.Key);
+                mappedManufacturers.Remove(mapping.Key);
             }
 
             return mappedManufacturers;
