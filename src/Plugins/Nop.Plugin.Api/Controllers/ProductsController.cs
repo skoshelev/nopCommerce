@@ -40,6 +40,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly ILocalizationService _localizationService;
         private readonly IPictureService _pictureService;
         private readonly IManufacturerService _manufacturerService;
+        private readonly IProductTagService _productTagService;
         private readonly IFactory<Product> _factory;
 
         public ProductsController(IProductApiService productApiService, 
@@ -55,12 +56,13 @@ namespace Nop.Plugin.Api.Controllers
                                   ICustomerService customerService, 
                                   IDiscountService discountService, 
                                   IPictureService pictureService, 
-                                  IManufacturerService manufacturerService) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService)
+                                  IManufacturerService manufacturerService, IProductTagService productTagService) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService)
         {
             _productApiService = productApiService;
             _factory = factory;
             _pictureService = pictureService;
             _manufacturerService = manufacturerService;
+            _productTagService = productTagService;
             _urlRecordService = urlRecordService;
             _customerActivityService = customerActivityService;
             _localizationService = localizationService;
@@ -197,6 +199,8 @@ namespace Nop.Plugin.Api.Controllers
                 });
             }
 
+            MapTagsToProduct(newProduct, productDelta.Dto.Tags);
+
             _productService.UpdateProduct(newProduct);
 
             // We need to insert the entity first so we can have its id in order to map it to anything.
@@ -272,6 +276,44 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(productsRootObject, string.Empty);
 
             return new RawJsonActionResult(json);
+        }
+
+        private void MapTagsToProduct(Product newProduct, List<string> passedTags)
+        {
+            Dictionary<string, ProductTag> currentProductTags = newProduct.ProductTags.ToDictionary(tag => tag.Name, tag => tag);
+            var uniqueProductTagsToAdd = new HashSet<string>();
+
+            foreach (var passedTag in passedTags)
+            {
+                // If tag already exists we remove it from the collection so we don't remove it later.
+                // This will result in a collection in which, at the end, we will have a collection 
+                // with all the tags that were mapped to the product, but currently are not part of the passed collection
+                // which means we should delete product-tag mapping
+                if (currentProductTags.ContainsKey(passedTag))
+                {
+                    currentProductTags.Remove(passedTag);
+                }
+                // new tag
+                else
+                {
+                    uniqueProductTagsToAdd.Add(passedTag);
+                }
+            }
+
+            // Delete all remaining tags.
+            foreach (var productTag in currentProductTags)
+            {
+                newProduct.ProductTags.Remove(productTag.Value);
+            }
+
+            // Add tags that should be mapped to product.
+            foreach (var productTag in uniqueProductTagsToAdd)
+            {
+                newProduct.ProductTags.Add(new ProductTag()
+                {
+                    Name = productTag
+                });
+            }
         }
 
         private void PrepareProductImages(List<Picture> insertedPictures, ProductDto newProductDto)

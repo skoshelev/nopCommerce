@@ -33,7 +33,7 @@ namespace Nop.Plugin.Api.Attributes
         {
             int vendorId = 0;
 
-            if (int.TryParse(instance.ToString(), out vendorId))
+            if (instance != null && int.TryParse(instance.ToString(), out vendorId))
             {
                 Vendor vendor = VendorService.GetVendorById(vendorId);
 

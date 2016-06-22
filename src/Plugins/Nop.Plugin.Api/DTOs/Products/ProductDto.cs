@@ -18,6 +18,7 @@ namespace Nop.Plugin.Api.DTOs.Products
         private List<int> _roleIds;
         private List<int> _manufacturerIds;
         private List<ImageDto> _images;
+        private List<string> _tags;
 
         /// <summary>
         /// Gets or sets the product id
@@ -566,6 +567,24 @@ namespace Nop.Plugin.Api.DTOs.Products
             set
             {
                 _images = value;
+            }
+        }
+
+        [JsonProperty("tags")]
+        public List<string> Tags
+        {
+            get
+            {
+                if (_tags == null)
+                {
+                    _tags = new List<string>();
+                }
+
+                return _tags;
+            }
+            set
+            {
+                _tags = value;
             }
         }
 
