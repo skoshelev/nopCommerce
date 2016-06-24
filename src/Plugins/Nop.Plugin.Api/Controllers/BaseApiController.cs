@@ -22,11 +22,11 @@ namespace Nop.Plugin.Api.Controllers
     public class BaseApiController : ApiController
     {
         protected readonly IJsonFieldsSerializer _jsonFieldsSerializer;
-        private readonly IAclService _aclService;
-        private readonly ICustomerService _customerService;
-        private readonly IStoreMappingService _storeMappingService;
-        private readonly IStoreService _storeService;
-        private readonly IDiscountService _discountService;
+        protected readonly IAclService _aclService;
+        protected readonly ICustomerService _customerService;
+        protected readonly IStoreMappingService _storeMappingService;
+        protected readonly IStoreService _storeService;
+        protected readonly IDiscountService _discountService;
 
         public BaseApiController(IJsonFieldsSerializer jsonFieldsSerializer, 
             IAclService aclService, 
