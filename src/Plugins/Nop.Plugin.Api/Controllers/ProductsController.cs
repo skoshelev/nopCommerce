@@ -93,7 +93,15 @@ namespace Nop.Plugin.Api.Controllers
                                                                         parameters.UpdatedAtMax, parameters.Limit, parameters.Page, parameters.SinceId, parameters.CategoryId,
                                                                         parameters.VendorName, parameters.PublishedStatus);
 
-            IList<ProductDto> productsAsDtos = allProducts.Select(x => x.ToDto()).ToList();
+            IList<ProductDto> productsAsDtos = allProducts.Select(product =>
+            {
+                ProductDto productDto = product.ToDto();
+
+                PrepareDtoAditionalProperties(product, productDto);
+
+                return productDto;
+
+            }).ToList();
 
             var productsRootObject = new ProductsRootObjectDto()
             {
@@ -151,6 +159,8 @@ namespace Nop.Plugin.Api.Controllers
             }
             
             ProductDto productDto = product.ToDto();
+
+            PrepareDtoAditionalProperties(product, productDto);
 
             var productsRootObject = new ProductsRootObjectDto();
 
@@ -353,6 +363,18 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult("{}");
         }
 
+        private void PrepareDtoAditionalProperties(Product product, ProductDto productDto)
+        {
+            List<Picture> productPictures = product.ProductPictures.Select(x => x.Picture).ToList();
+
+            PrepareProductImages(productPictures, productDto);
+
+            productDto.DiscountIds = product.AppliedDiscounts.Select(discount => discount.Id).ToList();
+            productDto.RoleIds = _aclService.GetAclRecords(product).Select(acl => acl.CustomerRoleId).ToList();
+            productDto.StoreIds = _storeMappingService.GetStoreMappings(product).Select(mapping => mapping.StoreId).ToList();
+            productDto.Tags = product.ProductTags.Select(tag => tag.Name).ToList();
+        }
+
         private List<Picture> UpdatePictures(Product entityToUpdate, List<ImageDto> setPictures)
         {
             List<Picture> productPictures = entityToUpdate.ProductPictures.Select(x => x.Picture).ToList();
@@ -428,16 +450,16 @@ namespace Nop.Plugin.Api.Controllers
             }
         }
 
-        private void PrepareProductImages(List<Picture> insertedPictures, ProductDto newProductDto)
+        private void PrepareProductImages(List<Picture> pictures, ProductDto productDto)
         {
             // Here we prepare the resulted dto image.
-            foreach (var insertedPicture in insertedPictures)
+            foreach (var insertedPicture in pictures)
             {
-                ImageDto imageDto = PrepareImageDto(insertedPicture, newProductDto);
+                ImageDto imageDto = PrepareImageDto(insertedPicture, productDto);
 
                 if (imageDto != null)
                 {
-                    newProductDto.Images.Add(imageDto);
+                    productDto.Images.Add(imageDto);
                 }
             }
         }
