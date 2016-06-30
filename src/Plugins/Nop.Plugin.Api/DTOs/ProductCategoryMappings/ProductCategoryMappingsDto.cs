@@ -1,7 +1,10 @@
 ﻿using Newtonsoft.Json;
+using Nop.Plugin.Api.Attributes;
+using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.ProductCategoryMappings
 {
+    [Dto(ValidatorType = typeof(ProductCategoryMappingDtoValidator), RootProperty = "product_category_mapping")]
     [JsonObject(Title = "product_category_mappings")]
     public class ProductCategoryMappingDto
     {

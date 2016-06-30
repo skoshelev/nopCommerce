@@ -2,28 +2,53 @@
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Discounts;
+using Nop.Core.Domain.Media;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
+using Nop.Plugin.Api.Delta;
+using Nop.Plugin.Api.DTOs.Categories;
+using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.DTOs.ProductCategoryMappings;
+using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.MappingExtensions;
+using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.Models.ProductCategoryMappingsParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
+using Nop.Services.Catalog;
+using Nop.Services.Customers;
+using Nop.Services.Discounts;
+using Nop.Services.Security;
+using Nop.Services.Seo;
+using Nop.Services.Stores;
 
 namespace Nop.Plugin.Api.Controllers
 {
     [BearerTokenAuthorize]
-    public class ProductCategoryMappingsController : ApiController
+    public class ProductCategoryMappingsController : BaseApiController
     {
         private readonly IProductCategoryMappingsApiService _productCategoryMappingsService;
-        private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
+        private readonly ICategoryService _categoryService;
 
-        public ProductCategoryMappingsController(IProductCategoryMappingsApiService productCategoryMappingsService, IJsonFieldsSerializer jsonFieldsSerializer)
+        private readonly IFactory<ProductCategory> _factory;
+
+        public ProductCategoryMappingsController(IProductCategoryMappingsApiService productCategoryMappingsService,
+            ICategoryService categoryService,
+            IJsonFieldsSerializer jsonFieldsSerializer,
+            IAclService aclService,
+            ICustomerService customerService,
+            IStoreMappingService storeMappingService,
+            IStoreService storeService,
+            IDiscountService discountService)
+            : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService
+                )
         {
             _productCategoryMappingsService = productCategoryMappingsService;
-            _jsonFieldsSerializer = jsonFieldsSerializer;
+            _categoryService = categoryService;
         }
 
         /// <summary>
@@ -46,11 +71,12 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest("Invalid request parameters");
             }
 
-            IList<ProductCategoryMappingDto> mappingsAsDtos = _productCategoryMappingsService.GetMappings(parameters.ProductId, 
-                                                                                                          parameters.CategoryId, 
-                                                                                                          parameters.Limit, 
-                                                                                                          parameters.Page, 
-                                                                                                          parameters.SinceId).Select(x => x.ToDto()).ToList();
+            IList<ProductCategoryMappingDto> mappingsAsDtos =
+                _productCategoryMappingsService.GetMappings(parameters.ProductId,
+                    parameters.CategoryId,
+                    parameters.Limit,
+                    parameters.Page,
+                    parameters.SinceId).Select(x => x.ToDto()).ToList();
 
             var productCategoryMappingRootObject = new ProductCategoryMappingsRootObject()
             {
@@ -76,7 +102,8 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest("Invalid request parameters");
             }
 
-            var mappingsCount = _productCategoryMappingsService.GetMappingsCount(parameters.ProductId, parameters.CategoryId);
+            var mappingsCount = _productCategoryMappingsService.GetMappingsCount(parameters.ProductId,
+                parameters.CategoryId);
 
             var productCategoryMappingsCountRootObject = new ProductCategoryMappingsCountRootObject()
             {
@@ -114,6 +141,34 @@ namespace Nop.Plugin.Api.Controllers
             productCategoryMappingsRootObject.ProductCategoryMappingDtos.Add(mapping.ToDto());
 
             var json = _jsonFieldsSerializer.Serialize(productCategoryMappingsRootObject, fields);
+
+            return new RawJsonActionResult(json);
+        }
+
+        [HttpPost]
+        [ResponseType(typeof(ProductCategoryMappingsRootObject))]
+        public IHttpActionResult CreateProductCategoryMapping([ModelBinder(typeof(JsonModelBinder<ProductCategoryMappingDto>))] Delta<ProductCategoryMappingDto> productCategoryDelta)
+        {
+            // Here we display the errors if the validation has failed at some point.
+            if (!ModelState.IsValid)
+            {
+                return Error();
+            }
+            
+            ProductCategory newProductCategory = new ProductCategory();
+            productCategoryDelta.Merge(newProductCategory);
+
+            //inserting new category
+            _categoryService.InsertProductCategory(newProductCategory);
+
+            // Preparing the result dto of the new product category mapping
+            ProductCategoryMappingDto newProductCategoryMappingDto = newProductCategory.ToDto();
+
+            var productCategoryMappingsRootObject = new ProductCategoryMappingsRootObject();
+
+            productCategoryMappingsRootObject.ProductCategoryMappingDtos.Add(newProductCategoryMappingDto);
+
+            var json = _jsonFieldsSerializer.Serialize(productCategoryMappingsRootObject, string.Empty);
 
             return new RawJsonActionResult(json);
         }

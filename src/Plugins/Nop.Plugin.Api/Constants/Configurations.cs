@@ -8,8 +8,6 @@
         public const int DefaultLimit = 50;
         public const int DefaultPageValue = 1;
         public const int DefaultSinceId = 0;
-        public const int DefaultCategoryId = 0;
-        public const int DefaultProductId = 0;
         public const int DefaultCustomerId = 0;
         public const string DefaultOrder = "Id";
         public const int MaxLimit = 250;
