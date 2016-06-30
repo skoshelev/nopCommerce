@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DataStructures;
-using Nop.Plugin.Api.MVC;
 
 namespace Nop.Plugin.Api.Services
 {
@@ -22,10 +22,10 @@ namespace Nop.Plugin.Api.Services
 
         public IList<Category> GetCategories(IList<int> ids = null,
             DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
-            int limit = Configurations.DefaultLimit, int page = 1, int sinceId = 0, int productId = 0,
+            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId, 
+            int? productId = null,
             bool? publishedStatus = null)
         {
-
             var query = GetCategoriesQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax,
                 publishedStatus, productId, ids);
 
@@ -47,8 +47,9 @@ namespace Nop.Plugin.Api.Services
             return category;
         }
 
-        public int GetCategoriesCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
-            bool? publishedStatus = null, int productId = 0)
+        public int GetCategoriesCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
+            DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
+            bool? publishedStatus = null, int? productId = null)
         {
             var query = GetCategoriesQuery(createdAtMin, createdAtMax, updatedAtMin, updatedAtMax,
                                            publishedStatus, productId);
@@ -58,7 +59,7 @@ namespace Nop.Plugin.Api.Services
 
         private IQueryable<Category> GetCategoriesQuery(
             DateTime? createdAtMin = null, DateTime? createdAtMax = null, DateTime? updatedAtMin = null, DateTime? updatedAtMax = null,
-            bool? publishedStatus = null, int productId = 0, IList<int> ids = null)
+            bool? publishedStatus = null, int? productId = null, IList<int> ids = null)
         {
             var query = _categoryRepository.TableNoTracking;
 
@@ -102,9 +103,9 @@ namespace Nop.Plugin.Api.Services
                     orderby cGroup.Key
                     select cGroup.FirstOrDefault();
 
-            if (productId > 0)
+            if (productId != null)
             {
-                var categoryMappingsForProduct = from productCategoryMapping in _productCategoryMappingRepository.Table
+                var categoryMappingsForProduct = from productCategoryMapping in _productCategoryMappingRepository.TableNoTracking
                                                  where productCategoryMapping.ProductId == productId
                                                  select productCategoryMapping;
 

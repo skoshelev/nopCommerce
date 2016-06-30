@@ -10,6 +10,7 @@ using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
 using Nop.Plugin.Api.DTOs;
 using Nop.Plugin.Api.DTOs.Products;
+using Nop.Plugin.Api.DTOs.ShoppingCarts;
 
 namespace Nop.Plugin.Api.MappingExtensions
 {
@@ -73,15 +74,15 @@ namespace Nop.Plugin.Api.MappingExtensions
             Mapper.CreateMap<ShoppingCartItem, ShoppingCartItemDto>()
                 .IgnoreAllNonExisting()
                 .ForMember(x => x.Customer, y => y.MapFrom(src => src.Customer.GetWithDefault(x => x, new Customer()).ToCustomerForShoppingCartItemDto()))
-                .ForMember(x => x.Product, y => y.MapFrom(src => src.Product.GetWithDefault(x => x, new Product()).ToDto(null)));
+                .ForMember(x => x.Product, y => y.MapFrom(src => src.Product.GetWithDefault(x => x, new Product()).ToDto()));
         }
 
         public static void CreateProductMap()
         {
             Mapper.CreateMap<Product, ProductDto>()
                .IgnoreAllNonExisting()
-               .ForMember(x => x.FullDescription, y => y.MapFrom(src => HttpUtility.HtmlEncode(src.FullDescription)));
+               .ForMember(x => x.FullDescription, y => y.MapFrom(src => HttpUtility.HtmlEncode(src.FullDescription)))
+               .ForMember(x => x.Tags, y => y.MapFrom(src => src.ProductTags.Select(x => x.Name)));
         }
-
     }
 }

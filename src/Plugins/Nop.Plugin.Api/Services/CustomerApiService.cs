@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using Nop.Core.Data;
 using Nop.Core.Domain.Customers;
 using Nop.Plugin.Api.DTOs.Customers;
-using Nop.Plugin.Api.MVC;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Nop.Core.Domain.Common;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DataStructures;
 using Nop.Plugin.Api.Helpers;
 using Nop.Plugin.Api.MappingExtensions;
@@ -30,11 +30,10 @@ namespace Nop.Plugin.Api.Services
         }
 
         public IList<CustomerDto> GetCustomersDtos(DateTime? createdAtMin = null, DateTime? createdAtMax = null, int limit = Configurations.DefaultLimit,
-            int page = 1, int sinceId = 0)
+            int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId)
         {
             var query = GetCustomersQuery(createdAtMin, createdAtMax, sinceId);
 
-            // TODO: Check why this does not return some customers i.e Guests
             IList<CustomerDto> result = HandleCustomerGenericAttributes(null, query, limit, page);
 
             return result;
@@ -42,21 +41,20 @@ namespace Nop.Plugin.Api.Services
 
         public int GetCustomersCount()
         {
-            //TODO: Should we return all customers including Guests?
-            // Maybe we can have a filter by customer roles
-            return _customerRepository.Table.Count();
+            return _customerRepository.TableNoTracking.Count();
         }
 
         // Need to work with dto object so we can map the first and last name from generic attributes table.
-        public IList<CustomerDto> Search(string queryParams = "", string order = "Id", int page = 1, int limit = Configurations.DefaultLimit)
+        public IList<CustomerDto> Search(string queryParams = "", string order = Configurations.DefaultOrder,
+            int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit)
         {
             IList<CustomerDto> result = new List<CustomerDto>();
 
             Dictionary<string, string> searchParams = EnsureSearchQueryIsValid(queryParams, ParseSearchQuery);
-            
+
             if (searchParams != null)
             {
-                IQueryable<Customer> query = _customerRepository.Table;
+                IQueryable<Customer> query = _customerRepository.TableNoTracking;
 
                 foreach (var searchParam in searchParams)
                 {
@@ -77,6 +75,55 @@ namespace Nop.Plugin.Api.Services
             }
 
             return result;
+        }
+
+        public Dictionary<string, string> GetFirstAndLastNameByCustomerId(int customerId)
+        {
+            return _genericAttributeRepository.TableNoTracking.Where(
+                x =>
+                    x.KeyGroup == KeyGroup && x.EntityId == customerId &&
+                    (x.Key == FirstName || x.Key == LastName)).ToDictionary(x => x.Key.ToLowerInvariant(), y => y.Value);
+        }
+
+        public CustomerDto GetCustomerById(int id)
+        {
+            if (id == 0)
+                return null;
+
+            // Here we expect to get two records, one for the first name and one for the last name.
+            List<CustomerAttributeMappingDto> customerAttributeMappings = (from customer in _customerRepository.TableNoTracking
+                                                                           join attribute in _genericAttributeRepository.TableNoTracking on customer.Id equals attribute.EntityId
+                                                                           where customer.Id == id &&
+                                                                                 attribute.KeyGroup.Equals(KeyGroup, StringComparison.InvariantCultureIgnoreCase) &&
+                                                                                 (attribute.Key.Equals(FirstName, StringComparison.InvariantCultureIgnoreCase) ||
+                                                                                  attribute.Key.Equals(LastName, StringComparison.InvariantCultureIgnoreCase))
+                                                                           select new CustomerAttributeMappingDto()
+                                                                           {
+                                                                               Attribute = attribute,
+                                                                               Customer = customer
+                                                                           }).ToList();
+
+            if (customerAttributeMappings.Count > 0)
+            {
+                // The customer object is the same in all mappings.
+                CustomerDto customerDto = customerAttributeMappings.First().Customer.ToDto();
+
+                foreach (var mapping in customerAttributeMappings)
+                {
+                    if (mapping.Attribute.Key.Equals(FirstName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        customerDto.FirstName = mapping.Attribute.Value;
+                    }
+                    else if (mapping.Attribute.Key.Equals(LastName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        customerDto.LastName = mapping.Attribute.Value;
+                    }
+                }
+
+                return customerDto;
+            }
+
+            return null;
         }
 
         private Dictionary<string, string> EnsureSearchQueryIsValid(string query, Func<string, Dictionary<string, string>> parseSearchQuery)
@@ -124,102 +171,120 @@ namespace Nop.Plugin.Api.Services
         /// to be only those with specific search parameter (i.e. currently we focus only on first and last name).</param>
         /// <param name="query">Query parameter represents the current customer records which we will join with GenericAttributes table.</param>
         /// <returns></returns>
-        private IList<CustomerDto> HandleCustomerGenericAttributes(Dictionary<string, string> searchParams, IQueryable<Customer> query, int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, string order = "Id")
+        private IList<CustomerDto> HandleCustomerGenericAttributes(Dictionary<string, string> searchParams, IQueryable<Customer> query,
+            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, string order = Configurations.DefaultOrder)
         {
             // Here we join the GenericAttribute records with the customers and making sure that we are working only with the attributes
             // that are in the customers keyGroup and their keys are either first or last name.
             // We are returning a collection with customer record and attribute record. 
             // It will look something like:
-            // customer data for customer 1, attribute that contains the first name of customer 1
-            // customer data for customer 1, attribute that contains the last name of customer 1
-            // customer data for customer 2, attribute that contains the first name of customer 2
-            // customer data for customer 2, attribute that contains the last name of customer 2
+            // customer data for customer 1
+            //      attribute that contains the first name of customer 1
+            //      attribute that contains the last name of customer 1
+            // customer data for customer 2, 
+            //      attribute that contains the first name of customer 2
+            //      attribute that contains the last name of customer 2
             // etc.
 
-            var customerAttributesMapping = (from attribute in _genericAttributeRepository.Table
-                                             join customer in query on attribute.EntityId equals customer.Id
-                                             where attribute.KeyGroup.Equals(KeyGroup, StringComparison.CurrentCultureIgnoreCase) &&
-                                                   (attribute.Key.Equals(FirstName, StringComparison.CurrentCultureIgnoreCase) ||
-                                                    attribute.Key.Equals(LastName, StringComparison.CurrentCultureIgnoreCase))
-                                             orderby customer.Id
-                                             select new CustomerAttributeMappingDto()
-                                             {
-                                                 Customer = customer,
-                                                 Attribute = attribute
-                                             });
+            IQueryable<IGrouping<int, CustomerAttributeMappingDto>> allRecordsGroupedByCustomerId =
+                (from customer in query
+                 from attribute in _genericAttributeRepository.TableNoTracking
+                     .Where(attr => attr.EntityId == customer.Id &&
+                                    attr.KeyGroup.Equals(KeyGroup, StringComparison.InvariantCultureIgnoreCase) &&
+                                    (attr.Key.Equals(FirstName, StringComparison.InvariantCultureIgnoreCase) ||
+                                    attr.Key.Equals(LastName, StringComparison.InvariantCultureIgnoreCase))).DefaultIfEmpty()
+                 select new CustomerAttributeMappingDto()
+                 {
+                     Attribute = attribute,
+                     Customer = customer
+                 }).GroupBy(x => x.Customer.Id);
 
-            customerAttributesMapping = GetCustomerAttributesMappingsByKey(searchParams, customerAttributesMapping, FirstName);
-            customerAttributesMapping = GetCustomerAttributesMappingsByKey(searchParams, customerAttributesMapping, LastName);
+            if (searchParams != null && searchParams.Count > 0)
+            {
+                if (searchParams.ContainsKey(FirstName))
+                {
+                    allRecordsGroupedByCustomerId = GetCustomerAttributesMappingsByKey(allRecordsGroupedByCustomerId, FirstName, searchParams[FirstName]);
+                }
 
-            // Since we will have two records for each customer we need to double the limit.
-            int limitCustomerAttributes = limit * 2;
+                if (searchParams.ContainsKey(LastName))
+                {
+                    allRecordsGroupedByCustomerId = GetCustomerAttributesMappingsByKey(allRecordsGroupedByCustomerId, LastName, searchParams[LastName]);
+                }
+            }
 
-            IList<CustomerDto> result = GetFullCustomerDtos(customerAttributesMapping, page, limitCustomerAttributes, order);
+            IList<CustomerDto> result = GetFullCustomerDtos(allRecordsGroupedByCustomerId, page, limit, order);
 
             return result;
         }
 
         /// <summary>
-        /// This method is responsible for getting unique customer dto records with first and last names set from the attribute mappings.
+        /// This method is responsible for getting customer dto records with first and last names set from the attribute mappings.
         /// </summary>
-        private IList<CustomerDto> GetFullCustomerDtos(IQueryable<CustomerAttributeMappingDto> customerAttributesMapping, int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit, string order = "Id")
+        private IList<CustomerDto> GetFullCustomerDtos(IQueryable<IGrouping<int, CustomerAttributeMappingDto>> customerAttributesMappings,
+            int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit, string order = Configurations.DefaultOrder)
         {
-            var uniqueMappings = new Dictionary<int, CustomerDto>();
+            var customerDtos = new List<CustomerDto>();
 
-            customerAttributesMapping = customerAttributesMapping.OrderBy("Customer." + order);
+            customerAttributesMappings = customerAttributesMappings.OrderBy(x => x.Key);
 
-            IList<CustomerAttributeMappingDto> customerAttributesMappingsList = new ApiList<CustomerAttributeMappingDto>(customerAttributesMapping, page - 1, limit);
+            IList<IGrouping<int, CustomerAttributeMappingDto>> customerAttributeGroupsList = new ApiList<IGrouping<int, CustomerAttributeMappingDto>>(customerAttributesMappings, page - 1, limit);
 
-            foreach (var mapping in customerAttributesMappingsList)
+            foreach (var group in customerAttributeGroupsList)
             {
-                if (!uniqueMappings.ContainsKey(mapping.Customer.Id))
-                {
-                    CustomerDto record = mapping.Customer.ToDto();
+                IList<CustomerAttributeMappingDto> mappingsForMerge = group.Select(x => x).ToList();
 
-                    uniqueMappings.Add(mapping.Customer.Id, record);
-                }
+                CustomerDto customerDto = Merge(mappingsForMerge);
 
-                if (mapping.Attribute.Key.Equals(FirstName, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    uniqueMappings[mapping.Customer.Id].FirstName = mapping.Attribute.Value;
-                }
-                else if (mapping.Attribute.Key.Equals(LastName, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    uniqueMappings[mapping.Customer.Id].LastName = mapping.Attribute.Value;
-                }
+                customerDtos.Add(customerDto);
             }
 
-            return uniqueMappings.Values.ToList();
+            // Needed so we can apply the order parameter
+            return customerDtos.AsQueryable().OrderBy(order).ToList();
         }
 
-        private IQueryable<CustomerAttributeMappingDto> GetCustomerAttributesMappingsByKey(Dictionary<string, string> searchParams,
-            IQueryable<CustomerAttributeMappingDto> customerAttributesMapping, string key)
+        private CustomerDto Merge(IList<CustomerAttributeMappingDto> mappingsForMerge)
         {
-            if (searchParams != null && searchParams.ContainsKey(key))
+            var customerDto = new CustomerDto();
+
+            // We expect the customer to be always set.
+            customerDto = mappingsForMerge.First().Customer.ToDto();
+
+            List<GenericAttribute> attributes = mappingsForMerge.Select(x => x.Attribute).ToList();
+
+            foreach (var attribute in attributes)
             {
-                // We are saving the value from search parameters in variable, because we can not use indexers in Linq.
-                string searchParamValue = searchParams[key];
-
-                // Here we filter the customerAttributeMappings to be only the ones that have the passed key parameter as a key.
-                var customerAttributesMappingByKey = from mapping in customerAttributesMapping
-                                                     where mapping.Attribute.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase) &&
-                                                           mapping.Attribute.Value.Equals(searchParamValue, StringComparison.InvariantCultureIgnoreCase)
-                                                     select mapping;
-
-                // We need to join the customerAttributesMapping with the collection above so we do not skip the first/last name mappings (depends on the key).
-                // Otherwise we will have customers with only the first or last name populated. 
-                customerAttributesMapping = from mapping in customerAttributesMapping
-                                            join map in customerAttributesMappingByKey on mapping.Attribute.EntityId equals
-                                                map.Attribute.EntityId
-                                            select mapping;
+                if (attribute != null)
+                {
+                    if (attribute.Key.Equals(FirstName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        customerDto.FirstName = attribute.Value;
+                    }
+                    else if (attribute.Key.Equals(LastName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        customerDto.LastName = attribute.Value;
+                    }
+                }
             }
 
-            return customerAttributesMapping;
+            return customerDto;
+        }
+
+        private IQueryable<IGrouping<int, CustomerAttributeMappingDto>> GetCustomerAttributesMappingsByKey(
+            IQueryable<IGrouping<int, CustomerAttributeMappingDto>> customerAttributesGroups, string key, string value)
+        {
+            // Here we filter the customerAttributesGroups to be only the ones that have the passed key parameter as a key.
+            var customerAttributesMappingByKey = from @group in customerAttributesGroups
+                                                 where @group.Select(x => x.Attribute)
+                                                             .Any(x => x.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase) &&
+                                                                  x.Value.Equals(value, StringComparison.InvariantCultureIgnoreCase))
+                                                 select @group;
+
+            return customerAttributesMappingByKey;
         }
 
         private IQueryable<Customer> GetCustomersQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, int sinceId = 0)
         {
-            var query = _customerRepository.Table;
+            var query = _customerRepository.TableNoTracking;
             if (createdAtMin != null)
             {
                 query = query.Where(c => c.CreatedOnUtc > createdAtMin.Value);
@@ -238,20 +303,6 @@ namespace Nop.Plugin.Api.Services
             }
 
             return query;
-        }
-
-        public CustomerDto GetCustomerById(int id)
-        {
-            if (id == 0)
-                return null;
-
-            Customer customer = _customerRepository.GetById(id);
-            if (customer != null)
-            {
-               return customer.ToDto();
-            }
-
-            return null;
         }
     }
 }

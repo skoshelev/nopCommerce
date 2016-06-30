@@ -90,6 +90,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -128,16 +129,34 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionResults\RowJsonActionResult.cs" />
-    <Compile Include="Attributes\BearerTokenAuthorizeAttribute.cs" />
+    <Compile Include="Attributes\BaseAttributeInvoker.cs" />
+    <Compile Include="Attributes\ImageAttribute.cs" />
+    <Compile Include="Attributes\ImageCollectionAttribute.cs" />
+    <Compile Include="Attributes\ValidateVendor.cs" />
+    <Compile Include="Controllers\BaseApiController.cs" />
+    <Compile Include="Factories\ProductFactory.cs" />
+    <Compile Include="Helpers\JTokenHelper.cs" />
+    <Compile Include="Attributes\DtoAttribute.cs" />
+    <Compile Include="Delta\Delta.cs" />
+    <Compile Include="DTOs\Errors\ErrorsRootObject.cs" />
+    <Compile Include="DTOs\Images\ImageDto.cs" />
+    <Compile Include="Factories\IFactory.cs" />
+    <Compile Include="Factories\CategoryFactory.cs" />
+    <Compile Include="JSON\ActionResults\ErrorActionResult.cs" />
+    <Compile Include="JSON\ActionResults\RawJsonActionResult.cs" />
+    <Compile Include="ModelBinders\JsonModelBinder.cs" />
+    <Compile Include="OAuth\Attributes\BearerTokenAuthorizeAttribute.cs" />
     <Compile Include="Constants\ViewNames.cs" />
-    <Compile Include="ContractResolvers\DynamicContractResolver.cs" />
-    <Compile Include="Controllers\ApiAdminController.cs" />
+    <Compile Include="JSON\ContractResolvers\DynamicContractResolver.cs" />
+    <Compile Include="Controllers\Admin\ApiAdminController.cs" />
     <Compile Include="Controllers\CategoriesController.cs" />
     <Compile Include="Controllers\CustomersController.cs" />
-    <Compile Include="Controllers\ManageClientsAdminController.cs" />
-    <Compile Include="Controllers\OAuthController.cs" />
+    <Compile Include="Controllers\Admin\ManageClientsAdminController.cs" />
+    <Compile Include="Controllers\OAuth\OAuthController.cs" />
+    <Compile Include="Controllers\ProductCategoryMappingsController.cs" />
+    <Compile Include="Controllers\OrdersController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
+    <Compile Include="Controllers\ShoppingCartItemsController.cs" />
     <Compile Include="DataMappings\ClientMap.cs" />
     <Compile Include="DataStructures\ApiList.cs" />
     <Compile Include="Data\ApiObjectContext.cs" />
@@ -149,15 +168,30 @@
     <Compile Include="DTOs\Categories\CategoryDto.cs" />
     <Compile Include="DTOs\Customers\BaseCustomerDto.cs" />
     <Compile Include="DTOs\Customers\ISerializableObject.cs" />
+    <Compile Include="DTOs\ProductCategoryMappings\ProductCategoryMappingsCountRootObject.cs" />
+    <Compile Include="DTOs\ProductCategoryMappings\ProductCategoryMappingsDto.cs" />
+    <Compile Include="DTOs\ProductCategoryMappings\ProductCategoryMappingsRootObject.cs" />
+    <Compile Include="DTOs\Orders\OrderDto.cs" />
+    <Compile Include="DTOs\Orders\OrderItemDto.cs" />
+    <Compile Include="DTOs\Orders\OrdersCountRootObject.cs" />
+    <Compile Include="DTOs\Orders\OrdersRootObject.cs" />
+    <Compile Include="DTOs\Orders\SingleOrderRootObject.cs" />
     <Compile Include="DTOs\Products\ProductDto.cs" />
     <Compile Include="DTOs\Products\ProductsCountRootObject.cs" />
     <Compile Include="DTOs\Products\ProductsRootObjectDto.cs" />
-    <Compile Include="Extensions\ObjectExtensions.cs" />
-    <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Helpers\AuthorizationHelper.cs" />
-    <Compile Include="Helpers\AutoMapperHelper.cs" />
-    <Compile Include="Helpers\IAuthorizationHelper.cs" />
+    <Compile Include="Converters\IObjectConverter.cs" />
+    <Compile Include="Converters\IApiTypeConverter.cs" />
+    <Compile Include="Converters\ObjectConverter.cs" />
+    <Compile Include="Converters\ApiTypeConverter.cs" />
+    <Compile Include="DTOs\ShoppingCarts\ShoppingCartItemDto.cs" />
+    <Compile Include="DTOs\ShoppingCarts\ShoppingCartItemsRootObject.cs" />
+    <Compile Include="OAuth\Helpers\AuthorizationHelper.cs" />
+    <Compile Include="OAuth\Helpers\IAuthorizationHelper.cs" />
+    <Compile Include="Helpers\IJsonHelper.cs" />
+    <Compile Include="Helpers\IMappingHelper.cs" />
     <Compile Include="Helpers\IWebConfigManagerHelper.cs" />
+    <Compile Include="Helpers\JsonHelper.cs" />
+    <Compile Include="Helpers\MappingHelper.cs" />
     <Compile Include="Helpers\ReflectionHelper.cs" />
     <Compile Include="Helpers\WebConfigManagerHelper.cs" />
     <Compile Include="DTOs\Customers\CustomerAttributeMappingDto.cs" />
@@ -166,7 +200,6 @@
     <Compile Include="DTOs\Customers\CustomersCountRootObject.cs" />
     <Compile Include="DTOs\Customers\CustomersRootObject.cs" />
     <Compile Include="DTOs\Customers\OrderCustomerDto.cs" />
-    <Compile Include="DTOs\ShoppingCartItemDto.cs" />
     <Compile Include="Infrastructure\DependencyRegister.cs" />
     <Compile Include="MappingExtensions\AddressDtoMappings.cs" />
     <Compile Include="MappingExtensions\BaseMapping.cs" />
@@ -175,6 +208,9 @@
     <Compile Include="MappingExtensions\ConfigurationMappings.cs" />
     <Compile Include="MappingExtensions\CustomerDtoMappings.cs" />
     <Compile Include="MappingExtensions\Maps.cs" />
+    <Compile Include="MappingExtensions\ProductCategoryMappingDtoMappings.cs" />
+    <Compile Include="MappingExtensions\OrderDtoMappings.cs" />
+    <Compile Include="MappingExtensions\OrderItemDtoMappings.cs" />
     <Compile Include="MappingExtensions\ProductDtoMappings.cs" />
     <Compile Include="MappingExtensions\ShoppingCartItemDtoMappings.cs" />
     <Compile Include="ModelBinders\ParametersModelBinder.cs" />
@@ -185,39 +221,52 @@
     <Compile Include="Models\ConfigurationModel.cs" />
     <Compile Include="Models\CustomersParameters\CustomersParametersModel.cs" />
     <Compile Include="Models\CustomersParameters\CustomersSearchParametersModel.cs" />
+    <Compile Include="Models\ProductCategoryMappingsParameters\ProductCategoryMappingsCountParametersModel.cs" />
+    <Compile Include="Models\ProductCategoryMappingsParameters\BaseCategoryMappingsParametersModel.cs" />
+    <Compile Include="Models\ProductCategoryMappingsParameters\ProductCategoryMappingsParametersModel.cs" />
+    <Compile Include="Models\OrdersParameters\BaseOrdersParametersModel.cs" />
+    <Compile Include="Models\OrdersParameters\OrdersCountParametersModel.cs" />
+    <Compile Include="Models\OrdersParameters\OrdersParametersModel.cs" />
     <Compile Include="Models\ProductsParameters\BaseProductsParametersModel.cs" />
     <Compile Include="Models\ProductsParameters\ProductsCountParametersModel.cs" />
     <Compile Include="Models\ProductsParameters\ProductsParametersModel.cs" />
-    <Compile Include="MVC\Configurations.cs" />
-    <Compile Include="Owin\Middleware\BearerTokenMiddleware.cs" />
-    <Compile Include="Owin\OAuth\Providers\AuthenticationTokenProvider.cs" />
-    <Compile Include="Owin\OAuth\Providers\AuthorisationServerProvider.cs" />
-    <Compile Include="Owin\OAuth\Providers\RefreshTokenProvider.cs" />
+    <Compile Include="Models\ShoppingCartsParameters\BaseShoppingCartItemsParametersModel.cs" />
+    <Compile Include="Models\ShoppingCartsParameters\ShoppingCartItemsForCustomerParametersModel.cs" />
+    <Compile Include="Models\ShoppingCartsParameters\ShoppingCartItemsParametersModel.cs" />
+    <Compile Include="Constants\Configurations.cs" />
+    <Compile Include="OAuth\Middlewares\BearerTokenMiddleware.cs" />
+    <Compile Include="OAuth\Providers\AuthenticationTokenProvider.cs" />
+    <Compile Include="OAuth\Providers\AuthorisationServerProvider.cs" />
+    <Compile Include="OAuth\Providers\RefreshTokenProvider.cs" />
     <Compile Include="Plugin\ApiPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Serializers\IJsonFieldsSerializer.cs" />
-    <Compile Include="Serializers\JsonFieldsSerializer.cs" />
+    <Compile Include="JSON\Serializers\IJsonFieldsSerializer.cs" />
+    <Compile Include="JSON\Serializers\JsonFieldsSerializer.cs" />
     <Compile Include="Services\CategoryApiService.cs" />
     <Compile Include="Services\ClientService.cs" />
-    <Compile Include="Services\CountryApiService.cs" />
     <Compile Include="Services\CustomerApiService.cs" />
     <Compile Include="Services\ICategoryApiService.cs" />
+    <Compile Include="Services\IProductCategoryMappingsApiService.cs" />
     <Compile Include="Services\IClientService.cs" />
-    <Compile Include="Services\ICountryApiService.cs" />
     <Compile Include="Services\ICustomerApiService.cs" />
+    <Compile Include="Services\IOrderApiService.cs" />
     <Compile Include="Services\IProductApiService.cs" />
-    <Compile Include="Services\IStateProvinceApiService.cs" />
+    <Compile Include="Services\IShoppingCartItemApiService.cs" />
+    <Compile Include="Services\OrderApiService.cs" />
     <Compile Include="Services\ProductApiService.cs" />
-    <Compile Include="Services\StateProvinceApiService.cs" />
+    <Compile Include="Services\ProductCategoryMappingsApiService.cs" />
+    <Compile Include="Services\ShoppingCartItemApiService.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Swagger\ChangeParameterTypeOperationFilter.cs" />
     <Compile Include="Swagger\ExcludeEnpointsDocumentFilter.cs" />
     <Compile Include="Swagger\RemovePrefixesOperationFilter.cs" />
+    <Compile Include="Validators\ProductCategoryMappingDtoValidator.cs" />
+    <Compile Include="Validators\ProductDtoValidator.cs" />
+    <Compile Include="Validators\CategoryDtoValidator.cs" />
     <Compile Include="Validators\ClientValidator.cs" />
     <Compile Include="Validators\FieldsValidator.cs" />
     <Compile Include="Validators\IFieldsValidator.cs" />
-    <Compile Include="Validators\IParametersValidator.cs" />
-    <Compile Include="Validators\ParametersValidator.cs" />
+    <Compile Include="Validators\TypeValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Description.txt">
@@ -252,6 +301,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Scripts\swaggerPostPutTryItOutButtonsRemoval.js" />
     <Content Include="Views\Clients\ClientSettings.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -277,6 +327,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,11 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Web.Mvc;
 using Newtonsoft.Json;
+using Nop.Plugin.Api.Attributes;
+using Nop.Plugin.Api.DTOs.Images;
+using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.Categories
 {
+    [Dto(ValidatorType = typeof(CategoryDtoValidator), RootProperty="category")]
     [JsonObject(Title = "categories")]
     public class CategoryDto
     {
+        private ImageDto _imageDto;
+        private List<int> _storeIds;
+        private List<int> _discountIds;
+        private List<int> _roleIds;
+
         [JsonProperty("id")]
         public string Id { get; set; }
 
@@ -117,5 +128,79 @@ namespace Nop.Plugin.Api.DTOs.Categories
         /// </summary>
         [JsonProperty("updated_on_utc")]
         public DateTime? UpdatedOnUtc { get; set; }
+
+        [JsonProperty("role_ids")]
+        public List<int> RoleIds
+        {
+            get
+            {
+                if (_roleIds == null)
+                {
+                    _roleIds = new List<int>();
+                }
+
+                return _roleIds;
+            }
+            set
+            {
+                _roleIds = value;
+            }
+        }
+
+        [JsonProperty("discount_ids")]
+        public List<int> DiscountIds
+        {
+            get
+            {
+                if (_discountIds == null)
+                {
+                    _discountIds = new List<int>();
+                }
+
+                return _discountIds;
+            }
+            set
+            {
+                _discountIds = value;
+            }
+        }
+
+        [JsonProperty("store_ids")]
+        public List<int> StoreIds
+        {
+            get
+            {
+                if (_storeIds == null)
+                {
+                    _storeIds = new List<int>();
+                }
+
+                return _storeIds;
+            }
+            set
+            {
+                _storeIds = value;
+            }
+        }
+
+        [JsonProperty("image")]
+        public ImageDto Image {
+            get
+            {
+                if (_imageDto == null)
+                {
+                    _imageDto = new ImageDto();
+                }
+
+                return _imageDto;
+            }
+            set
+            {
+                _imageDto = value;
+            }
+        }
+        
+        [AllowHtml]
+        public string SeName { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DTOs.Customers;
-using Nop.Plugin.Api.MVC;
 
 namespace Nop.Plugin.Api.Services
 {
@@ -12,8 +12,11 @@ namespace Nop.Plugin.Api.Services
         CustomerDto GetCustomerById(int id);
 
         IList<CustomerDto> GetCustomersDtos(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
-        int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId);
+            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId);
         
-        IList<CustomerDto> Search(string query = "", string order = "desc", int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit);
+        IList<CustomerDto> Search(string query = "", string order = Configurations.DefaultOrder, 
+            int page = Configurations.DefaultPageValue, int limit = Configurations.DefaultLimit);
+
+        Dictionary<string, string> GetFirstAndLastNameByCustomerId(int customerId);
     }
 }

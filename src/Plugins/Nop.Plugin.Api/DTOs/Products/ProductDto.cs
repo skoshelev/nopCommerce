@@ -1,19 +1,30 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Nop.Core.Domain.Catalog;
+using Nop.Plugin.Api.Attributes;
+using Nop.Plugin.Api.DTOs.Images;
+using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.Products
 {
+    [Dto(ValidatorType = typeof(ProductDtoValidator), RootProperty = "product")]
     [JsonObject(Title = "products")]
     public class ProductDto
     {
         private int? _productTypeId;
+        private List<int> _storeIds;
+        private List<int> _discountIds;
+        private List<int> _roleIds;
+        private List<int> _manufacturerIds;
+        private List<ImageDto> _images;
+        private List<string> _tags;
 
         /// <summary>
         /// Gets or sets the product id
         /// </summary>
         [JsonProperty("id")]
-        public int? Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the values indicating whether this product is visible in catalog or search results.
@@ -467,5 +478,121 @@ namespace Nop.Plugin.Api.DTOs.Products
                 else this._productTypeId = null;
             }
         }
+
+        [JsonProperty("role_ids")]
+        public List<int> RoleIds
+        {
+            get
+            {
+                if (_roleIds == null)
+                {
+                    _roleIds = new List<int>();
+                }
+
+                return _roleIds;
+            }
+            set
+            {
+                _roleIds = value;
+            }
+        }
+
+        [JsonProperty("discount_ids")]
+        public List<int> DiscountIds
+        {
+            get
+            {
+                if (_discountIds == null)
+                {
+                    _discountIds = new List<int>();
+                }
+
+                return _discountIds;
+            }
+            set
+            {
+                _discountIds = value;
+            }
+        }
+
+        [JsonProperty("store_ids")]
+        public List<int> StoreIds
+        {
+            get
+            {
+                if (_storeIds == null)
+                {
+                    _storeIds = new List<int>();
+                }
+
+                return _storeIds;
+            }
+            set
+            {
+                _storeIds = value;
+            }
+        }
+
+        [JsonProperty("manufacturer_ids")]
+        public List<int> ManufacturerIds
+        {
+            get
+            {
+                if (_manufacturerIds == null)
+                {
+                    _manufacturerIds = new List<int>();
+                }
+
+                return _manufacturerIds;
+            }
+            set
+            {
+                _manufacturerIds = value;
+            }
+        }
+        
+        [ImageCollection]
+        [JsonProperty("images")]
+        public List<ImageDto> Images
+        {
+            get
+            {
+                if (_images == null)
+                {
+                    _images = new List<ImageDto>();
+                }
+
+                return _images;
+            }
+            set
+            {
+                _images = value;
+            }
+        }
+
+        [JsonProperty("tags")]
+        public List<string> Tags
+        {
+            get
+            {
+                if (_tags == null)
+                {
+                    _tags = new List<string>();
+                }
+
+                return _tags;
+            }
+            set
+            {
+                _tags = value;
+            }
+        }
+
+        [ValidateVendor]
+        [JsonProperty("vendor_id")]
+        public int? VendorId { get; set; }
+
+        [JsonProperty("se_name")]
+        public string SeName { get; set; }
     }
 }

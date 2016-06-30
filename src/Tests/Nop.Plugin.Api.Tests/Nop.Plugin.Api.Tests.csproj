@@ -35,6 +35,14 @@
       <HintPath>..\..\packages\AutoMapper.4.1.1\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="AutoMock, Version=1.0.3.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AutoMock.1.0.3.1\lib\net40\AutoMock.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -42,16 +50,38 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Mocks">
+    <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
       <HintPath>..\..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http.Formatting">
       <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Web.Http">
       <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -61,6 +91,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ControllersTests\Categories\CategoriesControllerTests_CreateCategory.cs" />
     <Compile Include="ControllersTests\Categories\CategoriesControllerTests_GetCategories.cs" />
     <Compile Include="ControllersTests\Categories\CategoriesControllerTests_GetCategoriesById.cs" />
     <Compile Include="ControllersTests\Categories\CategoriesControllerTests_GetCategoriesCount.cs" />
@@ -68,13 +99,94 @@
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomersCount.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_GetCustomers.cs" />
     <Compile Include="ControllersTests\Customers\CustomersControllerTests_Search.cs" />
+    <Compile Include="ControllersTests\ProductCategoryMappings\ProductCategoryMappingsControllerTests_GetMappingById.cs" />
+    <Compile Include="ControllersTests\ProductCategoryMappings\ProductCategoryMappingsControllerTests_GetMappings.cs" />
+    <Compile Include="ControllersTests\ProductCategoryMappings\ProductCategoryMappingsControllerTests_GetMappingsCount.cs" />
+    <Compile Include="ControllersTests\Orders\OrdersControllerTests_GetOrderById.cs" />
+    <Compile Include="ControllersTests\Orders\OrdersControllerTests_GetOrders.cs" />
+    <Compile Include="ControllersTests\Orders\OrdersControllerTests_GetOrdersByCustomerId.cs" />
+    <Compile Include="ControllersTests\Orders\OrdersControllerTests_GetOrdersCount.cs" />
+    <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProductById.cs" />
     <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProducts.cs" />
-    <Compile Include="SerializersTests\DummyObjects\DummyObject.cs" />
-    <Compile Include="ServicesTests\Categories\CategoryApiServiceTests_GetCategoriesCount.cs" />
-    <Compile Include="ServicesTests\Categories\CategoryApiServiceTests_GetCategoryById.cs" />
-    <Compile Include="SerializersTests\DummyObjects\DummySerializableObject.cs" />
+    <Compile Include="ControllersTests\ShoppingCartItems\ShoppingCartItemsControllerTests_GetShoppingCartItems.cs" />
+    <Compile Include="ControllersTests\ShoppingCartItems\ShoppingCartItemsControllerTests_GetShoppingCartItemsByCustomerId.cs" />
+    <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToEnumNullable.cs" />
+    <Compile Include="ConvertersTests\ObjectConverter\DummyObjects\SomeTestingObject.cs" />
+    <Compile Include="ConvertersTests\ObjectConverter\ObjectConverterTests_ToObject.cs" />
+    <Compile Include="ControllersTests\Products\ProductsControllerTests_GetProductsCount.cs" />
+    <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToListOfInts.cs" />
+    <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToDateTimeNullable.cs" />
+    <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToIntNullable.cs" />
+    <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToInt.cs" />
+    <Compile Include="ConvertersTests\ApiTypeConverter\ApiTypeConverterTests_ToStatus.cs" />
+    <Compile Include="ModelBinderTests\DummyObjects\DummyModel.cs" />
+    <Compile Include="ModelBinderTests\JsonModelBinderTests_BindModel.cs" />
+    <Compile Include="ModelBinderTests\ParametersModelBinderTests_BindModel.cs" />
+    <Compile Include="SerializersTests\DummyObjects\DummyObjectWithComplexTypes.cs" />
+    <Compile Include="SerializersTests\DummyObjects\SerializableDummyObjectWithComplexTypes.cs" />
+    <Compile Include="SerializersTests\DummyObjects\DummyObjectWithSimpleTypes.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_ProductIdParameter.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_UpdatedParameters.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_PublishedStatusParameter.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategories\CategoriesApiServiceTests_GetCategories_ProductIdParameter.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategories\CategoriesApiServiceTests_GetCategories_SinceIdParameter.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_DefaultParameters.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoriesCount\CategoryApiServiceTests_GetCategoriesCount_DefaultParameters.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategoryById\CategoryApiServiceTests_GetCategoryById.cs" />
+    <Compile Include="SerializersTests\DummyObjects\SerializableDummyObjectWithSimpleTypes.cs" />
     <Compile Include="SerializersTests\JsonFieldsSerializerTests_Serialize.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_IdsParameter.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_LimitParameter.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_PageParameter.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_PublishedStatusParameter.cs" />
+    <Compile Include="ServicesTests\Categories\GetCategories\CategoryApiServiceTests_GetCategories_UpdatedParameters.cs" />
     <Compile Include="ServicesTests\CountryApiServiceTests.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrderById\OrderApiServiceTests_GetOrderById.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrdersByCustomerId\OrderApiServiceTests_GetOrdersByCustomerId.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrdersCount\OrderApiServiceTests_GetOrdersCount_StatusesParameters.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrdersCount\OrderApiServiceTests_GetOrdersCount_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrdersCount\OrderApiServiceTests_GetOrdersCount_DefaultParameters.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrdersCount\OrderApiServiceTests_GetOrdersCount_CustomerIdParameter.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_StatusesParameters.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappingById\ProductCategoryMappingsApiServiceTests_GetById.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_IdsParameter.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_DefaultParameters.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_LimitParameter.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_PageParameter.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_SinceIdParameter.cs" />
+    <Compile Include="ServicesTests\Orders\GetOrders\OrderApiServiceTests_GetOrders_CustomerIdParameter.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappingsCount\ProductCategoryMappingsApiServiceTests_GetMappingsCount.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_PageParameter.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_LimitParameter.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_DefaultParameters.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_CategoryIdParameter.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_ProductIdParameter.cs" />
+    <Compile Include="ServicesTests\ProductCategoryMappings\GetMappings\ProductCategoryMappingsApiServiceTests_GetMappings_SinceIdParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_VendorNameParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProductById\ProductApiServiceTests_GetProductById.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_CategoryIdParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_PublishedStatusParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_UpdatedParameters.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\Products\GetProductsCount\ProductApiServiceTests_GetProductsCount_DefaultParameters.cs" />
+    <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_SinceIdParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_PageParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_LimitParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_VendorNameParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_CategoryIdParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_PublishedStatusParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_IdsParameter.cs" />
+    <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_UpdatedParameters.cs" />
+    <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\Products\GetProducts\ProductApiServiceTests_GetProducts_DefaultParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_PageParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_LimitParameter.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_UpdatedParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_CreatedParameters.cs" />
+    <Compile Include="ServicesTests\ShoppingCartItems\GetShoppingCartItems\ShoppingCartItemsTests_GetShoppingCartItems_CustomerIdParameter.cs" />
     <Compile Include="ServicesTests\StateProvinceApiServiceTests.cs" />
     <Compile Include="ServicesTests\Customers\CustomerApiServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

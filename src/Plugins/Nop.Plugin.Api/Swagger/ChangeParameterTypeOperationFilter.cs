@@ -18,7 +18,20 @@ namespace Nop.Plugin.Api.Swagger
             {
                 foreach (var parameter in operation.parameters)
                 {
-                    if (parameter.name.Equals("publishedStatus", StringComparison.InvariantCultureIgnoreCase))
+                    if (parameter.name.Equals("published_status", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        parameter.type = "string";
+                    }
+
+                    if(parameter.name.Equals("status", StringComparison.InvariantCultureIgnoreCase) ||
+                       parameter.name.Equals("payment_status", StringComparison.InvariantCultureIgnoreCase) ||
+                       parameter.name.Equals("shipping_status", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        parameter.type = "string";
+                        parameter.@enum = null;
+                    }
+
+                    if (parameter.name.Equals("ids", StringComparison.InvariantCultureIgnoreCase))
                     {
                         parameter.type = "string";
                     }

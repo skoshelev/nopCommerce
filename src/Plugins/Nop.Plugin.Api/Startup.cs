@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Routing;
 using Autofac.Integration.WebApi;
@@ -8,7 +9,7 @@ using Microsoft.Owin.Extensions;
 using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json;
 using Nop.Core.Infrastructure;
-using Nop.Plugin.Api.MVC;
+using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Owin.Middleware;
 using Nop.Plugin.Api.Owin.OAuth.Providers;
 using Nop.Plugin.Api.Swagger;
@@ -20,7 +21,7 @@ namespace Nop.Plugin.Api
     public class Startup
     {
         public void Configuration(IAppBuilder app)
-        {            
+        {
             app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
 
             ConfigureOAuth(app);
@@ -51,7 +52,7 @@ namespace Nop.Plugin.Api
             app.Use(typeof(BearerTokenMiddleware));
 
             // This middleware should be called after the BearerTokenMiddleware
-            app.Use(typeof(OAuthBearerAuthenticationMiddleware), app, new OAuthBearerAuthenticationOptions());            
+            app.Use(typeof(OAuthBearerAuthenticationMiddleware), app, new OAuthBearerAuthenticationOptions());
         }
 
         private void ConfigureWebApi(IAppBuilder app)
@@ -92,17 +93,129 @@ namespace Nop.Plugin.Api
             config.Routes.MapHttpRoute(
                name: "categories",
                routeTemplate: "api/categories",
-               defaults: new { controller = "Categories", action = "GetCategories" });
+               defaults: new { controller = "CategoriesApi", action = "GetCategories" },
+               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            config.Routes.MapHttpRoute(
+               name: "deleteCategory",
+               routeTemplate: "api/categories/{id}",
+               defaults: new { controller = "CategoriesApi", action = "DeleteCategory" },
+               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Delete) });
+
+            config.Routes.MapHttpRoute(
+               name: "createCategory",
+               routeTemplate: "api/categories",
+               defaults: new { controller = "CategoriesApi", action = "CreateCategory" },
+               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
+
+            config.Routes.MapHttpRoute(
+               name: "updateCategory",
+               routeTemplate: "api/categories/{id}",
+               defaults: new { controller = "CategoriesApi", action = "UpdateCategory" },
+               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Put) });
 
             config.Routes.MapHttpRoute(
                 name: "categoriesCount",
                 routeTemplate: "api/categories/count",
-                defaults: new { controller = "Categories", action = "GetCategoriesCount" });
+                defaults: new { controller = "CategoriesApi", action = "GetCategoriesCount" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
 
             config.Routes.MapHttpRoute(
                 name: "categoryById",
                 routeTemplate: "api/categories/{id}",
-                defaults: new { controller = "Categories", action = "GetCategoryById" });
+                defaults: new { controller = "CategoriesApi", action = "GetCategoryById" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            config.Routes.MapHttpRoute(
+                name: "products",
+                routeTemplate: "api/products",
+                defaults: new { controller = "Products", action = "GetProducts" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            config.Routes.MapHttpRoute(
+              name: "createProduct",
+              routeTemplate: "api/products",
+              defaults: new { controller = "Products", action = "CreateProduct" },
+              constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
+
+            config.Routes.MapHttpRoute(
+              name: "updateProduct",
+              routeTemplate: "api/products/{id}",
+              defaults: new { controller = "Products", action = "UpdateProduct" },
+              constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Put) });
+
+            config.Routes.MapHttpRoute(
+              name: "deleteProduct",
+              routeTemplate: "api/products/{id}",
+              defaults: new { controller = "Products", action = "DeleteProduct" },
+              constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Delete) });
+
+            config.Routes.MapHttpRoute(
+                name: "productsCount",
+                routeTemplate: "api/products/count",
+                defaults: new { controller = "Products", action = "GetProductsCount" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            config.Routes.MapHttpRoute(
+                name: "productById",
+                routeTemplate: "api/products/{id}",
+                defaults: new { controller = "Products", action = "GetProductById" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            config.Routes.MapHttpRoute(
+             name: "orders",
+             routeTemplate: "api/orders",
+             defaults: new { controller = "Orders", action = "GetOrders" });
+
+            config.Routes.MapHttpRoute(
+                name: "ordersCount",
+                routeTemplate: "api/orders/count",
+                defaults: new { controller = "Orders", action = "GetOrdersCount" });
+
+            config.Routes.MapHttpRoute(
+                name: "ordersByCustomerId",
+                routeTemplate: "api/orders/customer/{customer_id}",
+                defaults: new { controller = "Orders", action = "GetOrdersByCustomerId" });
+
+            config.Routes.MapHttpRoute(
+              name: "productCategoryMappings",
+              routeTemplate: "api/product_category_mappings",
+              defaults: new { controller = "ProductCategoryMappings", action = "GetMappings" },
+              constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            config.Routes.MapHttpRoute(
+              name: "createProductCategoryMappings",
+              routeTemplate: "api/product_category_mappings",
+              defaults: new { controller = "ProductCategoryMappings", action = "CreateProductCategoryMapping" },
+              constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
+
+            config.Routes.MapHttpRoute(
+                name: "productCategoryMappingsCount",
+                routeTemplate: "api/product_category_mappings/count",
+                defaults: new { controller = "ProductCategoryMappings", action = "GetMappingsCount" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            config.Routes.MapHttpRoute(
+                name: "productCategoryMappingById",
+                routeTemplate: "api/product_category_mappings/{id}",
+                defaults: new { controller = "ProductCategoryMappings", action = "GetMappingById" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            config.Routes.MapHttpRoute(
+                name: "orderById",
+                routeTemplate: "api/orders/{id}",
+                defaults: new { controller = "Orders", action = "GetOrderById" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            config.Routes.MapHttpRoute(
+                name: "shoppingCartItems",
+                routeTemplate: "api/shopping_cart_items",
+                defaults: new { controller = "ShoppingCartItems", action = "GetShoppingCartItems" });
+
+            config.Routes.MapHttpRoute(
+                name: "shoppingCartItemsByCustomerId",
+                routeTemplate: "api/shopping_carts/{customerId}",
+                defaults: new { controller = "ShoppingCartItems", action = "GetShoppingCartItemsByCustomerId" });
 
             // The default route templates for the Swagger docs and swagger-ui are "swagger/docs/{apiVersion}" and "swagger/ui/index#/{assetPath}" respectively.
             config
@@ -115,10 +228,18 @@ namespace Nop.Plugin.Api
                     c.OperationFilter<RemovePrefixesOperationFilter>();
                     c.OperationFilter<ChangeParameterTypeOperationFilter>();
                 })
-                .EnableSwaggerUi();
+                .EnableSwaggerUi(c =>
+                {
+                    var currentAssembly = Assembly.GetAssembly(this.GetType());
+                    var currentAssemblyName = currentAssembly.GetName().Name;
+
+                    // Needeed for removing the "Try It Out" button from the post and put methods.
+                    // http://stackoverflow.com/questions/36772032/swagger-5-2-3-supportedsubmitmethods-removed/36780806#36780806
+                    c.InjectJavaScript(currentAssembly, string.Format("{0}.Scripts.swaggerPostPutTryItOutButtonsRemoval.js", currentAssemblyName));
+                });
 
             app.UseWebApi(config);
-            
+
             config.DependencyResolver = new AutofacWebApiDependencyResolver(EngineContext.Current.ContainerManager.Container);
         }
     }

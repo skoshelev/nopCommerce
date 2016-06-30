@@ -1,6 +1,5 @@
 ﻿using System.Web.Routing;
 using Nop.Core.Plugins;
-using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Data;
 using Nop.Plugin.Api.Helpers;
 using Nop.Services.Common;
@@ -52,13 +51,22 @@ namespace Nop.Plugin.Api.Plugin
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Settings.GeneralSettingsTitle", "General Settings");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Edit", "Edit");
             this.AddOrUpdatePluginLocaleResource("Plugins.Api.Admin.Client.BackToList", "Back To List");
-            
+
+            this.AddOrUpdatePluginLocaleResource("Api.Categories.Fields.Id.Invalid", "Id is invalid");
+            this.AddOrUpdatePluginLocaleResource("Api.InvalidPropertyType", "Invalid Property Type");
+            this.AddOrUpdatePluginLocaleResource("Api.InvalidType", "Invalid {0} type");
+            this.AddOrUpdatePluginLocaleResource("Api.InvalidRequest", "Invalid request");
+            this.AddOrUpdatePluginLocaleResource("Api.InvalidRootProperty", "Invalid root property");
+            this.AddOrUpdatePluginLocaleResource("Api.NoJsonProvided", "No Json provided");
+            this.AddOrUpdatePluginLocaleResource("Api.InvalidJsonFormat", "Json format is invalid");
+            this.AddOrUpdatePluginLocaleResource("Api.Category.InvalidImageAttachmentFormat", "Invalid image attachment base64 format");
+            this.AddOrUpdatePluginLocaleResource("Api.Category.InvalidImageSrc", "Invalid image source");
+            this.AddOrUpdatePluginLocaleResource("Api.Category.InvalidImageSrcType", "You have provided an invalid image source/attachment ");
+
             base.Install();
 
-            // TODO: Check if this will cause a real restart of the application and suspend execution
-            // Since this changes the Web.config it could cause the application to be restarted and
-            // we need to make sure the plugin is marked as intalled before that.
-            // Otherwise nopCommerce may try to install the plugin again after the restart since it is not marked as installed
+            // Changes to Web.Config trigger application restart.
+            // This doesn't appear to affect the Install function, but just to be safe we will made web.config changes after the plugin was installed.
             _webConfigMangerHelper.AddConfiguration();
         }
 
@@ -95,7 +103,8 @@ namespace Nop.Plugin.Api.Plugin
 
             base.Uninstall();
 
-            //TODO: Check if this could be before the Uninstall
+            // Changes to Web.Config trigger application restart.
+            // This doesn't appear to affect the uninstall function, but just to be safe we will made web.config changes after the plugin was uninstalled.
             _webConfigMangerHelper.RemoveConfiguration();
         }
 

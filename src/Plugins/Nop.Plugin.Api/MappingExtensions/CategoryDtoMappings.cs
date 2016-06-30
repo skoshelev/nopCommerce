@@ -10,5 +10,10 @@ namespace Nop.Plugin.Api.MappingExtensions
         {
             return Mapper.Map<Category, CategoryDto>(category);
         }
+
+        public static Category ToEntity(this CategoryDto categoryDto)
+        {
+            return Mapper.Map<CategoryDto, Category>(categoryDto);
+        }
     }
 }
