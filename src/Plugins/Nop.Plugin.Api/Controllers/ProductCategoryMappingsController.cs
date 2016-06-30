@@ -22,6 +22,8 @@ using Nop.Plugin.Api.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
 using Nop.Services.Discounts;
+using Nop.Services.Localization;
+using Nop.Services.Logging;
 using Nop.Services.Security;
 using Nop.Services.Seo;
 using Nop.Services.Stores;
@@ -33,8 +35,8 @@ namespace Nop.Plugin.Api.Controllers
     {
         private readonly IProductCategoryMappingsApiService _productCategoryMappingsService;
         private readonly ICategoryService _categoryService;
-
-        private readonly IFactory<ProductCategory> _factory;
+        private readonly ICustomerActivityService _customerActivityService;
+        private readonly ILocalizationService _localizationService;
 
         public ProductCategoryMappingsController(IProductCategoryMappingsApiService productCategoryMappingsService,
             ICategoryService categoryService,
@@ -43,12 +45,16 @@ namespace Nop.Plugin.Api.Controllers
             ICustomerService customerService,
             IStoreMappingService storeMappingService,
             IStoreService storeService,
-            IDiscountService discountService)
+            IDiscountService discountService,
+            ICustomerActivityService customerActivityService,
+            ILocalizationService localizationService)
             : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService
                 )
         {
             _productCategoryMappingsService = productCategoryMappingsService;
             _categoryService = categoryService;
+            _customerActivityService = customerActivityService;
+            _localizationService = localizationService;
         }
 
         /// <summary>
@@ -170,7 +176,33 @@ namespace Nop.Plugin.Api.Controllers
 
             var json = _jsonFieldsSerializer.Serialize(productCategoryMappingsRootObject, string.Empty);
 
+            //activity log 
+            _customerActivityService.InsertActivity("AddNewProductCategoryMapping", _localizationService.GetResource("ActivityLog.AddNewProductCategoryMapping"), newProductCategory.Id);
+
             return new RawJsonActionResult(json);
+        }
+
+        [HttpDelete]
+        public IHttpActionResult DeleteProductCategoryMapping(int id)
+        {
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            var productCategory = _categoryService.GetProductCategoryById(id);
+
+            if (productCategory == null)
+            {
+                return NotFound();
+            }
+
+            _categoryService.DeleteProductCategory(productCategory);
+
+            //activity log 
+            _customerActivityService.InsertActivity("DeleteProductCategoryMapping", _localizationService.GetResource("ActivityLog.DeleteProductCategoryMapping"), productCategory.Id);
+
+            return new RawJsonActionResult("{}");
         }
     }
 }
