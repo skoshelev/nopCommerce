@@ -1,22 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.ModelConfiguration.Conventions;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Discounts;
 using Nop.Core.Domain.Media;
-using Nop.Core.Domain.Stores;
-using Nop.Core.Domain.Security;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DTOs.Categories;
@@ -29,7 +19,6 @@ using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Seo;
 using Nop.Plugin.Api.Delta;
-using Nop.Plugin.Api.DTOs.Errors;
 using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.JSON.ActionResults;
@@ -43,23 +32,17 @@ using Nop.Services.Stores;
 namespace Nop.Plugin.Api.Controllers
 {
     [BearerTokenAuthorize]
-    public class CategoriesController : ApiController
+    public class CategoriesApiController : BaseApiController
     {
         private readonly ICategoryApiService _categoryApiService;
         private readonly ICategoryService _categoryService;
         private readonly IUrlRecordService _urlRecordService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ILocalizationService _localizationService;
-        private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
         private readonly IPictureService _pictureService;
-        private readonly IStoreMappingService _storeMappingService;
-        private readonly IStoreService _storeService;
-        private readonly IDiscountService _discountService;
-        private readonly IAclService _aclService;
-        private readonly ICustomerService _customerService;
         private readonly IFactory<Category> _factory; 
 
-        public CategoriesController(ICategoryApiService categoryApiService,
+        public CategoriesApiController(ICategoryApiService categoryApiService,
             IJsonFieldsSerializer jsonFieldsSerializer,
             ICategoryService categoryService,
             IUrlRecordService urlRecordService,
@@ -71,20 +54,14 @@ namespace Nop.Plugin.Api.Controllers
             IDiscountService discountService,
             IAclService aclService,
             ICustomerService customerService,
-            IFactory<Category> factory)
+            IFactory<Category> factory) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService)
         {
             _categoryApiService = categoryApiService;
-            _jsonFieldsSerializer = jsonFieldsSerializer;
             _categoryService = categoryService;
             _urlRecordService = urlRecordService;
             _customerActivityService = customerActivityService;
             _localizationService = localizationService;
             _factory = factory;
-            _customerService = customerService;
-            _aclService = aclService;
-            _discountService = discountService;
-            _storeService = storeService;
-            _storeMappingService = storeMappingService;
             _pictureService = pictureService;
         }
 
@@ -210,26 +187,27 @@ namespace Nop.Plugin.Api.Controllers
 
             _categoryService.InsertCategory(newCategory);
 
+            // We need to insert the entity first so we can have its id in order to map it to anything.
             // TODO: Localization
             List<int> roleIds = null;
 
             if (categoryDelta.Dto.RoleIds.Count > 0)
             {
-                roleIds = MapRoleToCategory(newCategory, categoryDelta.Dto);
+                roleIds = MapRoleToEntity(newCategory, categoryDelta.Dto.RoleIds);
             }
 
             List<int> discountIds = null;
 
             if (categoryDelta.Dto.DiscountIds.Count > 0)
             {
-                discountIds = ApplyDiscountsToCategory(newCategory, categoryDelta.Dto);
+                discountIds = ApplyDiscountsToEntity(newCategory, categoryDelta.Dto.DiscountIds, DiscountType.AssignedToCategories);
             }
 
             List<int> storeIds = null;
 
             if (categoryDelta.Dto.StoreIds.Count > 0)
             {
-                storeIds = MapCategoryToStores(newCategory, categoryDelta.Dto);
+                storeIds = MapEntityToStores(newCategory, categoryDelta.Dto.StoreIds);
             }
 
             // Preparing the result dto of the new category
@@ -240,7 +218,12 @@ namespace Nop.Plugin.Api.Controllers
             _urlRecordService.SaveSlug(newCategory, newCategoryDto.SeName, 0);
 
             // Here we prepare the resulted dto image.
-            PrepareImageDto(insertedPicture, newCategoryDto);
+            ImageDto imageDto = PrepareImageDto(insertedPicture, newCategoryDto);
+
+            if (imageDto != null)
+            {
+                newCategoryDto.Image = imageDto;
+            }
             
             if (storeIds != null)
             {
@@ -288,11 +271,11 @@ namespace Nop.Plugin.Api.Controllers
      
             Picture updatedPicture = UpdatePicture(categoryEntityToUpdate, categoryDelta.Dto.Image.Binary, categoryDelta.Dto.Image.MimeType);
 
-            List<int> storeIds = MapCategoryToStores(categoryEntityToUpdate, categoryDelta.Dto);
+            List<int> storeIds = MapEntityToStores(categoryEntityToUpdate, categoryDelta.Dto.StoreIds);
          
-            List<int> roleIds = MapRoleToCategory(categoryEntityToUpdate, categoryDelta.Dto);
+            List<int> roleIds = MapRoleToEntity(categoryEntityToUpdate, categoryDelta.Dto.RoleIds);
 
-            List<int> discountIds = ApplyDiscountsToCategory(categoryEntityToUpdate, categoryDelta.Dto);
+            List<int> discountIds = ApplyDiscountsToEntity(categoryEntityToUpdate, categoryDelta.Dto.DiscountIds, DiscountType.AssignedToCategories);
 
             _categoryService.UpdateCategory(categoryEntityToUpdate);
 
@@ -370,150 +353,6 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             return updatedPicture;
-        }
-
-        private void PrepareImageDto(Picture picture, CategoryDto newCategoryDto)
-        {
-            if (picture != null)
-            {
-                // We don't use the image from the passed dto directly 
-                // because the picture may be passed with src and the result should only include the base64 format.
-                newCategoryDto.Image = new ImageDto()
-                {
-                    Attachment = Convert.ToBase64String(picture.PictureBinary)
-                };
-            }
-        }
-
-        private List<int> MapCategoryToStores(Category category, CategoryDto dto)
-        {
-            IList<StoreMapping> existingStoreMappings = _storeMappingService.GetStoreMappings(category);
-            IList<Store> allStores = _storeService.GetAllStores();
-
-            var storeIds = new List<int>();
-            
-            foreach (var store in allStores)
-            {
-                if (dto.StoreIds.Contains(store.Id))
-                {
-                    //new store
-                    if (existingStoreMappings.Count(sm => sm.StoreId == store.Id) == 0)
-                    {
-                        _storeMappingService.InsertStoreMapping(category, store.Id);
-                    }
-
-                    storeIds.Add(store.Id);
-                }
-                else
-                {
-                    //remove store
-                    StoreMapping storeMappingToDelete = existingStoreMappings.FirstOrDefault(sm => sm.StoreId == store.Id);
-
-                    if (storeMappingToDelete != null)
-                    {
-                        _storeMappingService.DeleteStoreMapping(storeMappingToDelete);
-                        storeIds.Remove(store.Id);
-                    }
-                }
-            }
-
-            category.LimitedToStores = storeIds.Count > 0;
-
-            return storeIds;
-        }
-
-        private List<int> ApplyDiscountsToCategory(Category category, CategoryDto dto)
-        {
-            var discountIds = new List<int>();
-            Dictionary<int, bool> appliedDiscounts = category.AppliedDiscounts.ToDictionary(x => x.Id, x => true);
-
-            // Ensure that there won't be repeating discounts.
-            var uniqueDiscounts = new HashSet<int>(dto.DiscountIds);
-
-            var allDiscounts = _discountService.GetAllDiscounts(DiscountType.AssignedToCategories, showHidden: true);
-
-            foreach (var discount in allDiscounts)
-            {
-                // Apply the discount
-                if (!appliedDiscounts.ContainsKey(discount.Id) && uniqueDiscounts.Contains(discount.Id))
-                {
-                    category.AppliedDiscounts.Add(discount);
-                    discountIds.Add(discount.Id);
-                }
-                // Remove the discount
-                else if(appliedDiscounts.ContainsKey(discount.Id) && !uniqueDiscounts.Contains(discount.Id))
-                {
-                    category.AppliedDiscounts.Remove(discount);
-                    discountIds.Remove(discount.Id);
-                }
-            }
-
-            return discountIds;
-        }
-
-        private List<int> MapRoleToCategory(Category category, CategoryDto dto)
-        {
-            var roleIds = new List<int>();
-
-            IList<AclRecord> existingAclRecords = _aclService.GetAclRecords(category);
-            IList<CustomerRole> allCustomerRoles = _customerService.GetAllCustomerRoles(true);
-            
-            foreach (var customerRole in allCustomerRoles)
-            {
-                if (dto.RoleIds.Contains(customerRole.Id))
-                {
-                    //new role
-                    if (existingAclRecords.Count(acl => acl.CustomerRoleId == customerRole.Id) == 0)
-                    {
-                        _aclService.InsertAclRecord(category, customerRole.Id);
-                    }
-
-                    roleIds.Add(customerRole.Id);
-                }
-                else
-                {
-                    //remove role
-                    var aclRecordToDelete = existingAclRecords.FirstOrDefault(acl => acl.CustomerRoleId == customerRole.Id);
-
-                    if (aclRecordToDelete != null)
-                    {
-                        _aclService.DeleteAclRecord(aclRecordToDelete);
-                        roleIds.Remove(customerRole.Id);
-                    }
-                }
-            }
-
-            category.SubjectToAcl = roleIds.Count > 0;
-
-            return roleIds;
-        }
-
-        private IHttpActionResult Error()
-        {
-            var errors = new Dictionary<string, List<string>>();
-
-            foreach (var item in ModelState)
-            {
-                var errorMessages = item.Value.Errors.Select(x => x.ErrorMessage);
-
-                if (errors.ContainsKey(item.Key))
-                {
-                    errors[item.Key].AddRange(errorMessages);
-                }
-                else
-                {
-                    errors.Add(item.Key, errorMessages.ToList());
-                }
-            }
-
-            var errorsRootObject = new ErrorsRootObject()
-            {
-                Errors = errors
-            };
-
-            var errorsJson = _jsonFieldsSerializer.Serialize(errorsRootObject, null);
-
-            return new ErrorActionResult(errorsJson);
         }
     }
 }

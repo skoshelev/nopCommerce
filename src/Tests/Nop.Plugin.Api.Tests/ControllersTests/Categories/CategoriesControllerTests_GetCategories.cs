@@ -29,7 +29,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             };
 
             //Arange
-            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
 
             //Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetCategories(parameters);
@@ -49,7 +49,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             };
 
             //Arange
-            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
 
             //Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetCategories(parameters);
@@ -64,7 +64,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             var parameters = new CategoriesParametersModel();
 
             //Arange
-            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
             autoMocker.Get<ICategoryApiService>()
                 .Expect(x => x.GetCategories(parameters.Ids,
                                                     parameters.CreatedAtMin,
@@ -98,7 +98,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             var parameters = new CategoriesParametersModel();
 
             //Arange
-            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
             autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategories()).Return(returnedCategoriesCollection);
 
             //Act
@@ -119,7 +119,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             };
 
             //Arange
-            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
             autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategories()).Return(new List<Category>());
 
             //Act
@@ -136,7 +136,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             var parameters = new CategoriesParametersModel();
 
             //Arange
-            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
             autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategories()).Return(new List<Category>());
 
             //Act

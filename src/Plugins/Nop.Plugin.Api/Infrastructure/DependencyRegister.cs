@@ -50,7 +50,7 @@ namespace Nop.Plugin.Api.Infrastructure
         private void RegisterControllers(ContainerBuilder builder)
         {
             builder.RegisterType<CustomersController>().InstancePerLifetimeScope();
-            builder.RegisterType<CategoriesController>().InstancePerLifetimeScope();
+            builder.RegisterType<CategoriesApiController>().InstancePerLifetimeScope();
             builder.RegisterType<ProductsController>().InstancePerLifetimeScope();
             builder.RegisterType<ProductCategoryMappingsController>().InstancePerLifetimeScope();
             builder.RegisterType<OrdersController>().InstancePerLifetimeScope();
@@ -105,6 +105,7 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<ApiTypeConverter>().As<IApiTypeConverter>().InstancePerLifetimeScope();
 
             builder.RegisterType<CategoryFactory>().As<IFactory<Category>>().InstancePerLifetimeScope();
+            builder.RegisterType<ProductFactory>().As<IFactory<Product>>().InstancePerLifetimeScope();
         }
 
         public int Order { get; }

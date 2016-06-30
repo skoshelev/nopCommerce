@@ -2,29 +2,71 @@
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Discounts;
+using Nop.Core.Domain.Media;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
+using Nop.Plugin.Api.Delta;
+using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.DTOs.Products;
+using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.MappingExtensions;
+using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.Models.ProductsParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
+using Nop.Services.Catalog;
+using Nop.Services.Customers;
+using Nop.Services.Discounts;
+using Nop.Services.Localization;
+using Nop.Services.Logging;
+using Nop.Services.Media;
+using Nop.Services.Security;
+using Nop.Services.Seo;
+using Nop.Services.Stores;
 
 namespace Nop.Plugin.Api.Controllers
 {
     [BearerTokenAuthorize]
-    public class ProductsController : ApiController
+    public class ProductsController : BaseApiController
     {
         private readonly IProductApiService _productApiService;
-        private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
+        private readonly IProductService _productService;
+        private readonly IUrlRecordService _urlRecordService;
+        private readonly ICustomerActivityService _customerActivityService;
+        private readonly ILocalizationService _localizationService;
+        private readonly IPictureService _pictureService;
+        private readonly IManufacturerService _manufacturerService;
+        private readonly IProductTagService _productTagService;
+        private readonly IFactory<Product> _factory;
 
         public ProductsController(IProductApiService productApiService, 
-                                  IJsonFieldsSerializer jsonFieldsSerializer)
+                                  IJsonFieldsSerializer jsonFieldsSerializer,
+                                  IProductService productService, 
+                                  IUrlRecordService urlRecordService, 
+                                  ICustomerActivityService customerActivityService, 
+                                  ILocalizationService localizationService,
+                                  IFactory<Product> factory, 
+                                  IAclService aclService, 
+                                  IStoreMappingService storeMappingService, 
+                                  IStoreService storeService, 
+                                  ICustomerService customerService, 
+                                  IDiscountService discountService, 
+                                  IPictureService pictureService, 
+                                  IManufacturerService manufacturerService, IProductTagService productTagService) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService)
         {
             _productApiService = productApiService;
-            _jsonFieldsSerializer = jsonFieldsSerializer;
+            _factory = factory;
+            _pictureService = pictureService;
+            _manufacturerService = manufacturerService;
+            _productTagService = productTagService;
+            _urlRecordService = urlRecordService;
+            _customerActivityService = customerActivityService;
+            _localizationService = localizationService;
+            _productService = productService;
         }
 
         /// <summary>
@@ -117,6 +159,226 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(productsRootObject, fields);
 
             return new RawJsonActionResult(json);
+        }
+
+        [HttpPost]
+        [ResponseType(typeof(ProductsRootObjectDto))]
+        public IHttpActionResult CreateProduct([ModelBinder(typeof(JsonModelBinder<ProductDto>))] Delta<ProductDto> productDelta)
+        {
+            // Here we display the errors if the validation has failed at some point.
+            if (!ModelState.IsValid)
+            {
+                return Error();
+            }
+
+            //If the validation has passed the productDelta object won't be null for sure so we don't need to check for this.
+
+            var insertedPictures = new List<Picture>();
+
+            // We need to insert the picture before the product so we can obtain the picture id and map it to the product.
+            foreach (var image in productDelta.Dto.Images)
+            {
+                Picture newPicture = _pictureService.InsertPicture(image.Binary, image.MimeType, string.Empty);
+
+                insertedPictures.Add(newPicture);
+            }
+
+            // Inserting the new product
+            Product newProduct = _factory.Initialize();
+            productDelta.Merge(newProduct);
+
+            _productService.InsertProduct(newProduct);
+
+            foreach (var picture in insertedPictures)
+            {
+                newProduct.ProductPictures.Add(new ProductPicture()
+                {
+                    PictureId = picture.Id,
+                    ProductId = newProduct.Id
+                    //TODO: display order
+                });
+            }
+
+            MapTagsToProduct(newProduct, productDelta.Dto.Tags);
+
+            _productService.UpdateProduct(newProduct);
+
+            // We need to insert the entity first so we can have its id in order to map it to anything.
+            // TODO: Localization
+
+            List<int> manufacturerIds = null;
+
+            if (productDelta.Dto.ManufacturerIds.Count > 0)
+            {
+                manufacturerIds = MapProductToManufacturers(newProduct.Id, productDelta.Dto.ManufacturerIds);
+            }
+
+            List<int> roleIds = null;
+
+            if (productDelta.Dto.RoleIds.Count > 0)
+            {
+                roleIds = MapRoleToEntity(newProduct, productDelta.Dto.RoleIds);
+            }
+
+            List<int> discountIds = null;
+
+            if (productDelta.Dto.DiscountIds.Count > 0)
+            {
+                discountIds = ApplyDiscountsToEntity(newProduct, productDelta.Dto.DiscountIds, DiscountType.AssignedToSkus);
+                // Unable to add it to the method above (like it is implemented for the stores and roles) 
+                // because the property is not part of any specific interface
+                newProduct.HasDiscountsApplied = discountIds.Count > 0;
+            }
+
+            List<int> storeIds = null;
+
+            if (productDelta.Dto.StoreIds.Count > 0)
+            {
+                storeIds = MapEntityToStores(newProduct, productDelta.Dto.StoreIds);
+            }
+
+            // Preparing the result dto of the new product
+            ProductDto newProductDto = newProduct.ToDto();
+
+            PrepareProductImages(insertedPictures, newProductDto);
+
+            //search engine name
+            newProductDto.SeName = newProduct.ValidateSeName(newProductDto.SeName, newProduct.Name, true);
+            _urlRecordService.SaveSlug(newProduct, newProductDto.SeName, 0);
+
+            if (manufacturerIds != null)
+            {
+                newProductDto.ManufacturerIds = manufacturerIds;
+            }
+
+            if (storeIds != null)
+            {
+                newProductDto.StoreIds = storeIds;
+            }
+
+            if (discountIds != null)
+            {
+                newProductDto.DiscountIds = discountIds;
+            }
+
+            if (roleIds != null)
+            {
+                newProductDto.RoleIds = roleIds;
+            }
+
+            _customerActivityService.InsertActivity("AddNewProduct",
+                _localizationService.GetResource("ActivityLog.AddNewProduct"), newProduct.Name);
+
+            var productsRootObject = new ProductsRootObjectDto();
+
+            productsRootObject.Products.Add(newProductDto);
+
+            var json = _jsonFieldsSerializer.Serialize(productsRootObject, string.Empty);
+
+            return new RawJsonActionResult(json);
+        }
+
+        private void MapTagsToProduct(Product newProduct, List<string> passedTags)
+        {
+            Dictionary<string, ProductTag> currentProductTags = newProduct.ProductTags.ToDictionary(tag => tag.Name, tag => tag);
+            var uniqueProductTagsToAdd = new HashSet<string>();
+
+            foreach (var passedTag in passedTags)
+            {
+                // If tag already exists we remove it from the collection so we don't remove it later.
+                // This will result in a collection in which, at the end, we will have a collection 
+                // with all the tags that were mapped to the product, but currently are not part of the passed collection
+                // which means we should delete product-tag mapping
+                if (currentProductTags.ContainsKey(passedTag))
+                {
+                    currentProductTags.Remove(passedTag);
+                }
+                // new tag
+                else
+                {
+                    uniqueProductTagsToAdd.Add(passedTag);
+                }
+            }
+
+            // Delete all remaining tags.
+            foreach (var productTag in currentProductTags)
+            {
+                newProduct.ProductTags.Remove(productTag.Value);
+            }
+
+            // Add tags that should be mapped to product.
+            foreach (var productTag in uniqueProductTagsToAdd)
+            {
+                newProduct.ProductTags.Add(new ProductTag()
+                {
+                    Name = productTag
+                });
+            }
+        }
+
+        private void PrepareProductImages(List<Picture> insertedPictures, ProductDto newProductDto)
+        {
+            // Here we prepare the resulted dto image.
+            foreach (var insertedPicture in insertedPictures)
+            {
+                ImageDto imageDto = PrepareImageDto(insertedPicture, newProductDto);
+
+                if (imageDto != null)
+                {
+                    newProductDto.Images.Add(imageDto);
+                }
+            }
+        }
+
+        private List<int> MapProductToManufacturers(int entityId, List<int> passedManufacturerIds)
+        {
+            // Needed so we can easily check if an id is valid.
+            Dictionary<int, bool> allManufacturers = _manufacturerService.GetAllManufacturers()
+                .ToDictionary(manufacturer => manufacturer.Id, manufacturer => true);
+
+            var mappedManufacturers = new List<int>();
+            IList<ProductManufacturer> manufacturerMappingsForCurrentProduct = _manufacturerService.GetProductManufacturersByProductId(entityId);
+
+            Dictionary<int, ProductManufacturer> existingMappings =
+                manufacturerMappingsForCurrentProduct.ToDictionary(mapping => mapping.ManufacturerId, manufacturer => manufacturer);
+
+            foreach (var manufacturerId in passedManufacturerIds)
+            {
+                if (!allManufacturers.ContainsKey(manufacturerId))
+                {
+                    // invalid manufacturer id so we just ignore it.
+                    continue;
+                }
+
+                if (!existingMappings.ContainsKey(manufacturerId))
+                {
+                    // new mapping
+                    var productManufacturer = new ProductManufacturer
+                    {
+                        ProductId = entityId,
+                        ManufacturerId = manufacturerId
+                    };
+
+                    _manufacturerService.InsertProductManufacturer(productManufacturer);
+
+                    mappedManufacturers.Add(manufacturerId);
+                }
+                else
+                {
+                    // Remove existing mapping to get the subset of all existing mappings that are not contained in the passed manufacturer ids.
+                    existingMappings.Remove(manufacturerId);
+                }       
+            }
+
+            // Remove all the existingMappings that have left. This will be used in the update to delete mappings.
+            foreach (var mapping in existingMappings)
+            {
+                // This will delete the mapping not the manufacturer itself. The method name is little confusing.
+                _manufacturerService.DeleteProductManufacturer(mapping.Value);
+                mappedManufacturers.Add(mapping.Key);
+            }
+
+            return mappedManufacturers;
         }
     }
 }

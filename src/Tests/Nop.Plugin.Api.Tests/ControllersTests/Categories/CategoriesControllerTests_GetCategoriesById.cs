@@ -21,7 +21,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         public void WhenIdEqualsToZeroOrLess_ShouldReturn404NotFound(int nonPositiveCategoryId)
         {
             // Arange
-            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
 
             // Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetCategoryById(nonPositiveCategoryId);
@@ -36,7 +36,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         public void WhenIdEqualsToZeroOrLess_ShouldNotCallCategoryApiService(int negativeCategoryId)
         {
             // Arange
-            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
             autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(null, null)).Return(string.Empty);
 
             // Act
@@ -52,7 +52,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             int nonExistingCategoryId = 5;
 
             // Arange
-            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
             autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoryById(nonExistingCategoryId)).Return(null);
 
             // Act
@@ -71,7 +71,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             var existingCategory = new Category() { Id = existingCategoryId };
 
             // Arange
-            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
             autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoryById(existingCategoryId)).Return(existingCategory);
 
             // Act
@@ -98,7 +98,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             string fields = "id,name";
 
             // Arange
-            var autoMocker = new RhinoAutoMocker<CategoriesController>();
+            var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
             autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoryById(existingCategoryId)).Return(existingCategory);
 
             // Act

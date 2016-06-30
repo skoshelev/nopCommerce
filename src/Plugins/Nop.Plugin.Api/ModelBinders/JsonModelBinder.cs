@@ -261,7 +261,14 @@ namespace Nop.Plugin.Api.ModelBinders
 
             foreach (var property in dtoProperties)
             {
+                // Check property type
                 BaseAttributeInvoker invokerAttribute = property.PropertyType.GetCustomAttribute(typeof (BaseAttributeInvoker)) as BaseAttributeInvoker;
+
+                // If not on property type, check the property itself.
+                if (invokerAttribute == null)
+                {
+                    invokerAttribute = property.GetCustomAttribute(typeof (BaseAttributeInvoker)) as BaseAttributeInvoker;
+                }
 
                 if (invokerAttribute != null)
                 {
