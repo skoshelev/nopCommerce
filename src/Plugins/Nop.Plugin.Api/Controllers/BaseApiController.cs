@@ -162,7 +162,7 @@ namespace Nop.Plugin.Api.Controllers
 
             foreach (var discount in allDiscounts)
             {
-                // Apply the discount
+                // Apply the discount. This is a failsafe to make sure that you won't apply the discount two times.
                 if (!appliedDiscounts.ContainsKey(discount.Id) && uniqueDiscounts.Contains(discount.Id))
                 {
                     appliedDiscountsProperty.Add(discount);
@@ -173,6 +173,11 @@ namespace Nop.Plugin.Api.Controllers
                 {
                     appliedDiscountsProperty.Remove(discount);
                     discountIds.Remove(discount.Id);
+                }
+                // Here we make sure that we will add the discount if it is already applied and it is not for removal.
+                else if(appliedDiscounts.ContainsKey(discount.Id))
+                {
+                    discountIds.Add(discount.Id);
                 }
             }
 

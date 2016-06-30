@@ -139,6 +139,12 @@ namespace Nop.Plugin.Api
               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
 
             config.Routes.MapHttpRoute(
+              name: "updateProduct",
+              routeTemplate: "api/products/{id}",
+              defaults: new { controller = "Products", action = "UpdateProduct" },
+              constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Put) });
+
+            config.Routes.MapHttpRoute(
                 name: "productsCount",
                 routeTemplate: "api/products/count",
                 defaults: new { controller = "Products", action = "GetProductsCount" },
