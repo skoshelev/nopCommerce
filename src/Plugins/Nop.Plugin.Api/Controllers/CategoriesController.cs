@@ -90,7 +90,15 @@ namespace Nop.Plugin.Api.Controllers
                                                                              parameters.Limit, parameters.Page, parameters.SinceId,
                                                                              parameters.ProductId, parameters.PublishedStatus);
 
-            IList<CategoryDto> categoriesAsDtos = allCategories.Select(x => x.ToDto()).ToList();
+            IList<CategoryDto> categoriesAsDtos = allCategories.Select(category =>
+            {
+                CategoryDto categoryDto = category.ToDto();
+
+                PrepareDtoAditionalProperties(category, categoryDto);
+
+                return categoryDto;
+
+            }).ToList();
 
             var categoriesRootObject = new CategoriesRootObject()
             {
@@ -147,15 +155,19 @@ namespace Nop.Plugin.Api.Controllers
                 return NotFound();
             }
 
+            CategoryDto categoryDto = category.ToDto();
+
+            PrepareDtoAditionalProperties(category, categoryDto);
+
             var categoriesRootObject = new CategoriesRootObject();
 
-            categoriesRootObject.Categories.Add(category.ToDto());
+            categoriesRootObject.Categories.Add(categoryDto);
 
             var json = _jsonFieldsSerializer.Serialize(categoriesRootObject, fields);
 
             return new RawJsonActionResult(json);
         }
-
+        
         [HttpPost]
         [ResponseType(typeof(CategoriesRootObject))]
         public IHttpActionResult CreateCategory([ModelBinder(typeof(JsonModelBinder<CategoryDto>))] Delta<CategoryDto> categoryDelta)
@@ -322,6 +334,21 @@ namespace Nop.Plugin.Api.Controllers
             _customerActivityService.InsertActivity("DeleteCategory", _localizationService.GetResource("ActivityLog.DeleteCategory"), categoryToDelete.Name);
 
             return new RawJsonActionResult("{}");
+        }
+
+        private void PrepareDtoAditionalProperties(Category category, CategoryDto categoryDto)
+        {
+            Picture picture = _pictureService.GetPictureById(category.PictureId);
+            ImageDto imageDto = PrepareImageDto(picture, categoryDto);
+
+            if (imageDto != null)
+            {
+                categoryDto.Image = imageDto;
+            }
+            
+            categoryDto.DiscountIds = category.AppliedDiscounts.Select(discount => discount.Id).ToList();
+            categoryDto.RoleIds = _aclService.GetAclRecords(category).Select(acl => acl.CustomerRoleId).ToList();
+            categoryDto.StoreIds = _storeMappingService.GetStoreMappings(category).Select(mapping => mapping.StoreId).ToList();
         }
 
         private Picture UpdatePicture(Category categoryEntityToUpdate, byte[] imageBytes, string mimeType)
