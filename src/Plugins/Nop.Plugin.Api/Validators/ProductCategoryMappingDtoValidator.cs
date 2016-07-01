@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using FluentValidation;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Api.DTOs.ProductCategoryMappings;
@@ -20,7 +21,7 @@ namespace Nop.Plugin.Api.Validators
 
         public ProductCategoryMappingDtoValidator(string httpMethod,
             Dictionary<string, object> passedPropertyValuePaires)
-          {
+        {
             if (string.IsNullOrEmpty(httpMethod) || httpMethod.Equals("post", StringComparison.InvariantCultureIgnoreCase))
             {
                 RuleFor(mapping => mapping.CategoryId)
@@ -52,6 +53,41 @@ namespace Nop.Plugin.Api.Validators
                                     });
                             });
                     });
+            }
+            else if (httpMethod.Equals("put", StringComparison.InvariantCultureIgnoreCase))
+            {
+                RuleFor(mapping => mapping.Id)
+                    .NotNull()
+                    .NotEmpty()
+                    .Must(id => id > 0)
+                    .WithMessage(_localizationService.GetResource("Admin.ProductCategory.Fields.Id.Invalid"));
+
+                if (passedPropertyValuePaires.ContainsKey("category_id"))
+                {
+                    RuleFor(mapping => mapping.CategoryId)
+                        .Must(categoryId => categoryId > 0)
+                        .WithMessage(_localizationService.GetResource("Api.ProductCategory.Fields.CategoryId.Invalid"))
+                        .DependentRules(mapping =>
+                        {
+                            mapping.RuleFor(m => m.CategoryId)
+                                .Must(categoryId => _categoryService.GetCategoryById((int)categoryId) != null)
+                                .WithMessage(
+                                    _localizationService.GetResource("Api.ProductCategory.Fields.Category.Invalid"));
+                        });
+                }
+
+                if (passedPropertyValuePaires.ContainsKey("product_id"))
+                {
+                    RuleFor(mapping => mapping.ProductId)
+                        .Must(productId => productId > 0)
+                        .WithMessage(_localizationService.GetResource("Api.ProductCategory.Fields.ProductId.Invalid"))
+                        .DependentRules(mapping =>
+                         {
+                             mapping.RuleFor(m => m.ProductId)
+                                    .Must(productId => _productService.GetProductById((int)productId) != null)
+                                    .WithMessage(_localizationService.GetResource("Api.ProductCategory.Fields.Product.Invalid"));
+                         });
+                }
             }
         }
     }

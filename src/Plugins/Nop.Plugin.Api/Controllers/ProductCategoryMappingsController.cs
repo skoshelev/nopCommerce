@@ -160,7 +160,7 @@ namespace Nop.Plugin.Api.Controllers
             {
                 return Error();
             }
-            
+
             ProductCategory newProductCategory = new ProductCategory();
             productCategoryDelta.Merge(newProductCategory);
 
@@ -178,6 +178,39 @@ namespace Nop.Plugin.Api.Controllers
 
             //activity log 
             _customerActivityService.InsertActivity("AddNewProductCategoryMapping", _localizationService.GetResource("ActivityLog.AddNewProductCategoryMapping"), newProductCategory.Id);
+
+            return new RawJsonActionResult(json);
+        }
+
+        [HttpPut]
+        [ResponseType(typeof(ProductCategoryMappingsRootObject))]
+        public IHttpActionResult UpdateProductCategoryMapping([ModelBinder(typeof(JsonModelBinder<ProductCategoryMappingDto>))] Delta<ProductCategoryMappingDto> productCategoryDelta)
+        {
+            // Here we display the errors if the validation has failed at some point.
+            if (!ModelState.IsValid)
+            {
+                return Error();
+            }
+
+            // We do not need to validate the category id, because this will happen in the model binder using the dto validator.
+            int updateProductCategoryId = productCategoryDelta.Dto.Id;
+
+            ProductCategory productCategoryEntityToUpdate = _categoryService.GetProductCategoryById(updateProductCategoryId);
+            productCategoryDelta.Merge(productCategoryEntityToUpdate);
+
+            _categoryService.UpdateProductCategory(productCategoryEntityToUpdate);
+
+            //activity log
+            _customerActivityService.InsertActivity("UpdateProdutCategoryMapping",
+                _localizationService.GetResource("ActivityLog.UpdateProdutCategoryMapping"), productCategoryEntityToUpdate.Id);
+
+            ProductCategoryMappingDto updatedProductCategoryDto = productCategoryEntityToUpdate.ToDto();
+
+            var productCategoriesRootObject = new ProductCategoryMappingsRootObject();
+
+            productCategoriesRootObject.ProductCategoryMappingDtos.Add(updatedProductCategoryDto);
+
+            var json = _jsonFieldsSerializer.Serialize(productCategoriesRootObject, string.Empty);
 
             return new RawJsonActionResult(json);
         }
