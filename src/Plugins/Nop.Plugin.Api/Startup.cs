@@ -190,6 +190,12 @@ namespace Nop.Plugin.Api
               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
 
             config.Routes.MapHttpRoute(
+               name: "deleteProductCategoryMapping",
+               routeTemplate: "api/product_category_mappings/{id}",
+               defaults: new { controller = "ProductCategoryMappings", action = "DeleteProductCategoryMapping" },
+               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Delete) });
+
+            config.Routes.MapHttpRoute(
                 name: "productCategoryMappingsCount",
                 routeTemplate: "api/product_category_mappings/count",
                 defaults: new { controller = "ProductCategoryMappings", action = "GetMappingsCount" },
