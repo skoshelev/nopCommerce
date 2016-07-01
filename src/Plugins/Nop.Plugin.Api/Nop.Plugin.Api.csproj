@@ -260,6 +260,7 @@
     <Compile Include="Swagger\ChangeParameterTypeOperationFilter.cs" />
     <Compile Include="Swagger\ExcludeEnpointsDocumentFilter.cs" />
     <Compile Include="Swagger\RemovePrefixesOperationFilter.cs" />
+    <Compile Include="Validators\ProductCategoryMappingDtoValidator.cs" />
     <Compile Include="Validators\ProductDtoValidator.cs" />
     <Compile Include="Validators\CategoryDtoValidator.cs" />
     <Compile Include="Validators\ClientValidator.cs" />
