@@ -4,6 +4,8 @@ using Autofac.Core;
 using Nop.Core.Configuration;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Common;
+using Nop.Core.Domain.Customers;
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
 using Nop.Data;
@@ -15,7 +17,6 @@ using Nop.Plugin.Api.DTOs.Categories;
 using Nop.Plugin.Api.DTOs.ProductCategoryMappings;
 using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.Helpers;
-using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.Models;
 using Nop.Plugin.Api.Serializers;
@@ -65,25 +66,25 @@ namespace Nop.Plugin.Api.Infrastructure
 
         private void CreateModelMappings()
         {
-            Maps.CreateMap<ApiSettings, ConfigurationModel>();
-            Maps.CreateMap<ConfigurationModel, ApiSettings>();
-
-            Maps.CreateMap<Client, ClientModel>();
-            Maps.CreateMap<ClientModel, Client>();
-
-            Maps.CreateMap<Category, CategoryDto>();
-            Maps.CreateMap<CategoryDto, Category>();
-
-            Maps.CreateMap<ProductCategory, ProductCategoryMappingDto>();
-
-            Maps.CreateAddressMap();
-            Maps.CreateShoppingCartItemMap();
-
-            Maps.CreateCustomerToDTOMap();
-            Maps.CreateCustomerToOrderCustomerDTOMap();
-            Maps.CreateCustomerForShoppingCartItemMapFromCustomer();
-
-            Maps.CreateProductMap();
+            MappingExtensions.Maps.CreateMap<ApiSettings, ConfigurationModel>();
+            MappingExtensions.Maps.CreateMap<ConfigurationModel, ApiSettings>();
+            
+            MappingExtensions.Maps.CreateMap<Client, ClientModel>();
+            MappingExtensions.Maps.CreateMap<ClientModel, Client>();
+            
+            MappingExtensions.Maps.CreateMap<Category, CategoryDto>();
+            MappingExtensions.Maps.CreateMap<CategoryDto, Category>();
+            
+            MappingExtensions.Maps.CreateMap<ProductCategory, ProductCategoryMappingDto>();
+            
+            MappingExtensions.Maps.CreateAddressMap();
+            MappingExtensions.Maps.CreateShoppingCartItemMap();
+            
+            MappingExtensions.Maps.CreateCustomerToDTOMap();
+            MappingExtensions.Maps.CreateCustomerToOrderCustomerDTOMap();
+            MappingExtensions.Maps.CreateCustomerForShoppingCartItemMapFromCustomer();
+            
+            MappingExtensions.Maps.CreateProductMap();
         }
 
         private void RegisterPluginServices(ContainerBuilder builder)
@@ -98,6 +99,7 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<ShoppingCartItemApiService>().As<IShoppingCartItemApiService>().InstancePerLifetimeScope();
             builder.RegisterType<MappingHelper>().As<IMappingHelper>().InstancePerLifetimeScope();
             builder.RegisterType<AuthorizationHelper>().As<IAuthorizationHelper>().InstancePerLifetimeScope();
+            builder.RegisterType<CustomerRolesHelper>().As<ICustomerRolesHelper>().InstancePerLifetimeScope();
             builder.RegisterType<JsonHelper>().As<IJsonHelper>().InstancePerLifetimeScope();
             builder.RegisterType<JsonFieldsSerializer>().As<IJsonFieldsSerializer>().InstancePerLifetimeScope();
             builder.RegisterType<FieldsValidator>().As<IFieldsValidator>().InstancePerLifetimeScope();
@@ -106,6 +108,10 @@ namespace Nop.Plugin.Api.Infrastructure
 
             builder.RegisterType<CategoryFactory>().As<IFactory<Category>>().InstancePerLifetimeScope();
             builder.RegisterType<ProductFactory>().As<IFactory<Product>>().InstancePerLifetimeScope();
+            builder.RegisterType<CustomerFactory>().As<IFactory<Customer>>().InstancePerLifetimeScope();
+            builder.RegisterType<AddressFactory>().As<IFactory<Address>>().InstancePerLifetimeScope();
+
+            builder.RegisterType<Maps.JsonPropertyMapper>().As<Maps.IJsonPropertyMapper>().InstancePerLifetimeScope();
         }
 
         public int Order { get; }

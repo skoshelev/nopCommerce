@@ -1,8 +1,11 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Nop.Plugin.Api.Attributes;
+using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs
 {
+    [Dto(ValidatorType = typeof(AddressDtoValidator), RootProperty = "address")]
     [JsonObject(Title = "addresses")]
     public class AddressDto
     {
@@ -10,7 +13,7 @@ namespace Nop.Plugin.Api.DTOs
         /// Gets or sets the first name
         /// </summary>
         [JsonProperty("id")]
-        public int? Id { get; set; }
+        public string Id { get; set; }
         /// <summary>
         /// Gets or sets the first name
         /// </summary>
@@ -80,7 +83,7 @@ namespace Nop.Plugin.Api.DTOs
         /// <summary>
         /// Gets or sets the phone number
         /// </summary>
-        [JsonProperty("phone")]
+        [JsonProperty("phone_number")]
         public string PhoneNumber { get; set; }
 
         /// <summary>

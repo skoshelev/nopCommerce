@@ -4,42 +4,25 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using AutoMapper.Internal;
-using Newtonsoft.Json;
+using Nop.Core.Infrastructure;
+using Nop.Plugin.Api.Factories;
 
 namespace Nop.Plugin.Api.Helpers
 {
     // TODO: Think of moving the mapping helper in teh delta folder
     public class MappingHelper : IMappingHelper
     {
-        public void SetValues(Dictionary<string, object> jsonPropertiesValuePairsPassed, object objectToBeUpdated, Type propertyType)
+        public void SetValues(Dictionary<string, object> jsonPropertiesValuePairsPassed, object objectToBeUpdated,
+            Type propertyType)
         {
-            // TODO: handle the special case where some field was not set before, but values are send for it.
-            if (objectToBeUpdated == null) return;
-
-            var objectProperties = propertyType.GetProperties();
-            var jsonNamePropertyPaires = new Dictionary<string, PropertyInfo>();
-
-            foreach (var property in objectProperties)
+            foreach (var propertyValuePair in jsonPropertiesValuePairsPassed)
             {
-                JsonPropertyAttribute jsonPropertyAttribute = property.GetCustomAttribute(typeof(JsonPropertyAttribute)) as JsonPropertyAttribute;
-
-                if (jsonPropertyAttribute != null)
-                {
-                    if (!jsonNamePropertyPaires.ContainsKey(jsonPropertyAttribute.PropertyName))
-                    {
-                        jsonNamePropertyPaires.Add(jsonPropertyAttribute.PropertyName, property);
-                    }
-                }
-            }
-
-            foreach (var property in jsonPropertiesValuePairsPassed)
-            {
-                SetValue(objectToBeUpdated, property, jsonNamePropertyPaires);
+                SetValue(objectToBeUpdated, propertyValuePair);
             }
         }
-        
+
         // Used in the SetValue private method and also in the Delta.
-        public void ConvertAndSetValueIfValid(object objectToBeUpdated, PropertyInfo objectProperty, object propertyValue)
+        private void ConvertAndSetValueIfValid(object objectToBeUpdated, PropertyInfo objectProperty, object propertyValue)
         {
             TypeConverter converter = TypeDescriptor.GetConverter(objectProperty.PropertyType);
 
@@ -53,25 +36,43 @@ namespace Nop.Plugin.Api.Helpers
             }
         }
 
-        private void SetValue(object objectToBeUpdated, KeyValuePair<string, object> jsonPropertyValuePaires, Dictionary<string, PropertyInfo> jsonNamePropertyPaires)
+        private void SetValue(object objectToBeUpdated, KeyValuePair<string, object> jsonPropertyValuePaires)
         {
             string propertyName = jsonPropertyValuePaires.Key;
             object propertyValue = jsonPropertyValuePaires.Value;
 
-            PropertyInfo objectProperty = null;
-
-            if (jsonNamePropertyPaires.ContainsKey(propertyName))
-            {
-                objectProperty = jsonNamePropertyPaires[propertyName];
-            }
-
+            PropertyInfo objectProperty = objectToBeUpdated.GetType().GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            
             if (objectProperty != null)
             {
                 // This case handles nested properties.
                 if (propertyValue != null && propertyValue is Dictionary<string, object>)
                 {
+                    var valueToUpdate = objectProperty.GetValue(objectToBeUpdated);
+
+                    if (valueToUpdate == null)
+                    {
+                        // Check if there is registered factory for this type.
+                        Type factoryType = typeof (IFactory<>);
+                        var factoryTypeForCurrentProperty = factoryType.MakeGenericType(new Type[] {objectProperty.PropertyType});
+                        var initializerFactory = EngineContext.Current.Resolve(factoryTypeForCurrentProperty);
+
+                        if (initializerFactory != null)
+                        {
+                            var initializeMethod = factoryTypeForCurrentProperty.GetMethod("Initialize");
+
+                            valueToUpdate = initializeMethod.Invoke(initializerFactory, null);
+                        }
+                        else
+                        {
+                            valueToUpdate = Activator.CreateInstance(objectProperty.PropertyType);
+                        }
+
+                        objectProperty.SetValue(objectToBeUpdated, valueToUpdate);
+                    }
+
                     // We need to use GetValue method to get the actual instance of the jsonProperty. objectProperty is the jsonProperty info.
-                    SetValues((Dictionary<string, object>) propertyValue, objectProperty.GetValue(objectToBeUpdated),
+                    SetValues((Dictionary<string, object>) propertyValue, valueToUpdate,
                         objectProperty.PropertyType);
                     // We expect the nested properties to be classes which are refrence types.
                     return;
@@ -82,20 +83,27 @@ namespace Nop.Plugin.Api.Helpers
                     ICollection<object> propertyValueAsCollection = propertyValue as ICollection<object>;
 
                     Type collectionElementsType = objectProperty.PropertyType.GetGenericArguments()[0];
-                    var collection = objectProperty.GetValue(objectToBeUpdated) as IList;
+                    var collection = objectProperty.GetValue(objectToBeUpdated);
 
+                    if (collection == null)
+                    {
+                        var listType = typeof (List<>);
+                        var constructedListType = listType.MakeGenericType(collectionElementsType);
+                        collection = Activator.CreateInstance(constructedListType);
+                    }
+                    
                     propertyValueAsCollection.Each(
                         x =>
                         {
                             if (collectionElementsType.Namespace != "System")
                             {
                                 AddOrUpdateComplexItemInCollection(x as Dictionary<string, object>,
-                                    collection,
+                                    collection as IList,
                                     collectionElementsType);
                             }
                             else
                             {
-                                AddBaseItemInCollection(x, collection, collectionElementsType);
+                                AddBaseItemInCollection(x, collection as IList, collectionElementsType);
                             }
                         });
 
@@ -196,8 +204,7 @@ namespace Nop.Plugin.Api.Helpers
                     // We need to loop through the keys, because the key may contain underscores in its name, which won't match the jsonProperty name.
                     foreach (var key in newProperties.Keys)
                     {
-                        if (key.Replace("_", string.Empty)
-                            .Equals(property.Name, StringComparison.InvariantCultureIgnoreCase))
+                        if (key.Equals(property.Name, StringComparison.InvariantCultureIgnoreCase))
                         {
                             keyFound = true;
                             break;

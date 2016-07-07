@@ -37,8 +37,6 @@ namespace Nop.Plugin.Api.Controllers
         private readonly ICategoryApiService _categoryApiService;
         private readonly ICategoryService _categoryService;
         private readonly IUrlRecordService _urlRecordService;
-        private readonly ICustomerActivityService _customerActivityService;
-        private readonly ILocalizationService _localizationService;
         private readonly IPictureService _pictureService;
         private readonly IFactory<Category> _factory; 
 
@@ -54,13 +52,11 @@ namespace Nop.Plugin.Api.Controllers
             IDiscountService discountService,
             IAclService aclService,
             ICustomerService customerService,
-            IFactory<Category> factory) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService)
+            IFactory<Category> factory) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService, customerActivityService, localizationService)
         {
             _categoryApiService = categoryApiService;
             _categoryService = categoryService;
             _urlRecordService = urlRecordService;
-            _customerActivityService = customerActivityService;
-            _localizationService = localizationService;
             _factory = factory;
             _pictureService = pictureService;
         }

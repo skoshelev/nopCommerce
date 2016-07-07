@@ -103,10 +103,13 @@ namespace Nop.Plugin.Api.Services
                                                                                Customer = customer
                                                                            }).ToList();
 
+            CustomerDto customerDto;
+
+            // This is in case we have first and last names set for the customer.
             if (customerAttributeMappings.Count > 0)
             {
                 // The customer object is the same in all mappings.
-                CustomerDto customerDto = customerAttributeMappings.First().Customer.ToDto();
+                customerDto = customerAttributeMappings.First().Customer.ToDto();
 
                 foreach (var mapping in customerAttributeMappings)
                 {
@@ -119,11 +122,16 @@ namespace Nop.Plugin.Api.Services
                         customerDto.LastName = mapping.Attribute.Value;
                     }
                 }
+            }
+            else
+            {
+                // This is when we do not have first and last name set.
+                Customer currentCustomer = _customerRepository.GetById(id);
 
-                return customerDto;
+                customerDto = currentCustomer.ToDto();
             }
 
-            return null;
+            return customerDto;
         }
 
         private Dictionary<string, string> EnsureSearchQueryIsValid(string query, Func<string, Dictionary<string, string>> parseSearchQuery)
