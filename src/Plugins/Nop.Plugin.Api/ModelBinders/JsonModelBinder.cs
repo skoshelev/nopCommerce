@@ -165,7 +165,7 @@ namespace Nop.Plugin.Api.ModelBinders
 
             if (bindingContext.ModelState.IsValid)
             {
-                dtoAttribute = typeof(T).GetCustomAttribute(typeof(DtoAttribute)) as DtoAttribute;
+                dtoAttribute = ReflectionHelper.GetDtoAttribute(typeof(T));
             }
 
             return dtoAttribute;

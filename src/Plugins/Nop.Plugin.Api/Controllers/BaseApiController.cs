@@ -14,6 +14,8 @@ using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.Serializers;
 using Nop.Services.Customers;
 using Nop.Services.Discounts;
+using Nop.Services.Localization;
+using Nop.Services.Logging;
 using Nop.Services.Security;
 using Nop.Services.Stores;
 
@@ -27,13 +29,17 @@ namespace Nop.Plugin.Api.Controllers
         protected readonly IStoreMappingService _storeMappingService;
         protected readonly IStoreService _storeService;
         protected readonly IDiscountService _discountService;
+        protected readonly ICustomerActivityService _customerActivityService;
+        protected readonly ILocalizationService _localizationService;
 
         public BaseApiController(IJsonFieldsSerializer jsonFieldsSerializer, 
             IAclService aclService, 
             ICustomerService customerService, 
             IStoreMappingService storeMappingService, 
             IStoreService storeService, 
-            IDiscountService discountService)
+            IDiscountService discountService, 
+            ICustomerActivityService customerActivityService, 
+            ILocalizationService localizationService)
         {
             _jsonFieldsSerializer = jsonFieldsSerializer;
             _aclService = aclService;
@@ -41,6 +47,8 @@ namespace Nop.Plugin.Api.Controllers
             _storeMappingService = storeMappingService;
             _storeService = storeService;
             _discountService = discountService;
+            _customerActivityService = customerActivityService;
+            _localizationService = localizationService;
         }
 
         protected IHttpActionResult Error()

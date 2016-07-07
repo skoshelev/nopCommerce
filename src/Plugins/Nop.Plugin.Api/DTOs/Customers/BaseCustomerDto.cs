@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Nop.Plugin.Api.DTOs.Customers
 {
     public class BaseCustomerDto
     {
+        private List<int> _roleIds;
+
         [JsonProperty("id")]
-        public int? Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("username")]
         public string Username { get; set; }
@@ -92,5 +95,20 @@ namespace Nop.Plugin.Api.DTOs.Customers
         /// </summary>
         [JsonProperty("last_activity_date_utc")]
         public DateTime? LastActivityDateUtc { get; set; }
+
+        [JsonProperty("role_ids")]
+        public List<int> RoleIds
+        {
+            get
+            {
+                if (_roleIds == null)
+                {
+                    _roleIds = new List<int>();
+                }
+
+                return _roleIds;
+            }
+            set { _roleIds = value; } 
+        } 
     }
 }

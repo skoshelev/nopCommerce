@@ -130,11 +130,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\BaseAttributeInvoker.cs" />
+    <Compile Include="Attributes\DoNotMap.cs" />
     <Compile Include="Attributes\ImageAttribute.cs" />
     <Compile Include="Attributes\ImageCollectionAttribute.cs" />
     <Compile Include="Attributes\ValidateVendor.cs" />
     <Compile Include="Controllers\BaseApiController.cs" />
+    <Compile Include="Factories\AddressEntityFactory.cs" />
+    <Compile Include="Factories\CustomerFactory.cs" />
     <Compile Include="Factories\ProductFactory.cs" />
+    <Compile Include="Helpers\CustomerRolesHelper.cs" />
+    <Compile Include="Helpers\ICustomerRolesHelper.cs" />
     <Compile Include="Helpers\JTokenHelper.cs" />
     <Compile Include="Attributes\DtoAttribute.cs" />
     <Compile Include="Delta\Delta.cs" />
@@ -144,6 +149,8 @@
     <Compile Include="Factories\CategoryFactory.cs" />
     <Compile Include="JSON\ActionResults\ErrorActionResult.cs" />
     <Compile Include="JSON\ActionResults\RawJsonActionResult.cs" />
+    <Compile Include="Maps\IJsonPropertyMap.cs" />
+    <Compile Include="Maps\JsonPropertyMap.cs" />
     <Compile Include="ModelBinders\JsonModelBinder.cs" />
     <Compile Include="OAuth\Attributes\BearerTokenAuthorizeAttribute.cs" />
     <Compile Include="Constants\ViewNames.cs" />
@@ -260,7 +267,9 @@
     <Compile Include="Swagger\ChangeParameterTypeOperationFilter.cs" />
     <Compile Include="Swagger\ExcludeEnpointsDocumentFilter.cs" />
     <Compile Include="Swagger\RemovePrefixesOperationFilter.cs" />
+    <Compile Include="Validators\AddressDtoValidator.cs" />
     <Compile Include="Validators\ProductCategoryMappingDtoValidator.cs" />
+    <Compile Include="Validators\CustomerDtoValidator.cs" />
     <Compile Include="Validators\ProductDtoValidator.cs" />
     <Compile Include="Validators\CategoryDtoValidator.cs" />
     <Compile Include="Validators\ClientValidator.cs" />

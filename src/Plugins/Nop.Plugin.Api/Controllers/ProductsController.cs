@@ -36,11 +36,8 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IProductApiService _productApiService;
         private readonly IProductService _productService;
         private readonly IUrlRecordService _urlRecordService;
-        private readonly ICustomerActivityService _customerActivityService;
-        private readonly ILocalizationService _localizationService;
         private readonly IPictureService _pictureService;
         private readonly IManufacturerService _manufacturerService;
-        private readonly IProductTagService _productTagService;
         private readonly IFactory<Product> _factory;
 
         public ProductsController(IProductApiService productApiService, 
@@ -56,16 +53,13 @@ namespace Nop.Plugin.Api.Controllers
                                   ICustomerService customerService, 
                                   IDiscountService discountService, 
                                   IPictureService pictureService, 
-                                  IManufacturerService manufacturerService, IProductTagService productTagService) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService)
+                                  IManufacturerService manufacturerService) : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService, customerActivityService, localizationService)
         {
             _productApiService = productApiService;
             _factory = factory;
             _pictureService = pictureService;
             _manufacturerService = manufacturerService;
-            _productTagService = productTagService;
             _urlRecordService = urlRecordService;
-            _customerActivityService = customerActivityService;
-            _localizationService = localizationService;
             _productService = productService;
         }
 

@@ -4,15 +4,10 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Discounts;
-using Nop.Core.Domain.Media;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Delta;
-using Nop.Plugin.Api.DTOs.Categories;
-using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.DTOs.ProductCategoryMappings;
-using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.ModelBinders;
@@ -25,7 +20,6 @@ using Nop.Services.Discounts;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Security;
-using Nop.Services.Seo;
 using Nop.Services.Stores;
 
 namespace Nop.Plugin.Api.Controllers
@@ -35,8 +29,6 @@ namespace Nop.Plugin.Api.Controllers
     {
         private readonly IProductCategoryMappingsApiService _productCategoryMappingsService;
         private readonly ICategoryService _categoryService;
-        private readonly ICustomerActivityService _customerActivityService;
-        private readonly ILocalizationService _localizationService;
 
         public ProductCategoryMappingsController(IProductCategoryMappingsApiService productCategoryMappingsService,
             ICategoryService categoryService,
@@ -48,13 +40,10 @@ namespace Nop.Plugin.Api.Controllers
             IDiscountService discountService,
             ICustomerActivityService customerActivityService,
             ILocalizationService localizationService)
-            : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService
-                )
+            : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService, customerActivityService, localizationService)
         {
             _productCategoryMappingsService = productCategoryMappingsService;
             _categoryService = categoryService;
-            _customerActivityService = customerActivityService;
-            _localizationService = localizationService;
         }
 
         /// <summary>
