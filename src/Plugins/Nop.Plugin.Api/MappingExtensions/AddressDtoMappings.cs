@@ -10,5 +10,10 @@ namespace Nop.Plugin.Api.MappingExtensions
         {
             return Mapper.DynamicMap<Address, AddressDto>(address);
         }
+
+        public static Address ToEntity(this AddressDto addressDto)
+        {
+            return Mapper.DynamicMap<AddressDto, Address>(addressDto);
+        }
     }
 }

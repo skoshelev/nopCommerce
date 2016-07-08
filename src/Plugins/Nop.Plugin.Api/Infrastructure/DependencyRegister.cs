@@ -78,6 +78,7 @@ namespace Nop.Plugin.Api.Infrastructure
             MappingExtensions.Maps.CreateMap<ProductCategory, ProductCategoryMappingDto>();
             
             MappingExtensions.Maps.CreateAddressMap();
+            MappingExtensions.Maps.CreateAddressDtoToEntityMap();
             MappingExtensions.Maps.CreateShoppingCartItemMap();
             
             MappingExtensions.Maps.CreateCustomerToDTOMap();

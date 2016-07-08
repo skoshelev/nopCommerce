@@ -8,19 +8,8 @@ using Microsoft.Owin;
 using Microsoft.Owin.Extensions;
 using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json;
-using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Common;
-using Nop.Core.Domain.Customers;
-using Nop.Core.Domain.Orders;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Api.Constants;
-using Nop.Plugin.Api.DTOs;
-using Nop.Plugin.Api.DTOs.Categories;
-using Nop.Plugin.Api.DTOs.Customers;
-using Nop.Plugin.Api.DTOs.Orders;
-using Nop.Plugin.Api.DTOs.ProductCategoryMappings;
-using Nop.Plugin.Api.DTOs.Products;
-using Nop.Plugin.Api.Maps;
 using Nop.Plugin.Api.Owin.Middleware;
 using Nop.Plugin.Api.Owin.OAuth.Providers;
 using Nop.Plugin.Api.Swagger;
@@ -109,6 +98,12 @@ namespace Nop.Plugin.Api
               routeTemplate: "api/customers",
               defaults: new { controller = "Customers", action = "CreateCustomer" },
               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
+
+            config.Routes.MapHttpRoute(
+                name: "updateCustomer",
+                routeTemplate: "api/customers/{id}",
+                defaults: new { controller = "Customers", action = "UpdateCustomer" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Put) });
 
             config.Routes.MapHttpRoute(
                name: "categories",

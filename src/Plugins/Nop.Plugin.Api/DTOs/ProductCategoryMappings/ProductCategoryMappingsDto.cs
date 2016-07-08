@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using Nop.Plugin.Api.Attributes;
+﻿using FluentValidation.Attributes;
+using Newtonsoft.Json;
 using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.ProductCategoryMappings
 {
-    [Dto(ValidatorType = typeof(ProductCategoryMappingDtoValidator), RootProperty = "product_category_mapping")]
-    [JsonObject(Title = "product_category_mappings")]
+    [JsonObject(Title = "product_category_mapping")]
+    [Validator(typeof(ProductCategoryMappingDtoValidator))]
     public class ProductCategoryMappingDto
     {
         [JsonProperty("id")]

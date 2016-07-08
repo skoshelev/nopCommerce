@@ -29,7 +29,14 @@ namespace Nop.Plugin.Api.MappingExtensions
                .ForMember(x => x.CountryName, y => y.MapFrom(src => src.Country.GetWithDefault(x => x, new Country()).Name))
                .ForMember(x => x.StateProvinceName, y => y.MapFrom(src => src.StateProvince.GetWithDefault(x => x, new StateProvince()).Name));
         }
-        
+
+        public static void CreateAddressDtoToEntityMap()
+        {
+            Mapper.CreateMap<AddressDto, Address>()
+                .IgnoreAllNonExisting()
+                .ForMember(x => x.Id, y => y.MapFrom(src => src.Id));
+        }
+
         public static void CreateCustomerForShoppingCartItemMapFromCustomer()
         {
             Mapper.CreateMap<Customer, CustomerForShoppingCartItemDto>()
@@ -49,7 +56,7 @@ namespace Nop.Plugin.Api.MappingExtensions
                     y => y.MapFrom(src => src.BillingAddress.GetWithDefault(x => x, new Address()).ToDto()))
                 .ForMember(x => x.ShippingAddress,
                     y => y.MapFrom(src => src.ShippingAddress.GetWithDefault(x => x, new Address()).ToDto()))
-                .ForMember(x => x.Addresses,
+                .ForMember(x => x.CustomerAddresses,
                     y =>
                         y.MapFrom(
                             src =>
