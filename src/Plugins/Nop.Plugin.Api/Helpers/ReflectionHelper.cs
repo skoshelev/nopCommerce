@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using FluentValidation.Attributes;
 using Newtonsoft.Json;
 
 namespace Nop.Plugin.Api.Helpers
@@ -10,13 +9,6 @@ namespace Nop.Plugin.Api.Helpers
         public static bool HasProperty(string propertyName, Type type)
         {
             return type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance) != null;
-        }
-        
-        public static ValidatorAttribute GetValidatorAttribute(Type objectType)
-        {
-            ValidatorAttribute validator = objectType.GetCustomAttribute(typeof (ValidatorAttribute)) as ValidatorAttribute;
-
-            return validator;
         }
         
         public static JsonObjectAttribute GetJsonObjectAttribute(Type objectType)

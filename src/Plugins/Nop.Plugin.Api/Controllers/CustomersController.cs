@@ -219,7 +219,7 @@ namespace Nop.Plugin.Api.Controllers
             
             _customerService.InsertCustomer(newCustomer);
 
-            SetFirstAndLastNameGenericAttributes(customerDelta.Dto.FirstName, customerDelta.Dto.LastName, newCustomer);
+            InsertFirstAndLastNameGenericAttributes(customerDelta.Dto.FirstName, customerDelta.Dto.LastName, newCustomer);
 
             //password
             if (!string.IsNullOrWhiteSpace(customerDelta.Dto.Password))
@@ -229,6 +229,7 @@ namespace Nop.Plugin.Api.Controllers
             
             // We need to insert the entity first so we can have its id in order to map it to anything.
             // TODO: Localization
+            // TODO: move this before inserting the customer.
             if (customerDelta.Dto.RoleIds.Count > 0)
             {
                 AddValidRoles(customerDelta, newCustomer);
@@ -241,8 +242,7 @@ namespace Nop.Plugin.Api.Controllers
             CustomerDto newCustomerDto = newCustomer.ToDto();
 
             // This is needed because the entity framework won't populate the navigation properties automatically
-            // and the country name will be left empty because the mapping depends on the navigation property
-            // so we do it by hand here.
+            // and the country will be left null. So we do it by hand here.
             PopulateAddressCountryNames(newCustomerDto);
 
             // Set the fist and last name separately because they are not part of the customer entity, but are saved in the generic attributes.
@@ -312,7 +312,7 @@ namespace Nop.Plugin.Api.Controllers
 
             _customerService.UpdateCustomer(currentCustomer);
 
-            SetFirstAndLastNameGenericAttributes(customerDelta.Dto.FirstName, customerDelta.Dto.LastName, currentCustomer);
+            InsertFirstAndLastNameGenericAttributes(customerDelta.Dto.FirstName, customerDelta.Dto.LastName, currentCustomer);
 
             //password
             if (!string.IsNullOrWhiteSpace(customerDelta.Dto.Password))
@@ -393,7 +393,7 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult("{}");
         }
 
-        private void SetFirstAndLastNameGenericAttributes(string firstName, string lastName, Customer newCustomer)
+        private void InsertFirstAndLastNameGenericAttributes(string firstName, string lastName, Customer newCustomer)
         {
             if (!string.IsNullOrEmpty(firstName))
             {
@@ -447,6 +447,7 @@ namespace Nop.Plugin.Api.Controllers
 
         private void AddPassword(string newPassword, Customer customer)
         {
+            // TODO: call this method before inserting the customer.
             switch (_customerSettings.DefaultPasswordFormat)
             {
                 case PasswordFormat.Clear:
@@ -469,6 +470,8 @@ namespace Nop.Plugin.Api.Controllers
             }
             
             customer.PasswordFormat = _customerSettings.DefaultPasswordFormat;
+
+            // TODO: remove this.
             _customerService.UpdateCustomer(customer);
         }
     }

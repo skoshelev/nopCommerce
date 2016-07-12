@@ -1,12 +1,15 @@
 ﻿using System;
+using FluentValidation.Attributes;
 using Newtonsoft.Json;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.DTOs.Products;
+using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.ShoppingCarts
 {
-    [JsonObject(Title = "shopping_cart_items")]
+    [Validator(typeof(ShoppingCartItemDtoValidator))]
+    [JsonObject(Title = "shopping_cart_item")]
     public class ShoppingCartItemDto
     {
         private int? _shoppingCartTypeId;
@@ -15,7 +18,7 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
         /// Gets or sets the id
         /// </summary>
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the price enter by a customer
@@ -61,7 +64,7 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
         {
             get
             {
-                var shoppingCartTypeId = this._shoppingCartTypeId;
+                var shoppingCartTypeId = _shoppingCartTypeId;
 
                 if (shoppingCartTypeId != null) return ((ShoppingCartType)shoppingCartTypeId).ToString();
 
@@ -72,22 +75,28 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
                 ShoppingCartType shoppingCartType;
                 if (Enum.TryParse(value, out shoppingCartType))
                 {
-                    this._shoppingCartTypeId = (int)shoppingCartType;
+                    _shoppingCartTypeId = (int)shoppingCartType;
                 }
-                else this._shoppingCartTypeId = null;
+                else _shoppingCartTypeId = null;
             }
         }
+
+        [JsonProperty("product_id")]
+        public int? ProductId { get; set; }
 
         /// <summary>
         /// Gets or sets the product
         /// </summary>
         [JsonProperty("product")]
-        public ProductDto Product { get; set; }
+        public ProductDto ProductDto { get; set; }
+
+        [JsonProperty("customer_id")]
+        public int? CustomerId { get; set; }
 
         /// <summary>
         /// Gets or sets the customer
         /// </summary>
         [JsonProperty("customer")]
-        public CustomerForShoppingCartItemDto Customer { get; set; }
+        public CustomerForShoppingCartItemDto CustomerDto { get; set; }
     }
 }

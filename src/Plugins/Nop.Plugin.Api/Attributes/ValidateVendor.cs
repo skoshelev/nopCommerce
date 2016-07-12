@@ -5,7 +5,7 @@ using Nop.Services.Vendors;
 
 namespace Nop.Plugin.Api.Attributes
 {
-    public class ValidateVendor : BaseAttributeInvoker
+    public class ValidateVendor : BaseValidationAttribute
     {
         private Dictionary<string, string> _errors;
 
@@ -29,7 +29,7 @@ namespace Nop.Plugin.Api.Attributes
             _errors = new Dictionary<string, string>();
         }
 
-        public override void Invoke(object instance)
+        public override void Validate(object instance)
         {
             int vendorId = 0;
 

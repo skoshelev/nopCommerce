@@ -1,29 +1,67 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.ModelBinding;
+using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
+using Nop.Plugin.Api.Delta;
 using Nop.Plugin.Api.DTOs.ShoppingCarts;
+using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.MappingExtensions;
+using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.Models.ShoppingCartsParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
+using Nop.Services.Catalog;
+using Nop.Services.Customers;
+using Nop.Services.Discounts;
+using Nop.Services.Localization;
+using Nop.Services.Logging;
+using Nop.Services.Orders;
+using Nop.Services.Security;
+using Nop.Services.Stores;
 
 namespace Nop.Plugin.Api.Controllers
 {
     [BearerTokenAuthorize]
-    public class ShoppingCartItemsController : ApiController
+    public class ShoppingCartItemsController : BaseApiController
     {
         private readonly IShoppingCartItemApiService _shoppingCartItemApiService;
-        private readonly IJsonFieldsSerializer _jsonFieldsSerializer;
+        private readonly IShoppingCartService _shoppingCartService;
+        private readonly IProductService _productService;
+        private readonly IFactory<ShoppingCartItem> _factory; 
 
-        public ShoppingCartItemsController(IShoppingCartItemApiService shoppingCartItemApiService, IJsonFieldsSerializer jsonFieldsSerializer)
+        public ShoppingCartItemsController(IShoppingCartItemApiService shoppingCartItemApiService, 
+            IJsonFieldsSerializer jsonFieldsSerializer, 
+            IAclService aclService, 
+            ICustomerService customerService, 
+            IStoreMappingService storeMappingService,
+            IStoreService storeService,
+            IDiscountService discountService,
+            ICustomerActivityService customerActivityService,
+            ILocalizationService localizationService, 
+            IShoppingCartService shoppingCartService, 
+            IProductService productService, 
+            IFactory<ShoppingCartItem> factory)
+            :base(jsonFieldsSerializer, 
+                 aclService, 
+                 customerService, 
+                 storeMappingService, 
+                 storeService, 
+                 discountService,
+                 customerActivityService,
+                 localizationService)
         {
             _shoppingCartItemApiService = shoppingCartItemApiService;
-            _jsonFieldsSerializer = jsonFieldsSerializer;
+            _shoppingCartService = shoppingCartService;
+            _productService = productService;
+            _factory = factory;
         }
 
         /// <summary>
@@ -112,6 +150,81 @@ namespace Nop.Plugin.Api.Controllers
             };
 
             var json = _jsonFieldsSerializer.Serialize(shoppingCartsRootObject, parameters.Fields);
+
+            return new RawJsonActionResult(json);
+        }
+
+        [HttpPost]
+        [ResponseType(typeof (ShoppingCartItemsRootObject))]
+        public IHttpActionResult CreateShoppingCartItem([ModelBinder(typeof (JsonModelBinder<ShoppingCartItemDto>))] Delta<ShoppingCartItemDto> shoppingCartItemDelta)
+        {
+            // Here we display the errors if the validation has failed at some point.
+            if (!ModelState.IsValid)
+            {
+                return Error();
+            }
+
+            ShoppingCartItem newShoppingCartItem = _factory.Initialize();
+            shoppingCartItemDelta.Merge(newShoppingCartItem);
+            
+            // We know that the product id and customer id will be provided because they are required by the validator.
+            // TODO: validate
+            Product product = _productService.GetProductById(shoppingCartItemDelta.Dto.ProductId.Value);
+
+            if (product == null)
+            {
+                ModelState.AddModelError("product", "not found");
+
+                return Error();
+            }
+
+            Customer customer = _customerService.GetCustomerById(shoppingCartItemDelta.Dto.CustomerId.Value);
+
+            if (customer == null)
+            {
+                ModelState.AddModelError("customer", "not found");
+
+                return Error();
+            }
+
+            //inserting new category
+            ShoppingCartType shoppingCartType;
+            if (!Enum.TryParse(shoppingCartItemDelta.Dto.ShoppingCartType, out shoppingCartType))
+            {
+                shoppingCartType = ShoppingCartType.ShoppingCart;
+            }
+
+            if (!product.IsRental)
+            {
+                newShoppingCartItem.RentalStartDateUtc = null;
+                newShoppingCartItem.RentalEndDateUtc = null;
+            }
+
+            IList<string> warnings = _shoppingCartService.AddToCart(customer, product, shoppingCartType, 0, null, 0M, 
+                                        shoppingCartItemDelta.Dto.RentalStartDateUtc, shoppingCartItemDelta.Dto.RentalEndDateUtc,
+                                        shoppingCartItemDelta.Dto.Quantity ?? 1);
+
+            if (warnings.Count > 0)
+            {
+                foreach (var warning in warnings)
+                {
+                    ModelState.AddModelError("shopping cart item", warning);
+                }
+
+                return Error();
+            }
+
+            // Preparing the result dto of the new product category mapping
+            ShoppingCartItemDto newShoppingCartItemDto = newShoppingCartItem.ToDto();
+            newShoppingCartItemDto.ProductDto = product.ToDto();
+            newShoppingCartItemDto.CustomerDto = customer.ToCustomerForShoppingCartItemDto();
+            newShoppingCartItemDto.ShoppingCartType = shoppingCartType.ToString();
+
+            var shoppingCartsRootObject = new ShoppingCartItemsRootObject();
+
+            shoppingCartsRootObject.ShoppingCartItems.Add(newShoppingCartItemDto);
+
+            var json = _jsonFieldsSerializer.Serialize(shoppingCartsRootObject, string.Empty);
 
             return new RawJsonActionResult(json);
         }

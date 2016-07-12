@@ -552,7 +552,7 @@ namespace Nop.Plugin.Api.DTOs.Products
             }
         }
         
-        [ImageCollection]
+        [ImageCollectionValidation]
         [JsonProperty("images")]
         public List<ImageDto> Images
         {

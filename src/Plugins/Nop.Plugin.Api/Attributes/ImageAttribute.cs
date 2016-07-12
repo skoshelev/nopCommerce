@@ -12,18 +12,18 @@ using Nop.Services.Media;
 
 namespace Nop.Plugin.Api.Attributes
 {
-    public class ImageAttribute : BaseAttributeInvoker
+    public class ImageValidationAttribute : BaseValidationAttribute
     {
         private Dictionary<string, string> _errors;
         private readonly IPictureService _pictureService;
 
-        public ImageAttribute()
+        public ImageValidationAttribute()
         {
             _errors = new Dictionary<string, string>();
             _pictureService = EngineContext.Current.Resolve<IPictureService>();
         }
 
-        public override void Invoke(object instance)
+        public override void Validate(object instance)
         {
             ImageDto imageDto = instance as ImageDto;
 
