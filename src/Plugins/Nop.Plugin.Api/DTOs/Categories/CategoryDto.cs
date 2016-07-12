@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
+using FluentValidation.Attributes;
 using Newtonsoft.Json;
-using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.DTOs.Images;
 using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.Categories
 {
-    [Dto(ValidatorType = typeof(CategoryDtoValidator), RootProperty="category")]
-    [JsonObject(Title = "categories")]
+    [Validator(typeof(CategoryDtoValidator))]
+    [JsonObject(Title = "category")]
     public class CategoryDto
     {
         private ImageDto _imageDto;

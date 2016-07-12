@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using AutoMapper.Internal;
 using Nop.Core.Infrastructure;
@@ -12,6 +13,15 @@ namespace Nop.Plugin.Api.Helpers
     // TODO: Think of moving the mapping helper in teh delta folder
     public class MappingHelper : IMappingHelper
     {
+        public void Merge(object source, object destination)
+        {
+            var sourcePropertyValuePairs = source.GetType()
+                .GetProperties()
+                .ToDictionary(property => property.Name, property => property.GetValue(source));
+
+            SetValues(sourcePropertyValuePairs, destination, destination.GetType());
+        }
+
         public void SetValues(Dictionary<string, object> jsonPropertiesValuePairsPassed, object objectToBeUpdated,
             Type propertyType)
         {
@@ -55,10 +65,11 @@ namespace Nop.Plugin.Api.Helpers
                         // Check if there is registered factory for this type.
                         Type factoryType = typeof (IFactory<>);
                         var factoryTypeForCurrentProperty = factoryType.MakeGenericType(new Type[] {objectProperty.PropertyType});
-                        var initializerFactory = EngineContext.Current.Resolve(factoryTypeForCurrentProperty);
+                        bool isFactoryRegistered = EngineContext.Current.ContainerManager.IsRegistered(factoryTypeForCurrentProperty);
 
-                        if (initializerFactory != null)
+                        if (isFactoryRegistered)
                         {
+                            var initializerFactory = EngineContext.Current.Resolve(factoryTypeForCurrentProperty);
                             var initializeMethod = factoryTypeForCurrentProperty.GetMethod("Initialize");
 
                             valueToUpdate = initializeMethod.Invoke(initializerFactory, null);

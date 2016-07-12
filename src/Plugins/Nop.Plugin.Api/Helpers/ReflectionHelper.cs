@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
-using Nop.Plugin.Api.Attributes;
+using FluentValidation.Attributes;
+using Newtonsoft.Json;
 
 namespace Nop.Plugin.Api.Helpers
 {
@@ -10,12 +11,19 @@ namespace Nop.Plugin.Api.Helpers
         {
             return type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance) != null;
         }
-
-        public static DtoAttribute GetDtoAttribute(Type type)
+        
+        public static ValidatorAttribute GetValidatorAttribute(Type objectType)
         {
-            DtoAttribute dtoAttribute = type.GetCustomAttribute(typeof(DtoAttribute)) as DtoAttribute; ;
+            ValidatorAttribute validator = objectType.GetCustomAttribute(typeof (ValidatorAttribute)) as ValidatorAttribute;
 
-            return dtoAttribute;
+            return validator;
+        }
+        
+        public static JsonObjectAttribute GetJsonObjectAttribute(Type objectType)
+        {
+            JsonObjectAttribute jsonObject = objectType.GetCustomAttribute(typeof(JsonObjectAttribute)) as JsonObjectAttribute;
+
+            return jsonObject;
         }
     }
 }

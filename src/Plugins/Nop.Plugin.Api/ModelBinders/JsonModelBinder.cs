@@ -5,7 +5,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
 using System.Web.Http.ModelBinding;
+using FluentValidation.Attributes;
 using FluentValidation.Results;
+using Newtonsoft.Json;
 using Nop.Core.Domain.Localization;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Helpers;
@@ -47,14 +49,17 @@ namespace Nop.Plugin.Api.ModelBinders
             bool modelBined = false;
 
             Dictionary<string, object> result;
-            DtoAttribute dtoAttribute;
+            ValidatorAttribute validatorAttribute;
+            // Comes from JsonObject attribute
+            string rootProperty;
 
-            Validate(actionContext, bindingContext, out result, out dtoAttribute);
+            Validate(actionContext, bindingContext, out result, out validatorAttribute, out rootProperty);
 
             if (bindingContext.ModelState.IsValid)
             {
+                // The validation for the key is in the Validate method.
                 Dictionary<string, object> propertyValuePaires =
-                    (Dictionary<string, object>)result[dtoAttribute.RootProperty];
+                    (Dictionary<string, object>)result[rootProperty];
 
                 // You will have id parameter passed in the model binder only when you have put request.
                 // because get and delete do not use the model binder.
@@ -74,7 +79,7 @@ namespace Nop.Plugin.Api.ModelBinders
 
                 if (bindingContext.ModelState.IsValid)
                 {
-                    modelBined = BindModel(actionContext, bindingContext, propertyValuePaires, dtoAttribute.ValidatorType);
+                    modelBined = BindModel(actionContext, bindingContext, propertyValuePaires, validatorAttribute.ValidatorType);
                 }
             }
 
@@ -82,7 +87,7 @@ namespace Nop.Plugin.Api.ModelBinders
         }
 
         private void Validate(HttpActionContext actionContext, ModelBindingContext bindingContext,
-            out Dictionary<string, object> result, out DtoAttribute dtoAttribute)
+            out Dictionary<string, object> result, out ValidatorAttribute validatorAttribute, out string rootProperty)
         {
             var requestPayload = actionContext.Request.Content.ReadAsStringAsync();
 
@@ -100,13 +105,11 @@ namespace Nop.Plugin.Api.ModelBinders
             ValidateJsonFormat(bindingContext, result);
 
             // Needed so we can call the get the root name and validator type.
-            dtoAttribute = GetDtoAttribute(bindingContext);
-
-            // After we have some dto attribute we need to validate it.
-            ValidateDtoAttribute(bindingContext, dtoAttribute);
-
+            validatorAttribute = GetValidatorAttribute(bindingContext);
+            rootProperty = GetRootProperty(bindingContext);
+            
             // Now we need to validate the root property.
-            ValidateRootProperty(bindingContext, result, dtoAttribute);
+            ValidateRootProperty(bindingContext, result, rootProperty);
         }
 
         private object GetRouteDataId(HttpActionContext actionContext)
@@ -134,11 +137,11 @@ namespace Nop.Plugin.Api.ModelBinders
             }
         }
 
-        private void ValidateRootProperty(ModelBindingContext bindingContext, Dictionary<string, object> result, DtoAttribute dtoAttribute)
+        private void ValidateRootProperty(ModelBindingContext bindingContext, Dictionary<string, object> result, string rootProperty)
         {
             if (bindingContext.ModelState.IsValid)
             {
-                bool isRootPropertyValid = result.ContainsKey(dtoAttribute.RootProperty);
+                bool isRootPropertyValid = !string.IsNullOrEmpty(rootProperty) && result.ContainsKey(rootProperty);
 
                 if (!isRootPropertyValid)
                 {
@@ -146,29 +149,34 @@ namespace Nop.Plugin.Api.ModelBinders
                 }
             }
         }
-
-        private void ValidateDtoAttribute(ModelBindingContext bindingContext, DtoAttribute dtoAttribute)
+        
+        private ValidatorAttribute GetValidatorAttribute(ModelBindingContext bindingContext)
         {
-            bool isDtoAttributePresent = dtoAttribute != null;
-
-            // special validation for the dto.
-            if (!isDtoAttributePresent && bindingContext.ModelState.IsValid)
-            {
-                // TODO: should this be present. The store owner shouldn't be able to get to this error if he does not create his own dtos.
-                bindingContext.ModelState.AddModelError("dto", "invalid category dto");
-            }
-        }
-
-        private DtoAttribute GetDtoAttribute(ModelBindingContext bindingContext)
-        {
-            DtoAttribute dtoAttribute = null;
+            ValidatorAttribute validatorAttribute = null;
 
             if (bindingContext.ModelState.IsValid)
             {
-                dtoAttribute = ReflectionHelper.GetDtoAttribute(typeof(T));
+                validatorAttribute = ReflectionHelper.GetValidatorAttribute(typeof(T));
             }
 
-            return dtoAttribute;
+            return validatorAttribute;
+        }
+
+        private string GetRootProperty(ModelBindingContext bindingContext)
+        {
+            string rootProperty = null;
+
+            if (bindingContext.ModelState.IsValid)
+            {
+                JsonObjectAttribute jsonObjectAttribute = ReflectionHelper.GetJsonObjectAttribute(typeof(T));
+
+                if (jsonObjectAttribute != null)
+                {
+                    rootProperty = jsonObjectAttribute.Title;
+                }
+            }
+
+            return rootProperty;
         }
 
         private void ValidateJsonFormat(ModelBindingContext bindingContext, Dictionary<string, object> result)

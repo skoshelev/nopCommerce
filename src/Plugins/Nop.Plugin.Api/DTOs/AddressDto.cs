@@ -1,12 +1,12 @@
 ﻿using System;
+using FluentValidation.Attributes;
 using Newtonsoft.Json;
-using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs
 {
-    [Dto(ValidatorType = typeof(AddressDtoValidator), RootProperty = "address")]
-    [JsonObject(Title = "addresses")]
+    [JsonObject(Title = "address")]
+    [Validator(typeof(AddressDtoValidator))]
     public class AddressDto
     {
         /// <summary>

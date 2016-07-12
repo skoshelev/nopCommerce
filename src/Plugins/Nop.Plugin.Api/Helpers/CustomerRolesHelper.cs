@@ -19,7 +19,7 @@ namespace Nop.Plugin.Api.Helpers
             _cacheManager = cacheManager;
         }
 
-        public IList<CustomerRole> GetCustomerRoles(List<int> roleIds)
+        public IList<CustomerRole> GetValidCustomerRoles(List<int> roleIds)
         {
             // This is needed because the caching messeup the entity framework context
             // and when you try to send something TO the database it throws an exeption.

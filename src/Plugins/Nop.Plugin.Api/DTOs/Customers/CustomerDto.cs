@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FluentValidation.Attributes;
 using Newtonsoft.Json;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.DTOs.ShoppingCarts;
@@ -6,8 +7,8 @@ using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.Customers
 {
-    [Dto(ValidatorType = typeof(CustomerDtoValidator), RootProperty = "customer")]
-    [JsonObject(Title = "customers")]
+    [JsonObject(Title = "customer")]
+    [Validator(typeof(CustomerDtoValidator))]
     public class CustomerDto : BaseCustomerDto
     {
         private ICollection<ShoppingCartItemDto> _shoppingCartItems;
@@ -54,7 +55,7 @@ namespace Nop.Plugin.Api.DTOs.Customers
         /// Gets or sets customer addresses
         /// </summary>
         [JsonProperty("addresses")]
-        public ICollection<AddressDto> Addresses
+        public ICollection<AddressDto> CustomerAddresses
         {
             get
             {

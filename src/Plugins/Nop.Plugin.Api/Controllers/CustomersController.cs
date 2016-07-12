@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
+using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Directory;
 using Nop.Plugin.Api.Attributes;
@@ -38,6 +39,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IEncryptionService _encryptionService;
         private readonly ICountryService _countryService;
+        private readonly IMappingHelper _mappingHelper;
         private readonly IFactory<Customer> _factory;
         private readonly CustomerSettings _customerSettings;
 
@@ -55,13 +57,14 @@ namespace Nop.Plugin.Api.Controllers
             IGenericAttributeService genericAttributeService,
             IEncryptionService encryptionService,
             IFactory<Customer> factory, 
-            CustomerSettings customerSettings, ICountryService countryService) : 
+            CustomerSettings customerSettings, ICountryService countryService, IMappingHelper mappingHelper) : 
             base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService, customerActivityService, localizationService)
         {
             _customerApiService = customerApiService;
             _factory = factory;
             _customerSettings = customerSettings;
             _countryService = countryService;
+            _mappingHelper = mappingHelper;
             _encryptionService = encryptionService;
             _genericAttributeService = genericAttributeService;
             _customerRolesHelper = customerRolesHelper;
@@ -199,14 +202,18 @@ namespace Nop.Plugin.Api.Controllers
 
             //If the validation has passed the customerDelta object won't be null for sure so we don't need to check for this.
 
-            // Inserting the new category
+            // Inserting the new customer
             Customer newCustomer = _factory.Initialize();
             customerDelta.Merge(newCustomer);
+
+            foreach (var address in customerDelta.Dto.CustomerAddresses)
+            {
+                newCustomer.Addresses.Add(address.ToEntity());
+            }
             
             _customerService.InsertCustomer(newCustomer);
 
-            _genericAttributeService.SaveAttribute(newCustomer, SystemCustomerAttributeNames.FirstName, customerDelta.Dto.FirstName);
-            _genericAttributeService.SaveAttribute(newCustomer, SystemCustomerAttributeNames.LastName, customerDelta.Dto.LastName);
+            SetFirstAndLastNameGenericAttributes(customerDelta.Dto.FirstName, customerDelta.Dto.LastName, newCustomer);
 
             //password
             if (!string.IsNullOrWhiteSpace(customerDelta.Dto.Password))
@@ -218,13 +225,7 @@ namespace Nop.Plugin.Api.Controllers
             // TODO: Localization
             if (customerDelta.Dto.RoleIds.Count > 0)
             {
-                IList<CustomerRole> mappedCustomerRoles =
-                    _customerRolesHelper.GetCustomerRoles(customerDelta.Dto.RoleIds).ToList();
-
-                foreach (var role in mappedCustomerRoles)
-                {
-                    newCustomer.CustomerRoles.Add(role);
-                }
+                AddValidRoles(customerDelta, newCustomer);
 
                 _customerService.UpdateCustomer(newCustomer);
             }
@@ -255,16 +256,147 @@ namespace Nop.Plugin.Api.Controllers
 
             return new RawJsonActionResult(json);
         }
+        
+        [HttpPut]
+        [ResponseType(typeof(CustomersRootObject))]
+        public IHttpActionResult UpdateCustomer([ModelBinder(typeof(JsonModelBinder<CustomerDto>))] Delta<CustomerDto> customerDelta)
+        {
+            // Here we display the errors if the validation has failed at some point.
+            if (!ModelState.IsValid)
+            {
+                return Error();
+            }
+
+            //If the validation has passed the customerDelta object won't be null for sure so we don't need to check for this.
+            
+            // Updateting the customer
+            Customer currentCustomer = _customerService.GetCustomerById(int.Parse(customerDelta.Dto.Id));
+            customerDelta.Merge(currentCustomer);
+
+            if (customerDelta.Dto.RoleIds.Count > 0)
+            {
+                // Remove all roles
+                while (currentCustomer.CustomerRoles.Count > 0)
+                {
+                    currentCustomer.CustomerRoles.Remove(currentCustomer.CustomerRoles.First());
+                }
+
+                AddValidRoles(customerDelta, currentCustomer);
+            }
+
+            if (customerDelta.Dto.CustomerAddresses.Count > 0)
+            {
+                var currentCustomerAddresses = currentCustomer.Addresses.ToDictionary(address => address.Id, address => address);
+
+                foreach (var passedAddress in customerDelta.Dto.CustomerAddresses)
+                {
+                    int passedAddressId = int.Parse(passedAddress.Id);
+                    Address addressEntity = passedAddress.ToEntity();
+
+                    if (currentCustomerAddresses.ContainsKey(passedAddressId))
+                    {
+                        _mappingHelper.Merge(passedAddress, currentCustomerAddresses[passedAddressId]);
+                    }
+                    else
+                    {
+                        currentCustomer.Addresses.Add(addressEntity);
+                    }
+                }
+            }
+
+            _customerService.UpdateCustomer(currentCustomer);
+
+            SetFirstAndLastNameGenericAttributes(customerDelta.Dto.FirstName, customerDelta.Dto.LastName, currentCustomer);
+
+            //password
+            if (!string.IsNullOrWhiteSpace(customerDelta.Dto.Password))
+            {
+                AddPassword(customerDelta.Dto.Password, currentCustomer);
+            }
+            
+            // TODO: Localization
+           
+            // Preparing the result dto of the new customer
+            // We do not prepare the shopping cart items because we have a separate endpoint for them.
+            CustomerDto updatedCustomer = currentCustomer.ToDto();
+
+            // This is needed because the entity framework won't populate the navigation properties automatically
+            // and the country name will be left empty because the mapping depends on the navigation property
+            // so we do it by hand here.
+            PopulateAddressCountryNames(updatedCustomer);
+
+            // Set the fist and last name separately because they are not part of the customer entity, but are saved in the generic attributes.
+            var firstNameGenericAttribute = _genericAttributeService.GetAttributesForEntity(currentCustomer.Id, typeof(Customer).Name)
+                .FirstOrDefault(x => x.Key == "FirstName");
+
+            if (firstNameGenericAttribute != null)
+            {
+                updatedCustomer.FirstName = firstNameGenericAttribute.Value;
+            }
+
+            var lastNameGenericAttribute = _genericAttributeService.GetAttributesForEntity(currentCustomer.Id, typeof(Customer).Name)
+                .FirstOrDefault(x => x.Key == "LastName");
+
+            if (lastNameGenericAttribute != null)
+            {
+                updatedCustomer.LastName = lastNameGenericAttribute.Value;
+            }
+
+            updatedCustomer.RoleIds = currentCustomer.CustomerRoles.Select(x => x.Id).ToList();
+
+            //activity log
+            _customerActivityService.InsertActivity("UpdateCustomer", _localizationService.GetResource("ActivityLog.UpdateCustomer"), currentCustomer.Id);
+
+            var customersRootObject = new CustomersRootObject();
+
+            customersRootObject.Customers.Add(updatedCustomer);
+
+            var json = _jsonFieldsSerializer.Serialize(customersRootObject, string.Empty);
+
+            return new RawJsonActionResult(json);
+        }
+
+        private void SetFirstAndLastNameGenericAttributes(string firstName, string lastName, Customer newCustomer)
+        {
+            if (!string.IsNullOrEmpty(firstName))
+            {
+                _genericAttributeService.SaveAttribute(newCustomer, SystemCustomerAttributeNames.FirstName, firstName);
+            }
+
+            if (!string.IsNullOrEmpty(lastName))
+            {
+                _genericAttributeService.SaveAttribute(newCustomer, SystemCustomerAttributeNames.LastName, lastName);
+            }
+        }
+
+        private void AddValidRoles(Delta<CustomerDto> customerDelta, Customer currentCustomer)
+        {
+            IList<CustomerRole> validCustomerRoles =
+                _customerRolesHelper.GetValidCustomerRoles(customerDelta.Dto.RoleIds).ToList();
+
+            // Add all newly passed roles
+            foreach (var role in validCustomerRoles)
+            {
+                currentCustomer.CustomerRoles.Add(role);
+            }
+        }
 
         private void PopulateAddressCountryNames(CustomerDto newCustomerDto)
         {
-            foreach (var address in newCustomerDto.Addresses)
+            foreach (var address in newCustomerDto.CustomerAddresses)
             {
                 SetCountryName(address);
             }
 
-            SetCountryName(newCustomerDto.BillingAddress);
-            SetCountryName(newCustomerDto.ShippingAddress);
+            if (newCustomerDto.BillingAddress != null)
+            {
+                SetCountryName(newCustomerDto.BillingAddress);
+            }
+
+            if (newCustomerDto.ShippingAddress != null)
+            {
+                SetCountryName(newCustomerDto.ShippingAddress);
+            }
         }
 
         private void SetCountryName(AddressDto address)
