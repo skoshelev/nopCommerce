@@ -26,6 +26,7 @@ using Nop.Services.Directory;
 using Nop.Services.Discounts;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
+using Nop.Services.Messages;
 using Nop.Services.Security;
 using Nop.Services.Stores;
 
@@ -40,6 +41,7 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IEncryptionService _encryptionService;
         private readonly ICountryService _countryService;
         private readonly IMappingHelper _mappingHelper;
+        private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
         private readonly IFactory<Customer> _factory;
         private readonly CustomerSettings _customerSettings;
 
@@ -57,7 +59,10 @@ namespace Nop.Plugin.Api.Controllers
             IGenericAttributeService genericAttributeService,
             IEncryptionService encryptionService,
             IFactory<Customer> factory, 
-            CustomerSettings customerSettings, ICountryService countryService, IMappingHelper mappingHelper) : 
+            CustomerSettings customerSettings, 
+            ICountryService countryService, 
+            IMappingHelper mappingHelper, 
+            INewsLetterSubscriptionService newsLetterSubscriptionService) : 
             base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService, customerActivityService, localizationService)
         {
             _customerApiService = customerApiService;
@@ -65,6 +70,7 @@ namespace Nop.Plugin.Api.Controllers
             _customerSettings = customerSettings;
             _countryService = countryService;
             _mappingHelper = mappingHelper;
+            _newsLetterSubscriptionService = newsLetterSubscriptionService;
             _encryptionService = encryptionService;
             _genericAttributeService = genericAttributeService;
             _customerRolesHelper = customerRolesHelper;
@@ -354,6 +360,37 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(customersRootObject, string.Empty);
 
             return new RawJsonActionResult(json);
+        }
+
+        [HttpDelete]
+        public IHttpActionResult DeleteCustomer(int id)
+        {
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            var customer = _customerService.GetCustomerById(id);
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            _customerService.DeleteCustomer(customer);
+
+            //remove newsletter subscription (if exists)
+            foreach (var store in _storeService.GetAllStores())
+            {
+                var subscription = _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreId(customer.Email, store.Id);
+                if (subscription != null)
+                    _newsLetterSubscriptionService.DeleteNewsLetterSubscription(subscription);
+            }
+
+            //activity log
+            _customerActivityService.InsertActivity("DeleteCustomer", _localizationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
+            
+            return new RawJsonActionResult("{}");
         }
 
         private void SetFirstAndLastNameGenericAttributes(string firstName, string lastName, Customer newCustomer)

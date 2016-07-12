@@ -106,6 +106,12 @@ namespace Nop.Plugin.Api
                 constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Put) });
 
             config.Routes.MapHttpRoute(
+                name: "deleteCustomer",
+                routeTemplate: "api/customers/{id}",
+                defaults: new { controller = "Customers", action = "DeleteCustomer" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Delete) });
+
+            config.Routes.MapHttpRoute(
                name: "categories",
                routeTemplate: "api/categories",
                defaults: new { controller = "CategoriesApi", action = "GetCategories" },
