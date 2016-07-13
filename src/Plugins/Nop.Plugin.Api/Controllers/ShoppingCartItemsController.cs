@@ -285,5 +285,28 @@ namespace Nop.Plugin.Api.Controllers
 
             return new RawJsonActionResult(json);
         }
+
+        [HttpDelete]
+        public IHttpActionResult DeleteShoppingCartItem(int id)
+        {
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            ShoppingCartItem shoppingCartItemForDelete = _shoppingCartItemApiService.GetShoppingCartItem(id);
+
+            if (shoppingCartItemForDelete == null)
+            {
+                return NotFound();
+            }
+
+            _shoppingCartService.DeleteShoppingCartItem(shoppingCartItemForDelete);
+
+            //activity log
+            _customerActivityService.InsertActivity("DeleteShoppingCartItem", _localizationService.GetResource("ActivityLog.DeleteShoppingCartItem"), shoppingCartItemForDelete.Id);
+
+            return new RawJsonActionResult("{}");
+        }
     }
 }
