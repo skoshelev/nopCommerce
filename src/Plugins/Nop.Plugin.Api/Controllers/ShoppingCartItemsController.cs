@@ -237,10 +237,12 @@ namespace Nop.Plugin.Api.Controllers
             // We kno that the id will be valid integer because the validation for this happens in the validator which is executed by the model binder.
             ShoppingCartItem shoppingCartItemForUpdate =
                 _shoppingCartItemApiService.GetShoppingCartItem(int.Parse(shoppingCartItemDelta.Dto.Id));
-            
+
             if (shoppingCartItemForUpdate == null)
             {
-                return NotFound();
+                ModelState.AddModelError("shoppingCartItem", "not found");
+
+                return Error();
             }
 
             // Here we make sure that  the product id and the customer id won't be modified.
