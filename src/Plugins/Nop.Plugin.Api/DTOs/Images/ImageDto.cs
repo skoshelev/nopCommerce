@@ -3,7 +3,7 @@ using Nop.Plugin.Api.Attributes;
 
 namespace Nop.Plugin.Api.DTOs.Images
 {
-    [Image]
+    [ImageValidation]
     public class ImageDto
     {
         [JsonProperty("src")]

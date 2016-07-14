@@ -3,19 +3,19 @@ using Nop.Plugin.Api.DTOs.Images;
 
 namespace Nop.Plugin.Api.Attributes
 {
-    public class ImageCollectionAttribute : BaseAttributeInvoker
+    public class ImageCollectionValidationAttribute : BaseValidationAttribute
     {
         private Dictionary<string, string> _errors = new Dictionary<string, string>();
 
-        public override void Invoke(object instance)
+        public override void Validate(object instance)
         {
             var imagesCollection = instance as ICollection<ImageDto>;
 
             foreach (var image in imagesCollection)
             {
-                var imageValidationAttribute = new ImageAttribute();
+                var imageValidationAttribute = new ImageValidationAttribute();
 
-                imageValidationAttribute.Invoke(image);
+                imageValidationAttribute.Validate(image);
 
                 Dictionary<string, string> errorsForImage = imageValidationAttribute.GetErrors();
 

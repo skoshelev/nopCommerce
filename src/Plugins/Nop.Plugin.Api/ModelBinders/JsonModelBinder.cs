@@ -45,15 +45,19 @@ namespace Nop.Plugin.Api.ModelBinders
 
         public bool BindModel(HttpActionContext actionContext, ModelBindingContext bindingContext)
         {
-            // TODO: use await
-            bool modelBined = false;
+            bool modelBinded = false;
 
-            Dictionary<string, object> result;
-            ValidatorAttribute validatorAttribute;
-            // Comes from JsonObject attribute
-            string rootProperty;
+            Dictionary<string, object> result = GetResult(actionContext, bindingContext);
 
-            Validate(actionContext, bindingContext, out result, out validatorAttribute, out rootProperty);
+            if (result == null)
+            {
+                return modelBinded;
+            }
+            
+            string rootProperty = GetRootProperty(bindingContext);
+
+            // Now we need to validate the root property.
+            ValidateRootProperty(bindingContext, result, rootProperty);
 
             if (bindingContext.ModelState.IsValid)
             {
@@ -75,27 +79,33 @@ namespace Nop.Plugin.Api.ModelBinders
 
                 // We need to call this method here so it will be certain that the routeDataId will be in the propertyValuePaires
                 // when the request is PUT.
-                ValidateValueTypeConvertion(bindingContext, propertyValuePaires);
+                ValidateValueTypes(bindingContext, propertyValuePaires);
+
+                Delta<T> delta = null;
 
                 if (bindingContext.ModelState.IsValid)
                 {
-                    modelBined = BindModel(actionContext, bindingContext, propertyValuePaires, validatorAttribute.ValidatorType);
+                    delta = new Delta<T>(propertyValuePaires);
+                    ValidateModel(actionContext, bindingContext, propertyValuePaires, delta.Dto);
+                }
+
+                if (bindingContext.ModelState.IsValid)
+                {
+                    bindingContext.Model = delta;
+                    modelBinded = true;
                 }
             }
 
-            return modelBined;
+            return modelBinded;
         }
 
-        private void Validate(HttpActionContext actionContext, ModelBindingContext bindingContext,
-            out Dictionary<string, object> result, out ValidatorAttribute validatorAttribute, out string rootProperty)
+        private Dictionary<string, object> GetResult(HttpActionContext actionContext, ModelBindingContext bindingContext)
         {
+            Dictionary<string, object> result = null;
+
             var requestPayload = actionContext.Request.Content.ReadAsStringAsync();
 
-            // First we need to check if the request has payload. 
-            // If the request does not have a payload it won't have any json provided.
-            ValidateIfRequestHasPayload(bindingContext, requestPayload);
-
-            // Now we need to check if there is any json provided in the request payload.
+            // We need to check if the request has a payload.
             CheckIfJsonIsProvided(bindingContext, requestPayload);
 
             // After we are sure that the request payload and json are provided we need to deserialize this json.
@@ -104,12 +114,7 @@ namespace Nop.Plugin.Api.ModelBinders
             // Next we have to validate the json format.
             ValidateJsonFormat(bindingContext, result);
 
-            // Needed so we can call the get the root name and validator type.
-            validatorAttribute = GetValidatorAttribute(bindingContext);
-            rootProperty = GetRootProperty(bindingContext);
-            
-            // Now we need to validate the root property.
-            ValidateRootProperty(bindingContext, result, rootProperty);
+            return result;
         }
 
         private object GetRouteDataId(HttpActionContext actionContext)
@@ -124,10 +129,26 @@ namespace Nop.Plugin.Api.ModelBinders
             return routeDataId;
         }
 
-        private void ValidateValueTypeConvertion(ModelBindingContext bindingContext, Dictionary<string, object> propertyValuePaires)
+        private void ValidateValueTypes(ModelBindingContext bindingContext, Dictionary<string, object> propertyValuePaires)
         {
-            Dictionary<string, string> errors = GetValueTypeConvertionErrorsIfAny<T>(propertyValuePaires);
+            var errors = new Dictionary<string, string>();
 
+            // Validate if the property value pairs passed maches the type.
+            var typeValidator = new TypeValidator<T>();
+
+            if (!typeValidator.IsValid(propertyValuePaires))
+            {
+                foreach (var invalidProperty in typeValidator.InvalidProperties)
+                {
+                    var key = string.Format(_localizationService.GetResource("Api.InvalidType", FirstLanguageId, false), invalidProperty);
+
+                    if (!errors.ContainsKey(key))
+                    {
+                        errors.Add(key, _localizationService.GetResource("Api.InvalidPropertyType", FirstLanguageId, false));
+                    }
+                }
+            }
+            
             if (errors.Count > 0)
             {
                 foreach (var error in errors)
@@ -148,18 +169,6 @@ namespace Nop.Plugin.Api.ModelBinders
                     bindingContext.ModelState.AddModelError("rootProperty", _localizationService.GetResource("Api.InvalidRootProperty", FirstLanguageId, false));
                 }
             }
-        }
-        
-        private ValidatorAttribute GetValidatorAttribute(ModelBindingContext bindingContext)
-        {
-            ValidatorAttribute validatorAttribute = null;
-
-            if (bindingContext.ModelState.IsValid)
-            {
-                validatorAttribute = ReflectionHelper.GetValidatorAttribute(typeof(T));
-            }
-
-            return validatorAttribute;
         }
 
         private string GetRootProperty(ModelBindingContext bindingContext)
@@ -197,7 +206,7 @@ namespace Nop.Plugin.Api.ModelBinders
             // Here we check if validation has passed to this point.
             if (bindingContext.ModelState.IsValid)
             {
-                result = _jsonHelper.Deserialize(requestPayload.Result) as Dictionary<string, object>;
+                result = _jsonHelper.DeserializeToDictionary(requestPayload.Result);
             }
 
             return result;
@@ -205,44 +214,17 @@ namespace Nop.Plugin.Api.ModelBinders
 
         private void CheckIfJsonIsProvided(ModelBindingContext bindingContext, Task<string> requestPayload)
         {
-            bool hasJsonProvided = !string.IsNullOrEmpty(requestPayload.Result);
-
-            if (!hasJsonProvided && bindingContext.ModelState.IsValid)
+            if ((requestPayload == null || 
+                string.IsNullOrEmpty(requestPayload.Result)) &&
+                bindingContext.ModelState.IsValid)
             {
                 bindingContext.ModelState.AddModelError("json", _localizationService.GetResource("Api.NoJsonProvided", FirstLanguageId, false));
             }
         }
-
-        private void ValidateIfRequestHasPayload(ModelBindingContext bindingContext, Task<string> requestPayload)
+        
+        private void ValidateModel(HttpActionContext actionContext, ModelBindingContext bindingContext, Dictionary<string, object> propertyValuePaires, T dto)
         {
-            bool hasRequestPayload = requestPayload != null;
-
-            if (!hasRequestPayload)
-            {
-                bindingContext.ModelState.AddModelError("request", _localizationService.GetResource("Api.InvalidRequest", FirstLanguageId, false));
-            }
-        }
-
-        private bool BindModel(HttpActionContext actionContext, ModelBindingContext bindingContext,
-            Dictionary<string, object> propertyValuePaires, Type validatorType)
-        {
-            bool modelBined = false;
-
-            Delta<T> delta = new Delta<T>(propertyValuePaires);
-
-            // We need to pass the http method because there are some differences between the validation rules for post and put
-            // We need to pass the propertyValuePaires from the passed json because there are cases in which one field is required
-            // on post, but it is a valid case not to pass it when doing a put request.    
-            var validator = Activator.CreateInstance(validatorType,
-                new object[]
-                {
-                    actionContext.Request.Method.ToString(),
-                    propertyValuePaires
-                });
-
-            // We know that the validator will be AbstractValidator<T> which means it will have Validate method.
-            ValidationResult validationResult = validatorType.GetMethod("Validate", new[] { typeof(T) })
-                .Invoke(validator, new[] { delta.Dto }) as ValidationResult;
+            ValidationResult validationResult = GetValidationResult(actionContext, propertyValuePaires, dto);
 
             if (!validationResult.IsValid)
             {
@@ -254,34 +236,59 @@ namespace Nop.Plugin.Api.ModelBinders
             }
             else
             {
-                HandleAttributeInvokers(delta.Dto, bindingContext);
-
-                bindingContext.Model = delta;
-                modelBined = true;
+                HandleValidationAttributes(dto, bindingContext);
             }
-
-            return modelBined;
         }
 
-        private void HandleAttributeInvokers(T dto, ModelBindingContext bindingContext)
+        private ValidationResult GetValidationResult(HttpActionContext actionContext, Dictionary<string, object> propertyValuePaires, T dto)
+        {
+            var validationResult = new ValidationResult();
+
+            // Needed so we can call the get the validator.
+            ValidatorAttribute validatorAttribute =
+                typeof (T).GetCustomAttribute(typeof (ValidatorAttribute)) as ValidatorAttribute;
+
+            if (validatorAttribute != null)
+            {
+                Type validatorType = validatorAttribute.ValidatorType;
+
+                // We need to pass the http method because there are some differences between the validation rules for post and put
+                // We need to pass the propertyValuePaires from the passed json because there are cases in which one field is required
+                // on post, but it is a valid case not to pass it when doing a put request.    
+                var validator = Activator.CreateInstance(validatorType,
+                    new object[]
+                    {
+                        actionContext.Request.Method.ToString(),
+                        propertyValuePaires
+                    });
+
+                // We know that the validator will be AbstractValidator<T> which means it will have Validate method.
+                validationResult = validatorType.GetMethod("Validate", new[] {typeof (T)})
+                    .Invoke(validator, new[] {dto}) as ValidationResult;
+            }
+
+            return validationResult;
+        }
+
+        private void HandleValidationAttributes(T dto, ModelBindingContext bindingContext)
         {
             var dtoProperties = dto.GetType().GetProperties();
 
             foreach (var property in dtoProperties)
             {
                 // Check property type
-                BaseAttributeInvoker invokerAttribute = property.PropertyType.GetCustomAttribute(typeof (BaseAttributeInvoker)) as BaseAttributeInvoker;
+                BaseValidationAttribute validationAttribute = property.PropertyType.GetCustomAttribute(typeof (BaseValidationAttribute)) as BaseValidationAttribute;
 
                 // If not on property type, check the property itself.
-                if (invokerAttribute == null)
+                if (validationAttribute == null)
                 {
-                    invokerAttribute = property.GetCustomAttribute(typeof (BaseAttributeInvoker)) as BaseAttributeInvoker;
+                    validationAttribute = property.GetCustomAttribute(typeof (BaseValidationAttribute)) as BaseValidationAttribute;
                 }
 
-                if (invokerAttribute != null)
+                if (validationAttribute != null)
                 {
-                    invokerAttribute.Invoke(property.GetValue(dto));
-                    Dictionary<string, string> errors = invokerAttribute.GetErrors();
+                    validationAttribute.Validate(property.GetValue(dto));
+                    Dictionary<string, string> errors = validationAttribute.GetErrors();
 
                     if (errors.Count > 0)
                     {
@@ -304,29 +311,6 @@ namespace Nop.Plugin.Api.ModelBinders
             {
                 propertyValuePaires.Add("id", requestId);
             }
-        }
-
-        private Dictionary<string, string> GetValueTypeConvertionErrorsIfAny<T>(Dictionary<string, object> propertyValuePaires)
-        {
-            var errors = new Dictionary<string, string>();
-
-            // Validate if the property value pairs passed maches the type.
-            var typeValidator = new TypeValidator<T>();
-
-            if (!typeValidator.IsValid(propertyValuePaires))
-            {
-                foreach (var invalidProperty in typeValidator.InvalidProperties)
-                {
-                    var key = string.Format(_localizationService.GetResource("Api.InvalidType", FirstLanguageId, false), invalidProperty);
-
-                    if (!errors.ContainsKey(key))
-                    {
-                        errors.Add(key, _localizationService.GetResource("Api.InvalidPropertyType", FirstLanguageId, false));
-                    }
-                }
-            }
-
-            return errors;
         }
     }
 }

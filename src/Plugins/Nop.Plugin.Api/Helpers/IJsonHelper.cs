@@ -1,7 +1,9 @@
-﻿namespace Nop.Plugin.Api.Helpers
+﻿using System.Collections.Generic;
+
+namespace Nop.Plugin.Api.Helpers
 {
     public interface IJsonHelper
     {
-        object Deserialize(string json);
+        Dictionary<string, object> DeserializeToDictionary(string json);
     }
 }

@@ -80,8 +80,8 @@ namespace Nop.Plugin.Api.MappingExtensions
         {
             Mapper.CreateMap<ShoppingCartItem, ShoppingCartItemDto>()
                 .IgnoreAllNonExisting()
-                .ForMember(x => x.Customer, y => y.MapFrom(src => src.Customer.GetWithDefault(x => x, new Customer()).ToCustomerForShoppingCartItemDto()))
-                .ForMember(x => x.Product, y => y.MapFrom(src => src.Product.GetWithDefault(x => x, new Product()).ToDto()));
+                .ForMember(x => x.CustomerDto, y => y.MapFrom(src => src.Customer.GetWithDefault(x => x, new Customer()).ToCustomerForShoppingCartItemDto()))
+                .ForMember(x => x.ProductDto, y => y.MapFrom(src => src.Product.GetWithDefault(x => x, new Product()).ToDto()));
         }
 
         public static void CreateProductMap()

@@ -241,14 +241,22 @@ namespace Nop.Plugin.Api
                 constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
 
             config.Routes.MapHttpRoute(
+               name: "createShoppingCartItem",
+               routeTemplate: "api/shopping_cart_items",
+               defaults: new { controller = "ShoppingCartItems", action = "CreateShoppingCartItem" },
+               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
+
+            config.Routes.MapHttpRoute(
                 name: "shoppingCartItems",
                 routeTemplate: "api/shopping_cart_items",
-                defaults: new { controller = "ShoppingCartItems", action = "GetShoppingCartItems" });
+                defaults: new { controller = "ShoppingCartItems", action = "GetShoppingCartItems" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
 
             config.Routes.MapHttpRoute(
                 name: "shoppingCartItemsByCustomerId",
                 routeTemplate: "api/shopping_carts/{customerId}",
-                defaults: new { controller = "ShoppingCartItems", action = "GetShoppingCartItemsByCustomerId" });
+                defaults: new { controller = "ShoppingCartItems", action = "GetShoppingCartItemsByCustomerId" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
 
             // The default route templates for the Swagger docs and swagger-ui are "swagger/docs/{apiVersion}" and "swagger/ui/index#/{assetPath}" respectively.
             config

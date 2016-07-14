@@ -138,6 +138,7 @@
     <Compile Include="Factories\AddressFactory.cs" />
     <Compile Include="Factories\CustomerFactory.cs" />
     <Compile Include="Factories\ProductFactory.cs" />
+    <Compile Include="Factories\ShoppingCartItemFactory.cs" />
     <Compile Include="Helpers\CustomerRolesHelper.cs" />
     <Compile Include="Helpers\ICustomerRolesHelper.cs" />
     <Compile Include="Helpers\JTokenHelper.cs" />
@@ -274,6 +275,7 @@
     <Compile Include="Validators\ClientValidator.cs" />
     <Compile Include="Validators\FieldsValidator.cs" />
     <Compile Include="Validators\IFieldsValidator.cs" />
+    <Compile Include="Validators\ShoppingCartItemDtoValidator.cs" />
     <Compile Include="Validators\TypeValidator.cs" />
   </ItemGroup>
   <ItemGroup>
