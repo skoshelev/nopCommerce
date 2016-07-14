@@ -10,5 +10,7 @@ namespace Nop.Plugin.Api.Services
         List<ShoppingCartItem> GetShoppingCartItems(int? customerId = null, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
                                                     DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, int limit = Configurations.DefaultLimit, 
                                                     int page = Configurations.DefaultPageValue);
+
+        ShoppingCartItem GetShoppingCartItem(int id);
     }
 }

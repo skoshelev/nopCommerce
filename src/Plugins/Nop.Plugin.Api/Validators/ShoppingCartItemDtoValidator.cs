@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentValidation;
+using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.DTOs.ShoppingCarts;
 
 namespace Nop.Plugin.Api.Validators
@@ -22,6 +23,8 @@ namespace Nop.Plugin.Api.Validators
                 RuleFor(x => x.Quantity)
                     .NotNull()
                     .WithMessage("Please, set quantity");
+                
+                ValidateShoppingCartType();
             }
             else if (httpMethod.Equals("put", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -53,6 +56,11 @@ namespace Nop.Plugin.Api.Validators
                        .NotNull()
                        .WithMessage("Please, set quantity");
                 }
+
+                if (passedPropertyValuePaires.ContainsKey("shopping_cart_type"))
+                {
+                    ValidateShoppingCartType();
+                }
             }
 
             if (passedPropertyValuePaires.ContainsKey("rental_start_date_utc") || passedPropertyValuePaires.ContainsKey("rental_end_date_utc"))
@@ -68,7 +76,29 @@ namespace Nop.Plugin.Api.Validators
                 RuleFor(dto => dto)
                     .Must(dto => dto.RentalStartDateUtc < dto.RentalEndDateUtc)
                     .WithMessage("Rental start date should be before rental end date");
+
+                RuleFor(dto => dto)
+                    .Must(dto => dto.RentalStartDateUtc > dto.CreatedOnUtc)
+                    .WithMessage("Rental start date should be the future date");
+
+                RuleFor(dto => dto)
+                   .Must(dto => dto.RentalEndDateUtc > dto.CreatedOnUtc)
+                   .WithMessage("Rental end date should be the future date");
             }
+        }
+
+        private void ValidateShoppingCartType()
+        {
+            ShoppingCartType shoppingCartType;
+
+            RuleFor(x => x.ShoppingCartType)
+                .NotNull()
+                .Must(x =>
+                {
+                    var parsed = Enum.TryParse(x, true, out shoppingCartType);
+                    return parsed;
+                })
+                .WithMessage("Please provide a valid shopping cart type");
         }
     }
 }

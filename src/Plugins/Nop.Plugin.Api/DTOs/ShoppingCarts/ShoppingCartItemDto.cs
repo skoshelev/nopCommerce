@@ -73,7 +73,7 @@ namespace Nop.Plugin.Api.DTOs.ShoppingCarts
             set
             {
                 ShoppingCartType shoppingCartType;
-                if (Enum.TryParse(value, out shoppingCartType))
+                if (Enum.TryParse(value, true, out shoppingCartType))
                 {
                     _shoppingCartTypeId = (int)shoppingCartType;
                 }

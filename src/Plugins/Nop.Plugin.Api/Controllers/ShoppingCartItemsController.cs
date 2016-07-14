@@ -84,7 +84,7 @@ namespace Nop.Plugin.Api.Controllers
                 return BadRequest("Invalid request parameters");
             }
 
-            IList<ShoppingCartItem> shoppingCartItems = _shoppingCartItemApiService.GetShoppingCartItems(customerId: 0,
+            IList<ShoppingCartItem> shoppingCartItems = _shoppingCartItemApiService.GetShoppingCartItems(customerId: null,
                                                                                                          createdAtMin: parameters.CreatedAtMin,
                                                                                                          createdAtMax: parameters.CreatedAtMax, 
                                                                                                          updatedAtMin: parameters.UpdatedAtMin,
@@ -186,14 +186,9 @@ namespace Nop.Plugin.Api.Controllers
 
                 return Error();
             }
-
-            //inserting new category
-            ShoppingCartType shoppingCartType;
-            if (!Enum.TryParse(shoppingCartItemDelta.Dto.ShoppingCartType, out shoppingCartType))
-            {
-                shoppingCartType = ShoppingCartType.ShoppingCart;
-            }
-
+            
+            ShoppingCartType shoppingCartType = (ShoppingCartType)Enum.Parse(typeof(ShoppingCartType), shoppingCartItemDelta.Dto.ShoppingCartType);
+            
             if (!product.IsRental)
             {
                 newShoppingCartItem.RentalStartDateUtc = null;
@@ -219,6 +214,68 @@ namespace Nop.Plugin.Api.Controllers
             newShoppingCartItemDto.ProductDto = product.ToDto();
             newShoppingCartItemDto.CustomerDto = customer.ToCustomerForShoppingCartItemDto();
             newShoppingCartItemDto.ShoppingCartType = shoppingCartType.ToString();
+
+            var shoppingCartsRootObject = new ShoppingCartItemsRootObject();
+
+            shoppingCartsRootObject.ShoppingCartItems.Add(newShoppingCartItemDto);
+
+            var json = _jsonFieldsSerializer.Serialize(shoppingCartsRootObject, string.Empty);
+
+            return new RawJsonActionResult(json);
+        }
+
+        [HttpPut]
+        [ResponseType(typeof(ShoppingCartItemsRootObject))]
+        public IHttpActionResult UpdateShoppingCartItem([ModelBinder(typeof(JsonModelBinder<ShoppingCartItemDto>))] Delta<ShoppingCartItemDto> shoppingCartItemDelta)
+        {
+            // Here we display the errors if the validation has failed at some point.
+            if (!ModelState.IsValid)
+            {
+                return Error();
+            }
+
+            // We kno that the id will be valid integer because the validation for this happens in the validator which is executed by the model binder.
+            ShoppingCartItem shoppingCartItemForUpdate =
+                _shoppingCartItemApiService.GetShoppingCartItem(int.Parse(shoppingCartItemDelta.Dto.Id));
+
+            if (shoppingCartItemForUpdate == null)
+            {
+                ModelState.AddModelError("shoppingCartItem", "not found");
+
+                return Error();
+            }
+
+            // Here we make sure that  the product id and the customer id won't be modified.
+            int productId = shoppingCartItemForUpdate.ProductId;
+            int customerId = shoppingCartItemForUpdate.CustomerId;
+
+            shoppingCartItemDelta.Merge(shoppingCartItemForUpdate);
+
+            shoppingCartItemForUpdate.ProductId = productId;
+            shoppingCartItemForUpdate.CustomerId = customerId;
+            
+            if (!shoppingCartItemForUpdate.Product.IsRental)
+            {
+                shoppingCartItemForUpdate.RentalStartDateUtc = null;
+                shoppingCartItemForUpdate.RentalEndDateUtc = null;
+            }
+
+            if (!string.IsNullOrEmpty(shoppingCartItemDelta.Dto.ShoppingCartType))
+            {
+                ShoppingCartType shoppingCartType = (ShoppingCartType)Enum.Parse(typeof(ShoppingCartType), shoppingCartItemDelta.Dto.ShoppingCartType);
+                shoppingCartItemForUpdate.ShoppingCartType = shoppingCartType;
+            }
+
+            _shoppingCartService.UpdateShoppingCartItem(shoppingCartItemForUpdate.Customer, shoppingCartItemForUpdate.Id,
+                shoppingCartItemForUpdate.AttributesXml, shoppingCartItemForUpdate.CustomerEnteredPrice, 
+                shoppingCartItemForUpdate.RentalStartDateUtc, shoppingCartItemForUpdate.RentalEndDateUtc,
+                shoppingCartItemForUpdate.Quantity);
+            
+            // Preparing the result dto of the new product category mapping
+            ShoppingCartItemDto newShoppingCartItemDto = shoppingCartItemForUpdate.ToDto();
+            newShoppingCartItemDto.ProductDto = shoppingCartItemForUpdate.Product.ToDto();
+            newShoppingCartItemDto.CustomerDto = shoppingCartItemForUpdate.Customer.ToCustomerForShoppingCartItemDto();
+            newShoppingCartItemDto.ShoppingCartType = shoppingCartItemForUpdate.ShoppingCartType.ToString();
 
             var shoppingCartsRootObject = new ShoppingCartItemsRootObject();
 
