@@ -112,6 +112,7 @@ namespace Nop.Plugin.Api.Infrastructure
             builder.RegisterType<ProductFactory>().As<IFactory<Product>>().InstancePerLifetimeScope();
             builder.RegisterType<CustomerFactory>().As<IFactory<Customer>>().InstancePerLifetimeScope();
             builder.RegisterType<AddressFactory>().As<IFactory<Address>>().InstancePerLifetimeScope();
+            builder.RegisterType<OrderFactory>().As<IFactory<Order>>().InstancePerLifetimeScope();
             builder.RegisterType<ShoppingCartItemFactory>().As<IFactory<ShoppingCartItem>>().InstancePerLifetimeScope();
 
             builder.RegisterType<Maps.JsonPropertyMapper>().As<Maps.IJsonPropertyMapper>().InstancePerLifetimeScope();

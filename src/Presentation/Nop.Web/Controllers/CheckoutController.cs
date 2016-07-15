@@ -934,6 +934,7 @@ namespace Nop.Web.Controllers
             {
                 _genericAttributeService.SaveAttribute<string>(_workContext.CurrentCustomer,
                     SystemCustomerAttributeNames.SelectedPaymentMethod, null, _storeContext.CurrentStore.Id);
+
                 return RedirectToRoute("CheckoutPaymentInfo");
             }
 
