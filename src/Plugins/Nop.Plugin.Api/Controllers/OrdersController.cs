@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using FluentValidation.Results;
+using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
+using Nop.Core.Domain.Shipping;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Delta;
@@ -31,6 +32,7 @@ using Nop.Services.Logging;
 using Nop.Services.Orders;
 using Nop.Services.Payments;
 using Nop.Services.Security;
+using Nop.Services.Shipping;
 using Nop.Services.Stores;
 
 namespace Nop.Plugin.Api.Controllers
@@ -43,11 +45,14 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderService _orderService;
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IShippingService _shippingService;
+        private readonly IStoreContext _storeContext;
         private readonly OrderSettings _orderSettings;
-        private readonly IFactory<Order> _factory; 
+        private readonly IFactory<Order> _factory;
 
-        public OrdersController(IOrderApiService orderApiService, 
-            IJsonFieldsSerializer jsonFieldsSerializer, 
+        public OrdersController(IOrderApiService orderApiService,
+            IJsonFieldsSerializer jsonFieldsSerializer,
             IAclService aclService,
             ICustomerService customerService,
             IStoreMappingService storeMappingService,
@@ -56,12 +61,15 @@ namespace Nop.Plugin.Api.Controllers
             ICustomerActivityService customerActivityService,
             ILocalizationService localizationService,
             IProductService productService,
-            IFactory<Order> factory, 
-            OrderSettings orderSettings, 
-            IOrderProcessingService orderProcessingService, 
-            IOrderService orderService, 
-            IShoppingCartService shoppingCartService)
-            :base(jsonFieldsSerializer, aclService, customerService, storeMappingService, 
+            IFactory<Order> factory,
+            OrderSettings orderSettings,
+            IOrderProcessingService orderProcessingService,
+            IOrderService orderService,
+            IShoppingCartService shoppingCartService,
+            IGenericAttributeService genericAttributeService,
+            IStoreContext storeContext,
+            IShippingService shippingService)
+            : base(jsonFieldsSerializer, aclService, customerService, storeMappingService,
                  storeService, discountService, customerActivityService, localizationService)
         {
             _orderApiService = orderApiService;
@@ -70,6 +78,9 @@ namespace Nop.Plugin.Api.Controllers
             _orderProcessingService = orderProcessingService;
             _orderService = orderService;
             _shoppingCartService = shoppingCartService;
+            _genericAttributeService = genericAttributeService;
+            _storeContext = storeContext;
+            _shippingService = shippingService;
             _productService = productService;
         }
 
@@ -94,7 +105,7 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             IList<OrderDto> ordersAsDtos = _orderApiService.GetOrders(parameters.Ids, parameters.CreatedAtMin, parameters.CreatedAtMax,
-                                                                      parameters.Limit, parameters.Page, parameters.SinceId, 
+                                                                      parameters.Limit, parameters.Page, parameters.SinceId,
                                                                       parameters.Status, parameters.PaymentStatus, parameters.ShippingStatus,
                                                                       parameters.CustomerId).Select(x => x.ToDto()).ToList();
 
@@ -191,7 +202,7 @@ namespace Nop.Plugin.Api.Controllers
             {
                 return Error();
             }
-            
+
             // We doesn't have to check for value because this is done by the order validator.
             Customer customer = _customerService.GetCustomerById(orderDelta.Dto.CustomerId.Value);
 
@@ -202,19 +213,37 @@ namespace Nop.Plugin.Api.Controllers
                 return Error();
             }
 
-            bool shippingAddressRequired = false;
+            bool shippingRequired = false;
 
-            bool shouldReturnError = AddOrderItemsToCart(orderDelta.Dto.OrderItems, customer, orderDelta.Dto.StoreId ?? 0,
-                                        out shippingAddressRequired);
-
-            if(shouldReturnError)
+            if (orderDelta.Dto.OrderItems != null)
             {
-                return Error();
+                bool shouldReturnError = ValidateEachOrderItem(orderDelta.Dto.OrderItems);
+
+                if (shouldReturnError)
+                {
+                    return Error();
+                }
+
+                shouldReturnError = AddOrderItemsToCart(orderDelta.Dto.OrderItems, customer, orderDelta.Dto.StoreId ?? _storeContext.CurrentStore.Id);
+
+                if (shouldReturnError)
+                {
+                    return Error();
+                }
+
+                shippingRequired = IsShippingAddressRequired(orderDelta.Dto.OrderItems);
             }
 
-            if (shippingAddressRequired)
+            if (shippingRequired)
             {
-                bool isValid = ValidateAddress(orderDelta.Dto.ShippingAddress, "shipping_address");
+                bool isValid = true;
+
+                isValid &= SetShippingOption(orderDelta.Dto.ShippingRateComputationMethodSystemName,
+                                            orderDelta.Dto.ShippingOptionName,
+                                            orderDelta.Dto.StoreId ?? _storeContext.CurrentStore.Id,
+                                            customer);
+
+                isValid &= ValidateAddress(orderDelta.Dto.ShippingAddress, "shipping_address");
 
                 if (!isValid)
                 {
@@ -231,17 +260,21 @@ namespace Nop.Plugin.Api.Controllers
                     return Error();
                 }
             }
-            
+
             Order newOrder = _factory.Initialize();
             orderDelta.Merge(newOrder);
 
             customer.BillingAddress = newOrder.BillingAddress;
             customer.ShippingAddress = newOrder.ShippingAddress;
-
+            // If the customer has something in the cart it will be added too. Should we clear the cart first? 
             newOrder.Customer = customer;
 
-            var processPaymentRequest = new ProcessPaymentRequest();
-            
+            // The default value will be the currentStore.id, but if it isn't passed in the json we need to set it by hand.
+            if (!orderDelta.Dto.StoreId.HasValue)
+            {
+                newOrder.StoreId = _storeContext.CurrentStore.Id;
+            }
+
             //prevent 2 orders being placed within an X seconds time frame
             if (!IsMinimumOrderPlacementIntervalValid(customer, newOrder.StoreId))
             {
@@ -250,12 +283,7 @@ namespace Nop.Plugin.Api.Controllers
                 return Error();
             }
 
-            //place order
-            processPaymentRequest.StoreId = newOrder.StoreId;
-            processPaymentRequest.CustomerId = customer.Id;
-            processPaymentRequest.PaymentMethodSystemName = newOrder.PaymentMethodSystemName;
-
-            var placeOrderResult = _orderProcessingService.PlaceOrder(processPaymentRequest);
+            PlaceOrderResult placeOrderResult = PlaceOrder(newOrder, customer);
 
             if (!placeOrderResult.Success)
             {
@@ -265,77 +293,153 @@ namespace Nop.Plugin.Api.Controllers
                 }
 
                 return Error();
-            } 
+            }
 
             _customerActivityService.InsertActivity("AddNewOrder",
                  _localizationService.GetResource("ActivityLog.AddNewOrder"), newOrder.Id);
 
             var ordersRootObject = new OrdersRootObject();
 
-            OrderDto newOrderDto = placeOrderResult.PlacedOrder.ToDto();
+            OrderDto placedOrderDto = placeOrderResult.PlacedOrder.ToDto();
 
-            ordersRootObject.Orders.Add(newOrderDto);
+            ordersRootObject.Orders.Add(placedOrderDto);
 
             var json = _jsonFieldsSerializer.Serialize(ordersRootObject, string.Empty);
 
             return new RawJsonActionResult(json);
         }
 
-        private bool AddOrderItemsToCart(ICollection<OrderItemDto> orderItems, Customer customer, int storeId, out bool shippingAddressRequired)
+        private bool SetShippingOption(string shippingRateComputationMethodSystemName, string shippingOptionName, int storeId, Customer customer)
         {
-            bool shouldReturnError = false;
-            shippingAddressRequired = false;
+            bool isValid = true;
 
-            if (orderItems != null)
+            if (string.IsNullOrEmpty(shippingRateComputationMethodSystemName))
             {
-                foreach (var orderItem in orderItems)
-                {
-                    var orderItemDtoValidator = new OrderItemDtoValidator();
-                    ValidationResult validation = orderItemDtoValidator.Validate(orderItem);
+                isValid = false;
 
-                    if (validation.IsValid)
-                    {
-                        Product product = _productService.GetProductById(orderItem.ProductId.Value);
+                ModelState.AddModelError("shipping_rate_computation_method_system_name",
+                    "Please provide shipping_rate_computation_method_system_name");
+            }
+            else if (string.IsNullOrEmpty(shippingOptionName))
+            {
+                isValid = false;
 
-                        if (product != null)
-                        {
-                            IList<string> errors = _shoppingCartService.AddToCart(customer, product,
-                                ShoppingCartType.ShoppingCart, storeId,
-                                null, 0M, orderItem.RentalStartDateUtc, orderItem.RentalEndDateUtc,
-                                orderItem.Quantity ?? 1);
-
-                            if (errors.Count > 0)
-                            {
-                                foreach (var error in errors)
-                                {
-                                    ModelState.AddModelError("order", error);
-                                }
-
-                                shouldReturnError = true;
-                            }
-
-                            shippingAddressRequired |= product.IsShipEnabled;
-                        }
-                    }
-                    else
-                    {
-                        foreach (var error in validation.Errors)
-                        {
-                            ModelState.AddModelError("order_item", error.ErrorMessage);
-                        }
-
-                        shouldReturnError = true;
-                    }
-                }
+                ModelState.AddModelError("shipping_option_name", "Please provide shipping_option_name");
             }
             else
             {
-                shouldReturnError = true;
+                List<ShippingOption> shippingOptions = _shippingService
+                    .GetShippingOptions(customer.ShoppingCartItems.ToList(), customer.ShippingAddress, shippingRateComputationMethodSystemName, storeId)
+                    .ShippingOptions
+                    .ToList();
+
+                ShippingOption shippingOption = shippingOptions
+                  .Find(so => !string.IsNullOrEmpty(so.Name) && so.Name.Equals(shippingOptionName, StringComparison.InvariantCultureIgnoreCase));
+
+                if (shippingOption != null)
+                {
+                    _genericAttributeService.SaveAttribute(customer,
+                        SystemCustomerAttributeNames.SelectedShippingOption,
+                        shippingOption, storeId);
+                }
+                else
+                {
+                    isValid = false;
+
+                    ModelState.AddModelError("shipping_option", "Selected shipping method can't be loaded");
+                }
+            }
+
+            return isValid;
+        }
+
+        private PlaceOrderResult PlaceOrder(Order newOrder, Customer customer)
+        {
+            var processPaymentRequest = new ProcessPaymentRequest();
+
+            processPaymentRequest.StoreId = newOrder.StoreId;
+            processPaymentRequest.CustomerId = customer.Id;
+            processPaymentRequest.PaymentMethodSystemName = newOrder.PaymentMethodSystemName;
+
+            PlaceOrderResult placeOrderResult = _orderProcessingService.PlaceOrder(processPaymentRequest);
+
+            return placeOrderResult;
+        }
+
+        private bool ValidateEachOrderItem(ICollection<OrderItemDto> orderItems)
+        {
+            bool shouldReturnError = false;
+
+            foreach (var orderItem in orderItems)
+            {
+                var orderItemDtoValidator = new OrderItemDtoValidator();
+                ValidationResult validation = orderItemDtoValidator.Validate(orderItem);
+
+                if (validation.IsValid)
+                {
+                    Product product = _productService.GetProductById(orderItem.ProductId.Value);
+
+                    if (product == null)
+                    {
+                        ModelState.AddModelError("order_item.product", string.Format("Product not found for order_item.product_id = {0}", orderItem.ProductId));
+                        shouldReturnError = true;
+                    }
+                }
+                else
+                {
+                    foreach (var error in validation.Errors)
+                    {
+                        ModelState.AddModelError("order_item", error.ErrorMessage);
+                    }
+
+                    shouldReturnError = true;
+                }
             }
 
             return shouldReturnError;
         }
-        
+
+        private bool IsShippingAddressRequired(ICollection<OrderItemDto> orderItems)
+        {
+            bool shippingAddressRequired = false;
+
+            foreach (var orderItem in orderItems)
+            {
+                Product product = _productService.GetProductById(orderItem.ProductId.Value);
+
+                shippingAddressRequired |= product.IsShipEnabled;
+            }
+
+            return shippingAddressRequired;
+        }
+
+        private bool AddOrderItemsToCart(ICollection<OrderItemDto> orderItems, Customer customer, int storeId)
+        {
+            bool shouldReturnError = false;
+
+            foreach (var orderItem in orderItems)
+            {
+                Product product = _productService.GetProductById(orderItem.ProductId.Value);
+
+                IList<string> errors = _shoppingCartService.AddToCart(customer, product,
+                    ShoppingCartType.ShoppingCart, storeId,
+                    null, 0M, orderItem.RentalStartDateUtc, orderItem.RentalEndDateUtc,
+                    orderItem.Quantity ?? 1);
+
+                if (errors.Count > 0)
+                {
+                    foreach (var error in errors)
+                    {
+                        ModelState.AddModelError("order", error);
+                    }
+
+                    shouldReturnError = true;
+                }
+            }
+
+            return shouldReturnError;
+        }
+
         private bool ValidateCustomer(Customer customer)
         {
             bool isValid = true;
@@ -359,14 +463,14 @@ namespace Nop.Plugin.Api.Controllers
                 ModelState.AddModelError(addressKind, string.Format("{0} address required", addressKind));
                 addressValid = false;
             }
-            else 
+            else
             {
                 var addressValidator = new AddressDtoValidator();
                 ValidationResult validationResult = addressValidator.Validate(address);
 
                 foreach (var validationFailure in validationResult.Errors)
                 {
-                    ModelState.AddModelError(addressKind, validationFailure.ErrorMessage);    
+                    ModelState.AddModelError(addressKind, validationFailure.ErrorMessage);
                 }
 
                 addressValid = validationResult.IsValid;
