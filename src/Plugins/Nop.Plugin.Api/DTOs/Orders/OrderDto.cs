@@ -11,7 +11,7 @@ namespace Nop.Plugin.Api.DTOs.Orders
     [Validator(typeof(OrderDtoValidator))]
     public class OrderDto
     {
-        private ICollection<OrderItemDto> _orderItems;
+        private ICollection<OrderItemDto> _orderItemDtos;
 
         /// <summary>
         /// Gets or sets a value indicating the order id
@@ -219,7 +219,7 @@ namespace Nop.Plugin.Api.DTOs.Orders
         /// </summary>
         [JsonProperty("shipping_rate_computation_method_system_name")]
         public string ShippingRateComputationMethodSystemName { get; set; }
-
+        
         /// <summary>
         /// Gets or sets the serialized CustomValues (values from ProcessPaymentRequest)
         /// </summary>
@@ -263,10 +263,10 @@ namespace Nop.Plugin.Api.DTOs.Orders
         /// Gets or sets order items
         /// </summary>
         [JsonProperty("order_items")]
-        public ICollection<OrderItemDto> OrderItems
+        public ICollection<OrderItemDto> OrderItemDtos
         {
-            get { return _orderItems; }
-            set { _orderItems = value; }
+            get { return _orderItemDtos; }
+            set { _orderItemDtos = value; }
         }
 
         /// <summary>

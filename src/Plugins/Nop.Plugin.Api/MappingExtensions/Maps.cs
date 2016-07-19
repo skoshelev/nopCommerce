@@ -9,6 +9,7 @@ using System.Web;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
 using Nop.Plugin.Api.DTOs;
+using Nop.Plugin.Api.DTOs.Orders;
 using Nop.Plugin.Api.DTOs.Products;
 using Nop.Plugin.Api.DTOs.ShoppingCarts;
 
@@ -21,6 +22,14 @@ namespace Nop.Plugin.Api.MappingExtensions
             return Mapper.CreateMap<TSource, TDestination>().IgnoreAllNonExisting();
         }
 
+        public static void CreateOrderEntityToOrderDtoMap()
+        {
+            Mapper.CreateMap<Order, OrderDto>()
+                .IgnoreAllNonExisting()
+                .ForMember(x => x.Id, y => y.MapFrom(src => src.Id))
+                .ForMember(x => x.OrderItemDtos, y => y.MapFrom(src => src.OrderItems.Select(x => x.ToDto())));
+        }
+        
         public static void CreateAddressMap()
         {
             Mapper.CreateMap<Address, AddressDto>()
