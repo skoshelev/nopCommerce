@@ -41,7 +41,7 @@ namespace Nop.Plugin.Api.Services
 
         public int GetCustomersCount()
         {
-            return _customerRepository.TableNoTracking.Count();
+            return _customerRepository.TableNoTracking.Count(customer => !customer.Deleted);
         }
 
         // Need to work with dto object so we can map the first and last name from generic attributes table.
@@ -85,6 +85,13 @@ namespace Nop.Plugin.Api.Services
                     (x.Key == FirstName || x.Key == LastName)).ToDictionary(x => x.Key.ToLowerInvariant(), y => y.Value);
         }
 
+        public Customer GetCustomerEntityById(int id)
+        {
+            Customer customer = _customerRepository.Table.FirstOrDefault(c => c.Id == id && !c.Deleted);
+
+            return customer;
+        }
+
         public CustomerDto GetCustomerById(int id)
         {
             if (id == 0)
@@ -93,7 +100,7 @@ namespace Nop.Plugin.Api.Services
             // Here we expect to get two records, one for the first name and one for the last name.
             List<CustomerAttributeMappingDto> customerAttributeMappings = (from customer in _customerRepository.TableNoTracking
                                                                            join attribute in _genericAttributeRepository.TableNoTracking on customer.Id equals attribute.EntityId
-                                                                           where customer.Id == id &&
+                                                                           where customer.Id == id && !customer.Deleted &&
                                                                                  attribute.KeyGroup.Equals(KeyGroup, StringComparison.InvariantCultureIgnoreCase) &&
                                                                                  (attribute.Key.Equals(FirstName, StringComparison.InvariantCultureIgnoreCase) ||
                                                                                   attribute.Key.Equals(LastName, StringComparison.InvariantCultureIgnoreCase))
@@ -103,7 +110,7 @@ namespace Nop.Plugin.Api.Services
                                                                                Customer = customer
                                                                            }).ToList();
 
-            CustomerDto customerDto;
+            CustomerDto customerDto = null;
 
             // This is in case we have first and last names set for the customer.
             if (customerAttributeMappings.Count > 0)
@@ -126,9 +133,12 @@ namespace Nop.Plugin.Api.Services
             else
             {
                 // This is when we do not have first and last name set.
-                Customer currentCustomer = _customerRepository.GetById(id);
+                Customer currentCustomer = _customerRepository.TableNoTracking.FirstOrDefault(customer => customer.Id == id && !customer.Deleted);
 
-                customerDto = currentCustomer.ToDto();
+                if (currentCustomer != null)
+                {
+                    customerDto = currentCustomer.ToDto();
+                }
             }
 
             return customerDto;
@@ -292,7 +302,8 @@ namespace Nop.Plugin.Api.Services
 
         private IQueryable<Customer> GetCustomersQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, int sinceId = 0)
         {
-            var query = _customerRepository.TableNoTracking;
+            var query = _customerRepository.TableNoTracking.Where(customer => !customer.Deleted);
+
             if (createdAtMin != null)
             {
                 query = query.Where(c => c.CreatedOnUtc > createdAtMin.Value);
