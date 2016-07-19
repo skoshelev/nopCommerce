@@ -274,7 +274,14 @@ namespace Nop.Plugin.Api.Controllers
             // We do not need to validate the category id, because this will happen in the model binder using the dto validator.
             int updateCategoryId = int.Parse(categoryDelta.Dto.Id);
 
-            Category categoryEntityToUpdate = _categoryService.GetCategoryById(updateCategoryId);
+            Category categoryEntityToUpdate = _categoryApiService.GetCategoryById(updateCategoryId);
+
+            if (categoryEntityToUpdate == null)
+            {
+                ModelState.AddModelError("category", "not found");
+                return Error();
+            }
+
             categoryDelta.Merge(categoryEntityToUpdate);
      
             Picture updatedPicture = UpdatePicture(categoryEntityToUpdate, categoryDelta.Dto.Image.Binary, categoryDelta.Dto.Image.MimeType);
@@ -317,7 +324,7 @@ namespace Nop.Plugin.Api.Controllers
                 return NotFound();
             }
 
-            Category categoryToDelete = _categoryService.GetCategoryById(id);
+            Category categoryToDelete = _categoryApiService.GetCategoryById(id);
 
             if (categoryToDelete == null)
             {
