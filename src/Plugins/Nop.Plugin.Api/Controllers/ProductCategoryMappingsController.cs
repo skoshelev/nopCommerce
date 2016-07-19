@@ -185,6 +185,13 @@ namespace Nop.Plugin.Api.Controllers
             int updateProductCategoryId = productCategoryDelta.Dto.Id;
 
             ProductCategory productCategoryEntityToUpdate = _categoryService.GetProductCategoryById(updateProductCategoryId);
+
+            if (productCategoryEntityToUpdate == null)
+            {
+                ModelState.AddModelError("product_category_mapping", "Not Found");
+                return Error();
+            }
+
             productCategoryDelta.Merge(productCategoryEntityToUpdate);
 
             _categoryService.UpdateProductCategory(productCategoryEntityToUpdate);
