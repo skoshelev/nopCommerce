@@ -15,9 +15,7 @@ namespace Nop.Plugin.Api.Validators
         {
             if (string.IsNullOrEmpty(httpMethod) || httpMethod.Equals("post", StringComparison.InvariantCultureIgnoreCase))
             {
-                RuleFor(x => x.Name)
-                    .NotEmpty()
-                    .WithMessage(_localizationService.GetResource("Admin.Catalog.Categories.Fields.Name.Required"));
+                SetNameRule();
             }
             else if (httpMethod.Equals("put", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -31,12 +29,17 @@ namespace Nop.Plugin.Api.Validators
 
                 if (passedPropertyValuePaires.ContainsKey("name"))
                 {
-                    RuleFor(x => x.Name)
+                    SetNameRule();
+                }
+            }
+        }
+
+        private void SetNameRule()
+        {
+            RuleFor(x => x.Name)
                         .NotNull()
                         .NotEmpty()
                         .WithMessage(_localizationService.GetResource("Admin.Catalog.Categories.Fields.Name.Required"));
-                }
-            }
         }
     }
 }
