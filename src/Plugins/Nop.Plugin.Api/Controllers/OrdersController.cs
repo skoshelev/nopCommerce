@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
@@ -313,7 +312,7 @@ namespace Nop.Plugin.Api.Controllers
                 return NotFound();
             }
             
-            Order orderToDelete = _orderService.GetOrderById(id);
+            Order orderToDelete = _orderApiService.GetOrderById(id);
 
             if (orderToDelete == null)
             {
@@ -338,7 +337,13 @@ namespace Nop.Plugin.Api.Controllers
                 return Error();
             }
 
-            Order currentOrder = _orderService.GetOrderById(int.Parse(orderDelta.Dto.Id));
+            Order currentOrder = _orderApiService.GetOrderById(int.Parse(orderDelta.Dto.Id));
+
+            if (currentOrder == null)
+            {
+                ModelState.AddModelError("order", "Not Found");
+                return Error();
+            }
 
             Customer customer = currentOrder.Customer;
 

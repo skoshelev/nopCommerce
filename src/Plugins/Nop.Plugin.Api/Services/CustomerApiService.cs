@@ -54,7 +54,7 @@ namespace Nop.Plugin.Api.Services
 
             if (searchParams != null)
             {
-                IQueryable<Customer> query = _customerRepository.TableNoTracking;
+                IQueryable<Customer> query = _customerRepository.TableNoTracking.Where(customer => !customer.Deleted);
 
                 foreach (var searchParam in searchParams)
                 {

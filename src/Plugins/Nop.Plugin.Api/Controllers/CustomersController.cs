@@ -277,6 +277,13 @@ namespace Nop.Plugin.Api.Controllers
             
             // Updateting the customer
             Customer currentCustomer = _customerApiService.GetCustomerEntityById(int.Parse(customerDelta.Dto.Id));
+
+            if (currentCustomer == null)
+            {
+                ModelState.AddModelError("customer", "Not Found");
+                return Error();
+            }
+
             customerDelta.Merge(currentCustomer);
 
             if (customerDelta.Dto.RoleIds.Count > 0)
