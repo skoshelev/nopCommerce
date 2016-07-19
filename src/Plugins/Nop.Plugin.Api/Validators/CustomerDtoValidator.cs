@@ -13,7 +13,6 @@ namespace Nop.Plugin.Api.Validators
 {
     public class CustomerDtoValidator : AbstractValidator<CustomerDto>
     {
-        private ILocalizationService _localizationService = EngineContext.Current.Resolve<ILocalizationService>();
         private ICustomerRolesHelper _customerRolesHelper = EngineContext.Current.Resolve<ICustomerRolesHelper>();
         private ICustomerService _customerService = EngineContext.Current.Resolve<ICustomerService>();
 
@@ -32,7 +31,7 @@ namespace Nop.Plugin.Api.Validators
                     .NotNull()
                     .NotEmpty()
                     .Must(id => int.TryParse(id, out parsedId) && parsedId > 0)
-                    .WithMessage(_localizationService.GetResource("Api.Customers.Fields.Id.Invalid"))
+                    .WithMessage("invalid id")
                     .DependentRules(dto => dto.RuleFor(customer => customer).Must(customer =>
                         {
                             return _customerService.GetCustomerById(parsedId) != null; 
@@ -51,7 +50,7 @@ namespace Nop.Plugin.Api.Validators
                 RuleForEach(customer => customer.Password)
                     .NotNull()
                     .NotEmpty()
-                    .WithMessage(_localizationService.GetResource("Account.ChangePassword.Errors.PasswordIsNotProvided"));
+                    .WithMessage("invalid password");
             }
 
             // The fields below are not required, but if they are passed they should be validated.
@@ -81,7 +80,7 @@ namespace Nop.Plugin.Api.Validators
             RuleFor<List<int>>(x => x.RoleIds)
                    .NotNull()
                    .Must(roles => roles.Count > 0)
-                   .WithMessage(_localizationService.GetResource("Api.Customers.Fields.RoleIds.Required"))
+                   .WithMessage("role_ids required")
                    .DependentRules(dependentRules => dependentRules.RuleFor(dto => dto.RoleIds)
                        .Must(roleIds =>
                        {
@@ -96,7 +95,7 @@ namespace Nop.Plugin.Api.Validators
                            // Customer can not be in guest and register roles simultaneously
                            return !isInGuestAndRegisterRoles;
                        })
-                       .WithMessage(_localizationService.GetResource("Api.Customers.Fields.RoleIds.MustNotBeInGuestAndRegisterRolesSimultaneously"))
+                       .WithMessage("must not be in guest and register roles simultaneously")
                        .DependentRules(dependentRule => dependentRules.RuleFor(dto => dto.RoleIds)
                             .Must(roleIds =>
                             {
@@ -111,7 +110,7 @@ namespace Nop.Plugin.Api.Validators
                                 // Customer must be in either guest or register role.
                                 return isInGuestOrRegisterRoles;
                             })
-                            .WithMessage(_localizationService.GetResource("Api.Customers.Fields.RoleIds.MustBeInGuestOrRegisterRole"))
+                            .WithMessage("must be in guest or register role")
                        )
                    );
         }
