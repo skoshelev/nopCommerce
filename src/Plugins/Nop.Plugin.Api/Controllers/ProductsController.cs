@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -312,6 +313,8 @@ namespace Nop.Plugin.Api.Controllers
 
             List<int> discountIds = ApplyDiscountsToEntity(productEntityToUpdate, productDelta.Dto.DiscountIds, DiscountType.AssignedToSkus);
             productEntityToUpdate.HasDiscountsApplied = discountIds.Count > 0;
+
+            productEntityToUpdate.UpdatedOnUtc = DateTime.UtcNow;
 
             _productService.UpdateProduct(productEntityToUpdate);
 

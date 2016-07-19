@@ -292,6 +292,8 @@ namespace Nop.Plugin.Api.Controllers
 
             List<int> discountIds = ApplyDiscountsToEntity(categoryEntityToUpdate, categoryDelta.Dto.DiscountIds, DiscountType.AssignedToCategories);
 
+            categoryEntityToUpdate.UpdatedOnUtc = DateTime.UtcNow;
+
             _categoryService.UpdateCategory(categoryEntityToUpdate);
 
             _customerActivityService.InsertActivity("UpdateCategory",

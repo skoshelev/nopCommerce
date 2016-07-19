@@ -265,7 +265,8 @@ namespace Nop.Plugin.Api.Controllers
                 ShoppingCartType shoppingCartType = (ShoppingCartType)Enum.Parse(typeof(ShoppingCartType), shoppingCartItemDelta.Dto.ShoppingCartType);
                 shoppingCartItemForUpdate.ShoppingCartType = shoppingCartType;
             }
-
+            
+            // The update time is set in the service.
             _shoppingCartService.UpdateShoppingCartItem(shoppingCartItemForUpdate.Customer, shoppingCartItemForUpdate.Id,
                 shoppingCartItemForUpdate.AttributesXml, shoppingCartItemForUpdate.CustomerEnteredPrice, 
                 shoppingCartItemForUpdate.RentalStartDateUtc, shoppingCartItemForUpdate.RentalEndDateUtc,
