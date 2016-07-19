@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using FluentValidation.Attributes;
 using Newtonsoft.Json;
 using Nop.Plugin.Api.DTOs.Customers;
+using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.Orders
 {
-    [JsonObject(Title = "orders")]
+    [JsonObject(Title = "order")]
+    [Validator(typeof(OrderDtoValidator))]
     public class OrderDto
     {
         private ICollection<OrderItemDto> _orderItems;
@@ -14,7 +17,10 @@ namespace Nop.Plugin.Api.DTOs.Orders
         /// Gets or sets a value indicating the order id
         /// </summary>
         [JsonProperty("id")]
-        public int? Id { get; set; }
+        public string Id { get; set; }
+
+        [JsonProperty("store_id")]
+        public int? StoreId { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether a customer chose "pick up in store" shipping option
@@ -237,6 +243,9 @@ namespace Nop.Plugin.Api.DTOs.Orders
         /// </summary>
         [JsonProperty("customer")]
         public OrderCustomerDto Customer { get; set; }
+
+        [JsonProperty("customer_id")]
+        public int? CustomerId { get; set; }
 
         /// <summary>
         /// Gets or sets the billing address

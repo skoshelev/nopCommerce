@@ -137,6 +137,7 @@
     <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Factories\AddressFactory.cs" />
     <Compile Include="Factories\CustomerFactory.cs" />
+    <Compile Include="Factories\OrderFactory.cs" />
     <Compile Include="Factories\ProductFactory.cs" />
     <Compile Include="Factories\ShoppingCartItemFactory.cs" />
     <Compile Include="Helpers\CustomerRolesHelper.cs" />
@@ -268,6 +269,8 @@
     <Compile Include="Swagger\ExcludeEnpointsDocumentFilter.cs" />
     <Compile Include="Swagger\RemovePrefixesOperationFilter.cs" />
     <Compile Include="Validators\AddressDtoValidator.cs" />
+    <Compile Include="Validators\OrderDtoValidator.cs" />
+    <Compile Include="Validators\OrderItemDtoValidator.cs" />
     <Compile Include="Validators\ProductCategoryMappingDtoValidator.cs" />
     <Compile Include="Validators\CustomerDtoValidator.cs" />
     <Compile Include="Validators\ProductDtoValidator.cs" />

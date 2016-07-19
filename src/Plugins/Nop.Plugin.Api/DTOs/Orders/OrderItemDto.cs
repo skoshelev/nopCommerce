@@ -103,5 +103,8 @@ namespace Nop.Plugin.Api.DTOs.Orders
         /// </summary>
         [JsonProperty("product")]
         public ProductDto Product { get; set; }
+
+        [JsonProperty("product_id")]
+        public int? ProductId { get; set; }
     }
 }

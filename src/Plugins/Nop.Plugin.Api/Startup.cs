@@ -186,17 +186,32 @@ namespace Nop.Plugin.Api
             config.Routes.MapHttpRoute(
              name: "orders",
              routeTemplate: "api/orders",
-             defaults: new { controller = "Orders", action = "GetOrders" });
+             defaults: new { controller = "Orders", action = "GetOrders" },
+             constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
 
             config.Routes.MapHttpRoute(
                 name: "ordersCount",
                 routeTemplate: "api/orders/count",
-                defaults: new { controller = "Orders", action = "GetOrdersCount" });
+                defaults: new { controller = "Orders", action = "GetOrdersCount" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
 
             config.Routes.MapHttpRoute(
                 name: "ordersByCustomerId",
                 routeTemplate: "api/orders/customer/{customer_id}",
-                defaults: new { controller = "Orders", action = "GetOrdersByCustomerId" });
+                defaults: new { controller = "Orders", action = "GetOrdersByCustomerId" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            config.Routes.MapHttpRoute(
+                name: "orderById",
+                routeTemplate: "api/orders/{id}",
+                defaults: new { controller = "Orders", action = "GetOrderById" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
+            config.Routes.MapHttpRoute(
+                name: "createOrder",
+                routeTemplate: "api/orders",
+                defaults: new { controller = "Orders", action = "CreateOrder" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
 
             config.Routes.MapHttpRoute(
               name: "productCategoryMappings",
@@ -232,12 +247,6 @@ namespace Nop.Plugin.Api
                 name: "productCategoryMappingById",
                 routeTemplate: "api/product_category_mappings/{id}",
                 defaults: new { controller = "ProductCategoryMappings", action = "GetMappingById" },
-                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
-
-            config.Routes.MapHttpRoute(
-                name: "orderById",
-                routeTemplate: "api/orders/{id}",
-                defaults: new { controller = "Orders", action = "GetOrderById" },
                 constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
 
             config.Routes.MapHttpRoute(

@@ -101,6 +101,7 @@ namespace Nop.Plugin.Api.Helpers
                         var listType = typeof (List<>);
                         var constructedListType = listType.MakeGenericType(collectionElementsType);
                         collection = Activator.CreateInstance(constructedListType);
+                        objectProperty.SetValue(objectToBeUpdated, collection);
                     }
                     
                     propertyValueAsCollection.Each(
