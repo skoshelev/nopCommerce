@@ -305,6 +305,29 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult(json);
         }
 
+        [HttpDelete]
+        public IHttpActionResult DeleteOrder(int id)
+        {
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+            
+            Order orderToDelete = _orderService.GetOrderById(id);
+
+            if (orderToDelete == null)
+            {
+                return NotFound();
+            }
+
+            _orderProcessingService.DeleteOrder(orderToDelete);
+
+            //activity log
+            _customerActivityService.InsertActivity("DeleteOrder", _localizationService.GetResource("ActivityLog.DeleteOrder"), orderToDelete.Id);
+
+            return new RawJsonActionResult("{}");
+        }
+
         [HttpPut]
         [ResponseType(typeof(OrdersRootObject))]
         public IHttpActionResult UpdateOrder([ModelBinder(typeof(JsonModelBinder<OrderDto>))] Delta<OrderDto> orderDelta)
