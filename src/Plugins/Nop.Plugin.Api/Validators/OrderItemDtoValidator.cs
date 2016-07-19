@@ -10,6 +10,11 @@ namespace Nop.Plugin.Api.Validators
             RuleFor(x => x.ProductId)
                     .NotNull()
                     .WithMessage("Invalid product id");
+
+            RuleFor(x => x.Quantity)
+                   .NotNull()
+                   .Must(quantity => quantity > 0)
+                   .WithMessage("Invalid quantity");
         }
     }
 }
