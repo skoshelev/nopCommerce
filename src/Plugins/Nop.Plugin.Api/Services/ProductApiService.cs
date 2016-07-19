@@ -56,7 +56,7 @@ namespace Nop.Plugin.Api.Services
             if (productId == 0)
                 return null;
 
-            return _productRepository.GetById(productId);
+            return _productRepository.Table.FirstOrDefault(product => product.Id == productId && !product.Deleted);
         }
 
         private IQueryable<Product> GetProductsQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, 
@@ -76,7 +76,7 @@ namespace Nop.Plugin.Api.Services
                 query = query.Where(c => c.Published == publishedStatus.Value);
             }
 
-            // always return categories that are not deleted!!!
+            // always return products that are not deleted!!!
             query = query.Where(c => !c.Deleted);
 
             if (createdAtMin != null)
