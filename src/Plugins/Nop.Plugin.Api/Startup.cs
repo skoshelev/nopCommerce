@@ -9,6 +9,7 @@ using Microsoft.Owin.Extensions;
 using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json;
 using Nop.Core.Infrastructure;
+using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Owin.Middleware;
 using Nop.Plugin.Api.Owin.OAuth.Providers;
@@ -58,6 +59,8 @@ namespace Nop.Plugin.Api
         private void ConfigureWebApi(IAppBuilder app)
         {
             var config = new HttpConfiguration();
+
+            config.Filters.Add(new ServerErrorHandlerAttribute());
 
             config.Formatters.JsonFormatter.SerializerSettings = new JsonSerializerSettings
             {
