@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using FluentValidation;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Api.DTOs.Customers;
 using Nop.Plugin.Api.Helpers;
-using Nop.Services.Customers;
-using Nop.Services.Localization;
 
 namespace Nop.Plugin.Api.Validators
 {
     public class CustomerDtoValidator : AbstractValidator<CustomerDto>
     {
         private ICustomerRolesHelper _customerRolesHelper = EngineContext.Current.Resolve<ICustomerRolesHelper>();
-        private ICustomerService _customerService = EngineContext.Current.Resolve<ICustomerService>();
 
         public CustomerDtoValidator(string httpMethod, Dictionary<string, object> passedPropertyValuePaires)
         {
@@ -31,12 +27,7 @@ namespace Nop.Plugin.Api.Validators
                     .NotNull()
                     .NotEmpty()
                     .Must(id => int.TryParse(id, out parsedId) && parsedId > 0)
-                    .WithMessage("invalid id")
-                    .DependentRules(dto => dto.RuleFor(customer => customer).Must(customer =>
-                        {
-                            return _customerService.GetCustomerById(parsedId) != null; 
-                        })
-                        .WithMessage("Customer not found"));
+                    .WithMessage("invalid id");
 
                 // TODO: think of a way to not hardcode the json property name.
                 if (passedPropertyValuePaires.ContainsKey("role_ids"))

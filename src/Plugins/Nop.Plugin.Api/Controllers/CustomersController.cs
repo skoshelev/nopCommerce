@@ -377,7 +377,7 @@ namespace Nop.Plugin.Api.Controllers
                 return NotFound();
             }
 
-            var customer = _customerApiService.GetCustomerEntityById(id);
+            Customer customer = _customerApiService.GetCustomerEntityById(id);
 
             if (customer == null)
             {
