@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
@@ -64,12 +65,12 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "limit", "invalid limit parameter");
             }
 
             if (parameters.Page < Configurations.DefaultPageValue)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "page", "invalid page parameter");
             }
 
             IList<ProductCategoryMappingDto> mappingsAsDtos =
@@ -98,9 +99,14 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(ProductCategoryMappingsCountRootObject))]
         public IHttpActionResult GetMappingsCount(ProductCategoryMappingsCountParametersModel parameters)
         {
-            if (parameters.ProductId < 0 || parameters.CategoryId < 0)
+            if (parameters.ProductId < 0)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "product_id", "invalid product_id");
+            }
+
+            if (parameters.CategoryId < 0)
+            {
+                return Error(HttpStatusCode.BadRequest, "category_id", "invalid category_id");
             }
 
             var mappingsCount = _productCategoryMappingsService.GetMappingsCount(parameters.ProductId,
@@ -128,14 +134,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "id", "invalid id");
             }
 
             ProductCategory mapping = _productCategoryMappingsService.GetById(id);
 
             if (mapping == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "product_category_mapping", "not found");
             }
 
             var productCategoryMappingsRootObject = new ProductCategoryMappingsRootObject();
@@ -159,17 +165,13 @@ namespace Nop.Plugin.Api.Controllers
             Category category = _categoryApiService.GetCategoryById(productCategoryDelta.Dto.CategoryId.Value);
             if (category == null)
             {
-                ModelState.AddModelError("category_id", "Invalid");
-
-                return Error();
+                return Error(HttpStatusCode.NotFound, "category_id", "not found");
             }
 
             Product product = _productApiService.GetProductById(productCategoryDelta.Dto.ProductId.Value);
             if (product == null)
             {
-                ModelState.AddModelError("product_id", "Invalid");
-
-                return Error();
+                return Error(HttpStatusCode.NotFound, "product_id", "not found");
             }
 
             ProductCategory newProductCategory = new ProductCategory();
@@ -208,9 +210,7 @@ namespace Nop.Plugin.Api.Controllers
                 Category category = _categoryApiService.GetCategoryById(productCategoryDelta.Dto.CategoryId.Value);
                 if (category == null)
                 {
-                    ModelState.AddModelError("category_id", "Invalid");
-
-                    return Error();
+                    return Error(HttpStatusCode.NotFound, "category_id", "not found");
                 }
             }
 
@@ -219,9 +219,7 @@ namespace Nop.Plugin.Api.Controllers
                 Product product = _productApiService.GetProductById(productCategoryDelta.Dto.ProductId.Value);
                 if (product == null)
                 {
-                    ModelState.AddModelError("product_id", "Invalid");
-
-                    return Error();
+                    return Error(HttpStatusCode.NotFound, "product_id", "not found");
                 }
             }
 
@@ -232,8 +230,7 @@ namespace Nop.Plugin.Api.Controllers
 
             if (productCategoryEntityToUpdate == null)
             {
-                ModelState.AddModelError("product_category_mapping", "Not Found");
-                return Error();
+                return Error(HttpStatusCode.NotFound, "product_category_mapping", "not found");
             }
 
             productCategoryDelta.Merge(productCategoryEntityToUpdate);
@@ -260,14 +257,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "id", "invalid id");
             }
 
             ProductCategory productCategory = _categoryService.GetProductCategoryById(id);
 
             if (productCategory == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "product_category_mapping", "not found");
             }
 
             _categoryService.DeleteProductCategory(productCategory);

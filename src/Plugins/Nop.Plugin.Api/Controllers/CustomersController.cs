@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
@@ -88,12 +89,12 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "limit", "Invalid limit parameter");
             }
 
-            if (parameters.Page <= 0)
+            if (parameters.Page <= Configurations.DefaultPageValue)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
             }
 
             IList<CustomerDto> allCustomers = _customerApiService.GetCustomersDtos(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.Limit, parameters.Page, parameters.SinceId);
@@ -122,14 +123,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "id", "invalid id");
             }
 
             CustomerDto customer = _customerApiService.GetCustomerById(id);
 
             if (customer == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "customer", "not found");
             }
             
             var customersRootObject = new CustomersRootObject();
@@ -171,19 +172,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (parameters.Limit <= Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "limit" ,"Invalid limit parameter");
             }
 
             if (parameters.Page <= 0)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "page", "Invalid page parameter");
             }
-
-            if (parameters.Page <= 0)
-            {
-                return BadRequest("Invalid request parameters");
-            }
-
+            
             IList<CustomerDto> customersDto = _customerApiService.Search(parameters.Query, parameters.Order, parameters.Page, parameters.Limit);
 
             var customersRootObject = new CustomersRootObject()
@@ -280,8 +276,7 @@ namespace Nop.Plugin.Api.Controllers
 
             if (currentCustomer == null)
             {
-                ModelState.AddModelError("customer", "Not Found");
-                return Error();
+                return Error(HttpStatusCode.NotFound, "customer", "not found");
             }
 
             customerDelta.Merge(currentCustomer);
@@ -374,14 +369,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "id", "invalid id");
             }
 
             Customer customer = _customerApiService.GetCustomerEntityById(id);
 
             if (customer == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "customer", "not found");
             }
 
             _customerService.DeleteCustomer(customer);
