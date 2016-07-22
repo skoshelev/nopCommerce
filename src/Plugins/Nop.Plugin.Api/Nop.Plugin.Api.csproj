@@ -137,6 +137,7 @@
     <Compile Include="Attributes\ValidateVendor.cs" />
     <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Controllers\OrderItemsController.cs" />
+    <Compile Include="DTOs\OrderItems\OrderItemsCountRootObject.cs" />
     <Compile Include="DTOs\OrderItems\OrderItemsRootObject.cs" />
     <Compile Include="Factories\AddressFactory.cs" />
     <Compile Include="Factories\CustomerFactory.cs" />

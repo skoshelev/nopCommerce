@@ -80,5 +80,26 @@ namespace Nop.Plugin.Api.Controllers
 
             return new RawJsonActionResult(json);
         }
+
+        [HttpGet]
+        [ResponseType(typeof(OrderItemsCountRootObject))]
+        public IHttpActionResult GetOrderItemsCount(int orderId)
+        {
+            Order order = _orderApiService.GetOrderById(orderId);
+
+            if (order == null)
+            {
+                return Error(HttpStatusCode.NotFound, "order", "not found");
+            }
+
+            int orderItemsCountForOrder = _orderItemApiService.GetOrderItemsCount(order);
+
+            var orderItemsCountRootObject = new OrderItemsCountRootObject()
+            {
+                Count = orderItemsCountForOrder
+            };
+
+            return Ok(orderItemsCountRootObject);
+        }
     }
 }

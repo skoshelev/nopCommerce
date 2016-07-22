@@ -300,6 +300,12 @@ namespace Nop.Plugin.Api
                defaults: new { controller = "OrderItems", action = "GetOrderItems" },
                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
 
+            config.Routes.MapHttpRoute(
+               name: "orderItemsCountByOrderId",
+               routeTemplate: "api/orders/{orderId}/order_items/count",
+               defaults: new { controller = "OrderItems", action = "GetOrderItemsCount" },
+               constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
+
             // The default route templates for the Swagger docs and swagger-ui are "swagger/docs/{apiVersion}" and "swagger/ui/index#/{assetPath}" respectively.
             config
                 .EnableSwagger(c =>
