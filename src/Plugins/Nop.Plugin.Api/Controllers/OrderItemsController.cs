@@ -158,5 +158,26 @@ namespace Nop.Plugin.Api.Controllers
             
             return new RawJsonActionResult("{}");
         }
+
+        [HttpDelete]
+        [GetRequestsErrorInterceptorActionFilter]
+        public IHttpActionResult DeleteAllOrderItemsForOrder(int orderId)
+        {
+            Order order = _orderApiService.GetOrderById(orderId);
+
+            if (order == null)
+            {
+                return Error(HttpStatusCode.NotFound, "order", "not found");
+            }
+
+            var orderItemsList = order.OrderItems.ToList();
+
+            for (int i = 0; i < orderItemsList.Count; i++)
+            {
+                _orderService.DeleteOrderItem(orderItemsList[i]);
+            }
+
+            return new RawJsonActionResult("{}");
+        }
     }
 }
