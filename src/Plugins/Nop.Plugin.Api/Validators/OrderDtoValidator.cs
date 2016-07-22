@@ -12,15 +12,7 @@ namespace Nop.Plugin.Api.Validators
             if (string.IsNullOrEmpty(httpMethod) ||
                 httpMethod.Equals("post", StringComparison.InvariantCultureIgnoreCase))
             {
-                RuleFor(x => x.CustomerId)
-                    .NotNull()
-                    .Must(id => id > 0)
-                    .WithMessage("Invalid customer_id");
-
-                //RuleFor(x => x.PaymentMethodSystemName)
-                //    .NotNull()
-                //    .NotEmpty()
-                //    .WithMessage("Payment method system name is required");
+                SetCustomerIdRule();
             }
             else if(httpMethod.Equals("put", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -34,20 +26,17 @@ namespace Nop.Plugin.Api.Validators
 
                 if (passedPropertyValuePaires.ContainsKey("customer_id"))
                 {
-                    RuleFor(x => x.CustomerId)
-                       .NotNull()
-                       .Must(id => id > 0)
-                       .WithMessage("Invalid customer_id");
+                    SetCustomerIdRule();
                 }
-
-                //if (passedPropertyValuePaires.ContainsKey("payment_method_system_name"))
-                //{
-                //    RuleFor(x => x.PaymentMethodSystemName)
-                //       .NotNull()
-                //       .NotEmpty()
-                //       .WithMessage("Payment method system name is required");
-                //}
             }
+        }
+
+        private void SetCustomerIdRule()
+        {
+            RuleFor(x => x.CustomerId)
+                      .NotNull()
+                      .Must(id => id > 0)
+                      .WithMessage("Invalid customer_id");
         }
     }
 }

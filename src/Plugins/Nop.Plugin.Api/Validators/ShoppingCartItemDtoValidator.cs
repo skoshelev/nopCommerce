@@ -12,17 +12,11 @@ namespace Nop.Plugin.Api.Validators
         {
             if (string.IsNullOrEmpty(httpMethod) || httpMethod.Equals("post", StringComparison.InvariantCultureIgnoreCase))
             {
-                RuleFor(x => x.CustomerId)
-                    .NotNull()
-                    .WithMessage("Please, set customer id");
+                SetCustomerIdRule();
 
-                RuleFor(x => x.ProductId)
-                    .NotNull()
-                    .WithMessage("Please, set product id");
+                SetProductIdRule();
 
-                RuleFor(x => x.Quantity)
-                    .NotNull()
-                    .WithMessage("Please, set quantity");
+                SetQuantityRule();
                 
                 ValidateShoppingCartType();
             }
@@ -38,23 +32,17 @@ namespace Nop.Plugin.Api.Validators
 
                 if (passedPropertyValuePaires.ContainsKey("customer_id"))
                 {
-                    RuleFor(x => x.CustomerId)
-                      .NotNull()
-                      .WithMessage("Please, set customer id");
+                    SetCustomerIdRule();
                 }
 
                 if (passedPropertyValuePaires.ContainsKey("product_id"))
                 {
-                    RuleFor(x => x.ProductId)
-                      .NotNull()
-                      .WithMessage("Please, set product id");
+                    SetProductIdRule();
                 }
 
                 if (passedPropertyValuePaires.ContainsKey("quantity"))
                 {
-                    RuleFor(x => x.Quantity)
-                       .NotNull()
-                       .WithMessage("Please, set quantity");
+                    SetQuantityRule();
                 }
 
                 if (passedPropertyValuePaires.ContainsKey("shopping_cart_type"))
@@ -85,6 +73,27 @@ namespace Nop.Plugin.Api.Validators
                    .Must(dto => dto.RentalEndDateUtc > dto.CreatedOnUtc)
                    .WithMessage("Rental end date should be the future date");
             }
+        }
+
+        private void SetCustomerIdRule()
+        {
+            RuleFor(x => x.CustomerId)
+                   .NotNull()
+                   .WithMessage("Please, set customer id");
+        }
+
+        private void SetProductIdRule()
+        {
+            RuleFor(x => x.ProductId)
+                   .NotNull()
+                   .WithMessage("Please, set product id");
+        }
+
+        private void SetQuantityRule()
+        {
+            RuleFor(x => x.Quantity)
+                      .NotNull()
+                      .WithMessage("Please, set quantity");
         }
 
         private void ValidateShoppingCartType()
