@@ -4,6 +4,7 @@ using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
 using Nop.Core.Domain.Orders;
+using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DTOs.OrderItems;
 using Nop.Plugin.Api.JSON.ActionResults;
@@ -20,6 +21,7 @@ using Nop.Services.Stores;
 
 namespace Nop.Plugin.Api.Controllers
 {
+    [BearerTokenAuthorize]
     public class OrderItemsController : BaseApiController
     {
         private readonly IOrderItemApiService _orderItemApiService;
@@ -47,9 +49,10 @@ namespace Nop.Plugin.Api.Controllers
             _orderItemApiService = orderItemApiService;
             _orderApiService = orderApiService;
         }
-
+        
         [HttpGet]
         [ResponseType(typeof(OrderItemsRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetOrderItems(int orderId, OrderItemsParametersModel parameters)
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
@@ -83,6 +86,7 @@ namespace Nop.Plugin.Api.Controllers
 
         [HttpGet]
         [ResponseType(typeof(OrderItemsCountRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetOrderItemsCount(int orderId)
         {
             Order order = _orderApiService.GetOrderById(orderId);
@@ -100,6 +104,38 @@ namespace Nop.Plugin.Api.Controllers
             };
 
             return Ok(orderItemsCountRootObject);
+        }
+
+        [HttpGet]
+        [ResponseType(typeof(OrderItemsRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
+        public IHttpActionResult GetOrderItemByIdForOrder(int orderId, int orderItemId, string fields = "")
+        {
+            Order order = _orderApiService.GetOrderById(orderId);
+
+            if (order == null)
+            {
+                return Error(HttpStatusCode.NotFound, "order", "not found");
+            }
+
+            OrderItem orderItem = _orderItemApiService.GetOrderItemForOrderById(order, orderItemId);
+
+            if (orderItem == null)
+            {
+                return Error(HttpStatusCode.NotFound, "order_item", "not found");
+            }
+
+            var orderItemDtos = new List<OrderItemDto>();
+            orderItemDtos.Add(orderItem.ToDto());
+
+            var orderItemsRootObject = new OrderItemsRootObject()
+            {
+                OrderItems = orderItemDtos
+            };
+
+            var json = _jsonFieldsSerializer.Serialize(orderItemsRootObject, fields);
+
+            return new RawJsonActionResult(json);
         }
     }
 }

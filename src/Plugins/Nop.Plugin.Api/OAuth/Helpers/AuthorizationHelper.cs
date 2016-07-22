@@ -30,17 +30,22 @@ namespace Nop.Plugin.Api.Helpers
 
             Client client = null;
 
-            IList<Claim> claims = HttpContext.Current.GetOwinContext().Authentication.User.Claims.ToList();
+            var user = HttpContext.Current.GetOwinContext().Authentication.User;
 
-            Claim clientIdClaim = claims.FirstOrDefault(x => x.Type == "client_id");
-
-            if (clientIdClaim != null)
+            if (user != null)
             {
-                string clientId = clientIdClaim.Value;
+                IList<Claim> claims = user.Claims.ToList();
 
-                if (!string.IsNullOrEmpty(clientId))
+                Claim clientIdClaim = claims.FirstOrDefault(x => x.Type == "client_id");
+
+                if (clientIdClaim != null)
                 {
-                    client = clientService.GetClientByClientId(clientId);
+                    string clientId = clientIdClaim.Value;
+
+                    if (!string.IsNullOrEmpty(clientId))
+                    {
+                        client = clientService.GetClientByClientId(clientId);
+                    }
                 }
             }
 

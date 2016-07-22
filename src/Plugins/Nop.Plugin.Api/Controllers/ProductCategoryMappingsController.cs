@@ -61,6 +61,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductCategoryMappingsRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetMappings(ProductCategoryMappingsParametersModel parameters)
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
@@ -97,6 +98,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductCategoryMappingsCountRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetMappingsCount(ProductCategoryMappingsCountParametersModel parameters)
         {
             if (parameters.ProductId < 0)
@@ -130,6 +132,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductCategoryMappingsRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetMappingById(int id, string fields = "")
         {
             if (id <= 0)
@@ -260,6 +263,7 @@ namespace Nop.Plugin.Api.Controllers
         }
 
         [HttpDelete]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult DeleteProductCategoryMapping(int id)
         {
             if (id <= 0)

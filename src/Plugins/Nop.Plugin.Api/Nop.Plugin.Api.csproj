@@ -131,6 +131,7 @@
   <ItemGroup>
     <Compile Include="Attributes\BaseAttributeInvoker.cs" />
     <Compile Include="Attributes\DoNotMap.cs" />
+    <Compile Include="Attributes\GetRequestsErrorInterceptorActionFilter.cs" />
     <Compile Include="Attributes\ServerErrorHandlerAttribute.cs" />
     <Compile Include="Attributes\ImageAttribute.cs" />
     <Compile Include="Attributes\ImageCollectionAttribute.cs" />
@@ -157,6 +158,7 @@
     <Compile Include="Maps\IJsonPropertyMap.cs" />
     <Compile Include="Maps\JsonPropertyMap.cs" />
     <Compile Include="ModelBinders\JsonModelBinder.cs" />
+    <Compile Include="Models\DefaultWeApiErrorsModel.cs" />
     <Compile Include="Models\OrderItemsParameters\OrderItemsParametersModel.cs" />
     <Compile Include="OAuth\Attributes\BearerTokenAuthorizeAttribute.cs" />
     <Compile Include="Constants\ViewNames.cs" />
