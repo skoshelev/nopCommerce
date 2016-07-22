@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
@@ -94,14 +95,14 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(OrdersRootObject))]
         public IHttpActionResult GetOrders(OrdersParametersModel parameters)
         {
-            if (parameters.Page <= 0)
+            if (parameters.Page <= Configurations.DefaultPageValue)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "page", "Invalid page parameter");
             }
 
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "page", "Invalid limit parameter");
             }
 
             IList<OrderDto> ordersAsDtos = _orderApiService.GetOrders(parameters.Ids, parameters.CreatedAtMin, parameters.CreatedAtMax,
@@ -128,7 +129,7 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(OrdersCountRootObject))]
         public IHttpActionResult GetOrdersCount(OrdersCountParametersModel parameters)
         {
-            var ordersCount = _orderApiService.GetOrdersCount(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.Status,
+            int ordersCount = _orderApiService.GetOrdersCount(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.Status,
                                                               parameters.PaymentStatus, parameters.ShippingStatus, parameters.CustomerId);
 
             var ordersCountRootObject = new OrdersCountRootObject()
@@ -153,14 +154,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "id", "invalid id");
             }
 
             Order order = _orderApiService.GetOrderById(id);
 
             if (order == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "order", "not found");
             }
 
             var ordersRootObject = new OrdersRootObject();
@@ -205,12 +206,10 @@ namespace Nop.Plugin.Api.Controllers
 
             // We doesn't have to check for value because this is done by the order validator.
             Customer customer = _customerService.GetCustomerById(orderDelta.Dto.CustomerId.Value);
-
-            bool isVaild = ValidateCustomer(customer);
-
-            if (!isVaild)
+            
+            if (customer == null)
             {
-                return Error();
+                return Error(HttpStatusCode.NotFound, "customer", "not found");
             }
 
             bool shippingRequired = false;
@@ -221,14 +220,14 @@ namespace Nop.Plugin.Api.Controllers
 
                 if (shouldReturnError)
                 {
-                    return Error();
+                    return Error(HttpStatusCode.BadRequest);
                 }
 
                 shouldReturnError = AddOrderItemsToCart(orderDelta.Dto.OrderItemDtos, customer, orderDelta.Dto.StoreId ?? _storeContext.CurrentStore.Id);
 
                 if (shouldReturnError)
                 {
-                    return Error();
+                    return Error(HttpStatusCode.BadRequest);
                 }
 
                 shippingRequired = IsShippingAddressRequired(orderDelta.Dto.OrderItemDtos);
@@ -250,7 +249,7 @@ namespace Nop.Plugin.Api.Controllers
 
                 if (!isValid)
                 {
-                    return Error();
+                    return Error(HttpStatusCode.BadRequest);
                 }
             }
 
@@ -260,7 +259,7 @@ namespace Nop.Plugin.Api.Controllers
 
                 if (!isValid)
                 {
-                    return Error();
+                    return Error(HttpStatusCode.BadRequest);
                 }
             }
 
@@ -287,7 +286,7 @@ namespace Nop.Plugin.Api.Controllers
                     ModelState.AddModelError("order placement", error);
                 }
 
-                return Error();
+                return Error(HttpStatusCode.BadRequest);
             }
 
             _customerActivityService.InsertActivity("AddNewOrder",
@@ -309,14 +308,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "id", "invalid id");
             }
             
             Order orderToDelete = _orderApiService.GetOrderById(id);
 
             if (orderToDelete == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "order", "not found");
             }
 
             _orderProcessingService.DeleteOrder(orderToDelete);
@@ -341,8 +340,7 @@ namespace Nop.Plugin.Api.Controllers
 
             if (currentOrder == null)
             {
-                ModelState.AddModelError("order", "Not Found");
-                return Error();
+                return Error(HttpStatusCode.NotFound, "order", "not found");
             }
 
             Customer customer = currentOrder.Customer;
@@ -375,7 +373,7 @@ namespace Nop.Plugin.Api.Controllers
                 }
                 else
                 {
-                    return Error();
+                    return Error(HttpStatusCode.BadRequest);
                 }
             }
 
@@ -385,7 +383,7 @@ namespace Nop.Plugin.Api.Controllers
 
                 if (!isValid)
                 {
-                    return Error();
+                    return Error(HttpStatusCode.BadRequest);
                 }
             }
 
@@ -590,21 +588,7 @@ namespace Nop.Plugin.Api.Controllers
 
             return shouldReturnError;
         }
-
-        private bool ValidateCustomer(Customer customer)
-        {
-            bool isValid = true;
-
-            if (customer == null)
-            {
-                ModelState.AddModelError("customer", "Invalid customer");
-
-                isValid = false;
-            }
-
-            return isValid;
-        }
-
+        
         private bool ValidateAddress(AddressDto address, string addressKind)
         {
             bool addressValid = true;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
@@ -73,12 +74,12 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "limit", "Invalid limit parameter");
             }
 
             if (parameters.Page < Configurations.DefaultPageValue)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "page", "Invalid page parameter");
             }
 
             IList<Category> allCategories = _categoryApiService.GetCategories(parameters.Ids, parameters.CreatedAtMin, parameters.CreatedAtMax,
@@ -141,14 +142,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "id", "invalid id");
             }
 
             Category category = _categoryApiService.GetCategoryById(id);
 
             if (category == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "category", "category not found");
             }
 
             CategoryDto categoryDto = category.ToDto();
@@ -278,8 +279,7 @@ namespace Nop.Plugin.Api.Controllers
 
             if (categoryEntityToUpdate == null)
             {
-                ModelState.AddModelError("category", "not found");
-                return Error();
+                return Error(HttpStatusCode.NotFound, "category", "category not found");
             }
 
             categoryDelta.Merge(categoryEntityToUpdate);
@@ -323,14 +323,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "id", "invalid id");
             }
 
             Category categoryToDelete = _categoryApiService.GetCategoryById(id);
 
             if (categoryToDelete == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "category", "category not found");
             }
 
             _categoryService.DeleteCategory(categoryToDelete);

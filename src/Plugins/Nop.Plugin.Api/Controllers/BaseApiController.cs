@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web.Http;
 using Nop.Core;
 using Nop.Core.Domain.Customers;
@@ -51,9 +52,15 @@ namespace Nop.Plugin.Api.Controllers
             _localizationService = localizationService;
         }
 
-        protected IHttpActionResult Error()
+        protected IHttpActionResult Error(HttpStatusCode statusCode = (HttpStatusCode)422, string propertyKey = "", string errorMessage = "")
         {
             var errors = new Dictionary<string, List<string>>();
+
+            if (!string.IsNullOrEmpty(errorMessage) && !string.IsNullOrEmpty(propertyKey))
+            {
+                var errorsList = new List<string>() {errorMessage};
+                errors.Add(propertyKey, errorsList);
+            }
             
             foreach (var item in ModelState)
             {
@@ -76,7 +83,7 @@ namespace Nop.Plugin.Api.Controllers
 
             var errorsJson = _jsonFieldsSerializer.Serialize(errorsRootObject, null);
 
-            return new ErrorActionResult(errorsJson);
+            return new ErrorActionResult(errorsJson, statusCode);
         }
 
         protected List<int> MapRoleToEntity<TEntity>(TEntity entity, List<int> passedRoleIds) where TEntity: BaseEntity, IAclSupported

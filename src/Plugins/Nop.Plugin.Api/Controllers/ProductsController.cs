@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
@@ -76,12 +77,12 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "limit", "invalid limit parameter");
             }
 
             if (parameters.Page < Configurations.DefaultPageValue)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "page", "invalid page parameter");
             }
 
             IList<Product> allProducts = _productApiService.GetProducts(parameters.Ids, parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.UpdatedAtMin,
@@ -117,7 +118,7 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(ProductsCountRootObject))]
         public IHttpActionResult GetProductsCount(ProductsCountParametersModel parameters)
         {
-            var allProductsCount = _productApiService.GetProductsCount(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.UpdatedAtMin,
+            int allProductsCount = _productApiService.GetProductsCount(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.UpdatedAtMin,
                                                                        parameters.UpdatedAtMax, parameters.PublishedStatus, parameters.VendorName, 
                                                                        parameters.CategoryId);
 
@@ -143,14 +144,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "id", "invalid id");
             }
 
             Product product = _productApiService.GetProductById(id);
 
             if (product == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "product", "not found");
             }
             
             ProductDto productDto = product.ToDto();
@@ -295,8 +296,7 @@ namespace Nop.Plugin.Api.Controllers
 
             if (productEntityToUpdate == null)
             {
-                ModelState.AddModelError("product", "Not Found");
-                return Error();
+                return Error(HttpStatusCode.NotFound, "product", "not found");
             }
 
             productDelta.Merge(productEntityToUpdate);
@@ -348,14 +348,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "id", "invalid id");
             }
 
             Product product = _productApiService.GetProductById(id);
 
             if (product == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "product", "not found");
             }
             
             _productService.DeleteProduct(product);

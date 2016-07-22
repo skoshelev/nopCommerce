@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
@@ -76,12 +77,12 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "limit", "invalid limit parameter");
             }
 
-            if (parameters.Page <= 0)
+            if (parameters.Page < Configurations.DefaultPageValue)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "page", "invalid page parameter");
             }
 
             IList<ShoppingCartItem> shoppingCartItems = _shoppingCartItemApiService.GetShoppingCartItems(customerId: null,
@@ -118,17 +119,17 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (customerId <= Configurations.DefaultCustomerId)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "customer_id", "invalid customer_id");
             }
 
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "limit", "invalid limit parameter");
             }
 
-            if (parameters.Page <= 0)
+            if (parameters.Page < Configurations.DefaultPageValue)
             {
-                return BadRequest("Invalid request parameters");
+                return Error(HttpStatusCode.BadRequest, "page", "invalid page parameter");
             }
 
             IList<ShoppingCartItem> shoppingCartItems = _shoppingCartItemApiService.GetShoppingCartItems(customerId,
@@ -139,7 +140,7 @@ namespace Nop.Plugin.Api.Controllers
 
             if (shoppingCartItems == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "shopping_cart_item", "not found");
             }
 
             List<ShoppingCartItemDto> shoppingCartItemsDtos = shoppingCartItems.Select(x => x.ToDto()).ToList();
@@ -173,18 +174,14 @@ namespace Nop.Plugin.Api.Controllers
 
             if (product == null)
             {
-                ModelState.AddModelError("product", "not found");
-
-                return Error();
+                return Error(HttpStatusCode.NotFound, "product", "not found");
             }
 
             Customer customer = _customerService.GetCustomerById(shoppingCartItemDelta.Dto.CustomerId.Value);
 
             if (customer == null)
             {
-                ModelState.AddModelError("customer", "not found");
-
-                return Error();
+                return Error(HttpStatusCode.NotFound, "customer", "not found");
             }
             
             ShoppingCartType shoppingCartType = (ShoppingCartType)Enum.Parse(typeof(ShoppingCartType), shoppingCartItemDelta.Dto.ShoppingCartType);
@@ -206,7 +203,7 @@ namespace Nop.Plugin.Api.Controllers
                     ModelState.AddModelError("shopping cart item", warning);
                 }
 
-                return Error();
+                return Error(HttpStatusCode.BadRequest);
             }
 
             // Preparing the result dto of the new product category mapping
@@ -240,9 +237,7 @@ namespace Nop.Plugin.Api.Controllers
 
             if (shoppingCartItemForUpdate == null)
             {
-                ModelState.AddModelError("shoppingCartItem", "not found");
-
-                return Error();
+                return Error(HttpStatusCode.NotFound, "shopping_cart_item", "not found");
             }
 
             // Here we make sure that  the product id and the customer id won't be modified.
@@ -292,14 +287,14 @@ namespace Nop.Plugin.Api.Controllers
         {
             if (id <= 0)
             {
-                return NotFound();
+                return Error(HttpStatusCode.BadRequest, "id", "invalid id");
             }
 
             ShoppingCartItem shoppingCartItemForDelete = _shoppingCartItemApiService.GetShoppingCartItem(id);
 
             if (shoppingCartItemForDelete == null)
             {
-                return NotFound();
+                return Error(HttpStatusCode.NotFound, "shopping_cart_item", "not found");
             }
 
             _shoppingCartService.DeleteShoppingCartItem(shoppingCartItemForDelete);
