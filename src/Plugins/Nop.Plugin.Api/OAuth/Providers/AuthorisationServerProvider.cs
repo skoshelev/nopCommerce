@@ -25,17 +25,28 @@ namespace Nop.Plugin.Api.Owin.OAuth.Providers
             }
             else
             {
-
                 if (!context.TryGetFormCredentials(out clientId, out clientSecret))
                 {
                     context.TryGetBasicCredentials(out clientId, out clientSecret);
                 }
 
-                if (!string.IsNullOrEmpty(clientId) || !string.IsNullOrEmpty(clientSecret) ||
-                    !string.IsNullOrEmpty(code))
+                string grantType = context.Parameters.Get("grant_type");
+
+                if ((!string.IsNullOrEmpty(clientId) || !string.IsNullOrEmpty(clientSecret) ||
+                    !string.IsNullOrEmpty(code)) && !string.IsNullOrEmpty(grantType))
                 {
                     IClientService clientService = EngineContext.Current.Resolve<IClientService>();
-                    bool valid = clientService.ValidateClient(clientId, clientSecret, code);
+
+                    bool valid = false;
+
+                    if (grantType == "refresh_token")
+                    {
+                        valid = clientService.ValidateClientById(clientId);
+                    }
+                    else
+                    {
+                        valid = clientService.ValidateClient(clientId, clientSecret, code);
+                    }
 
                     if (valid)
                     {

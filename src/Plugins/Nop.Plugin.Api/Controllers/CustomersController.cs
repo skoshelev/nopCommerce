@@ -92,7 +92,7 @@ namespace Nop.Plugin.Api.Controllers
                 return Error(HttpStatusCode.BadRequest, "limit", "Invalid limit parameter");
             }
 
-            if (parameters.Page <= Configurations.DefaultPageValue)
+            if (parameters.Page < Configurations.DefaultPageValue)
             {
                 return Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
             }

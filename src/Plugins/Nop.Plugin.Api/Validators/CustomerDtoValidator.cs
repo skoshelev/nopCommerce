@@ -18,6 +18,7 @@ namespace Nop.Plugin.Api.Validators
                 httpMethod.Equals("post", StringComparison.InvariantCultureIgnoreCase))
             {
                 SetRuleForRoles();
+                SetRuleForEmail();
             }
             else if (httpMethod.Equals("put", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -28,6 +29,11 @@ namespace Nop.Plugin.Api.Validators
                     .NotEmpty()
                     .Must(id => int.TryParse(id, out parsedId) && parsedId > 0)
                     .WithMessage("invalid id");
+
+                if (passedPropertyValuePaires.ContainsKey("email"))
+                {
+                    SetRuleForEmail();
+                }
 
                 // TODO: think of a way to not hardcode the json property name.
                 if (passedPropertyValuePaires.ContainsKey("role_ids"))
@@ -62,6 +68,14 @@ namespace Nop.Plugin.Api.Validators
                 RuleForEach(x => x.CustomerAddresses)
                     .SetValidator(new AddressDtoValidator());
             }
+        }
+
+        private void SetRuleForEmail()
+        {
+            RuleFor(customer => customer.Email)
+                .NotNull()
+                .NotEmpty()
+                .WithMessage("email can not be empty");
         }
 
         private void SetRuleForRoles()

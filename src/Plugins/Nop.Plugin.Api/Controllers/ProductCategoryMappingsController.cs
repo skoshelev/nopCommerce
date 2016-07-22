@@ -174,6 +174,13 @@ namespace Nop.Plugin.Api.Controllers
                 return Error(HttpStatusCode.NotFound, "product_id", "not found");
             }
 
+            int mappingsCount = _productCategoryMappingsService.GetMappingsCount(product.Id, category.Id);
+
+            if (mappingsCount > 0)
+            {
+                return Error(HttpStatusCode.BadRequest, "product_category_mapping", "already exist");
+            }
+
             ProductCategory newProductCategory = new ProductCategory();
             productCategoryDelta.Merge(newProductCategory);
 
