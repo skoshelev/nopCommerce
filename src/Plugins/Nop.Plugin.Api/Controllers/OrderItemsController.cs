@@ -16,6 +16,7 @@ using Nop.Services.Customers;
 using Nop.Services.Discounts;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
+using Nop.Services.Orders;
 using Nop.Services.Security;
 using Nop.Services.Stores;
 
@@ -26,6 +27,7 @@ namespace Nop.Plugin.Api.Controllers
     {
         private readonly IOrderItemApiService _orderItemApiService;
         private readonly IOrderApiService _orderApiService;
+        private readonly IOrderService _orderService;
 
         public OrderItemsController(IJsonFieldsSerializer jsonFieldsSerializer, 
             IAclService aclService, 
@@ -36,7 +38,8 @@ namespace Nop.Plugin.Api.Controllers
             ICustomerActivityService customerActivityService, 
             ILocalizationService localizationService, 
             IOrderItemApiService orderItemApiService, 
-            IOrderApiService orderApiService) 
+            IOrderApiService orderApiService, 
+            IOrderService orderService) 
             : base(jsonFieldsSerializer, 
                   aclService, 
                   customerService, 
@@ -48,6 +51,7 @@ namespace Nop.Plugin.Api.Controllers
         {
             _orderItemApiService = orderItemApiService;
             _orderApiService = orderApiService;
+            _orderService = orderService;
         }
         
         [HttpGet]
@@ -95,7 +99,7 @@ namespace Nop.Plugin.Api.Controllers
             {
                 return Error(HttpStatusCode.NotFound, "order", "not found");
             }
-
+            
             int orderItemsCountForOrder = _orderItemApiService.GetOrderItemsCount(order);
 
             var orderItemsCountRootObject = new OrderItemsCountRootObject()
@@ -118,7 +122,7 @@ namespace Nop.Plugin.Api.Controllers
                 return Error(HttpStatusCode.NotFound, "order", "not found");
             }
 
-            OrderItem orderItem = _orderItemApiService.GetOrderItemForOrderById(order, orderItemId);
+            OrderItem orderItem = _orderService.GetOrderItemById(orderItemId);
 
             if (orderItem == null)
             {
@@ -136,6 +140,23 @@ namespace Nop.Plugin.Api.Controllers
             var json = _jsonFieldsSerializer.Serialize(orderItemsRootObject, fields);
 
             return new RawJsonActionResult(json);
+        }
+
+        [HttpDelete]
+        [GetRequestsErrorInterceptorActionFilter]
+        public IHttpActionResult DeleteOrderItemById(int orderId, int orderItemId)
+        {
+            Order order = _orderApiService.GetOrderById(orderId);
+
+            if (order == null)
+            {
+                return Error(HttpStatusCode.NotFound, "order", "not found");
+            }
+
+            OrderItem orderItem = _orderService.GetOrderItemById(orderItemId);
+            _orderService.DeleteOrderItem(orderItem);
+            
+            return new RawJsonActionResult("{}");
         }
     }
 }
