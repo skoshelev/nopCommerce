@@ -276,7 +276,14 @@ namespace Nop.Plugin.Api.Controllers
             //If the validation has passed the customerDelta object won't be null for sure so we don't need to check for this.
             
             // Updateting the customer
-            Customer currentCustomer = _customerService.GetCustomerById(int.Parse(customerDelta.Dto.Id));
+            Customer currentCustomer = _customerApiService.GetCustomerEntityById(int.Parse(customerDelta.Dto.Id));
+
+            if (currentCustomer == null)
+            {
+                ModelState.AddModelError("customer", "Not Found");
+                return Error();
+            }
+
             customerDelta.Merge(currentCustomer);
 
             if (customerDelta.Dto.RoleIds.Count > 0)
@@ -370,7 +377,7 @@ namespace Nop.Plugin.Api.Controllers
                 return NotFound();
             }
 
-            var customer = _customerService.GetCustomerById(id);
+            var customer = _customerApiService.GetCustomerEntityById(id);
 
             if (customer == null)
             {

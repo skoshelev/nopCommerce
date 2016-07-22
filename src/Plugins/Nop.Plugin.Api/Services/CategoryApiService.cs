@@ -42,7 +42,7 @@ namespace Nop.Plugin.Api.Services
             if (id <= 0)
                 return null;
 
-            Category category = _categoryRepository.GetById(id);
+            Category category = _categoryRepository.Table.FirstOrDefault(cat => cat.Id == id && !cat.Deleted);
 
             return category;
         }

@@ -290,7 +290,13 @@ namespace Nop.Plugin.Api.Controllers
             // We do not need to validate the product id, because this will happen in the model binder using the dto validator.
             int updateProductId = int.Parse(productDelta.Dto.Id);
 
-            Product productEntityToUpdate = _productService.GetProductById(updateProductId);
+            Product productEntityToUpdate = _productApiService.GetProductById(updateProductId);
+
+            if (productEntityToUpdate == null)
+            {
+                ModelState.AddModelError("product", "Not Found");
+                return Error();
+            }
 
             productDelta.Merge(productEntityToUpdate);
 
@@ -342,7 +348,7 @@ namespace Nop.Plugin.Api.Controllers
                 return NotFound();
             }
 
-            Product product = _productService.GetProductById(id);
+            Product product = _productApiService.GetProductById(id);
 
             if (product == null)
             {

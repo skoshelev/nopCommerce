@@ -48,7 +48,7 @@ namespace Nop.Plugin.Api.Services
             if (orderId <= 0)
                 return null;
 
-            return _orderRepository.GetById(orderId);
+            return _orderRepository.Table.FirstOrDefault(order => order.Id == orderId && !order.Deleted);
         }
 
         public int GetOrdersCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, OrderStatus? status = null,

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Nop.Core.Domain.Customers;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.DTOs.Customers;
 
@@ -10,6 +11,8 @@ namespace Nop.Plugin.Api.Services
         int GetCustomersCount();
 
         CustomerDto GetCustomerById(int id);
+
+        Customer GetCustomerEntityById(int id);
 
         IList<CustomerDto> GetCustomersDtos(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
             int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId);
