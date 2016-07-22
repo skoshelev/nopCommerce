@@ -29,6 +29,8 @@ namespace Nop.Plugin.Api.Controllers
     {
         private readonly IProductCategoryMappingsApiService _productCategoryMappingsService;
         private readonly ICategoryService _categoryService;
+        private readonly ICategoryApiService _categoryApiService;
+        private readonly IProductApiService _productApiService;
 
         public ProductCategoryMappingsController(IProductCategoryMappingsApiService productCategoryMappingsService,
             ICategoryService categoryService,
@@ -39,11 +41,15 @@ namespace Nop.Plugin.Api.Controllers
             IStoreService storeService,
             IDiscountService discountService,
             ICustomerActivityService customerActivityService,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService, 
+            ICategoryApiService categoryApiService, 
+            IProductApiService productApiService)
             : base(jsonFieldsSerializer, aclService, customerService, storeMappingService, storeService, discountService, customerActivityService, localizationService)
         {
             _productCategoryMappingsService = productCategoryMappingsService;
             _categoryService = categoryService;
+            _categoryApiService = categoryApiService;
+            _productApiService = productApiService;
         }
 
         /// <summary>
@@ -150,6 +156,22 @@ namespace Nop.Plugin.Api.Controllers
                 return Error();
             }
 
+            Category category = _categoryApiService.GetCategoryById(productCategoryDelta.Dto.CategoryId.Value);
+            if (category == null)
+            {
+                ModelState.AddModelError("category_id", "Invalid");
+
+                return Error();
+            }
+
+            Product product = _productApiService.GetProductById(productCategoryDelta.Dto.ProductId.Value);
+            if (product == null)
+            {
+                ModelState.AddModelError("product_id", "Invalid");
+
+                return Error();
+            }
+
             ProductCategory newProductCategory = new ProductCategory();
             productCategoryDelta.Merge(newProductCategory);
 
@@ -179,6 +201,28 @@ namespace Nop.Plugin.Api.Controllers
             if (!ModelState.IsValid)
             {
                 return Error();
+            }
+
+            if (productCategoryDelta.Dto.CategoryId.HasValue)
+            {
+                Category category = _categoryApiService.GetCategoryById(productCategoryDelta.Dto.CategoryId.Value);
+                if (category == null)
+                {
+                    ModelState.AddModelError("category_id", "Invalid");
+
+                    return Error();
+                }
+            }
+
+            if (productCategoryDelta.Dto.ProductId.HasValue)
+            {
+                Product product = _productApiService.GetProductById(productCategoryDelta.Dto.ProductId.Value);
+                if (product == null)
+                {
+                    ModelState.AddModelError("product_id", "Invalid");
+
+                    return Error();
+                }
             }
 
             // We do not need to validate the category id, because this will happen in the model binder using the dto validator.
@@ -219,7 +263,7 @@ namespace Nop.Plugin.Api.Controllers
                 return NotFound();
             }
 
-            var productCategory = _categoryService.GetProductCategoryById(id);
+            ProductCategory productCategory = _categoryService.GetProductCategoryById(id);
 
             if (productCategory == null)
             {
