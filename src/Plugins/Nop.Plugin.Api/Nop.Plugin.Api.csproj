@@ -136,6 +136,8 @@
     <Compile Include="Attributes\ImageCollectionAttribute.cs" />
     <Compile Include="Attributes\ValidateVendor.cs" />
     <Compile Include="Controllers\BaseApiController.cs" />
+    <Compile Include="Controllers\OrderItemsController.cs" />
+    <Compile Include="DTOs\OrderItems\OrderItemsRootObject.cs" />
     <Compile Include="Factories\AddressFactory.cs" />
     <Compile Include="Factories\CustomerFactory.cs" />
     <Compile Include="Factories\OrderFactory.cs" />
@@ -154,6 +156,7 @@
     <Compile Include="Maps\IJsonPropertyMap.cs" />
     <Compile Include="Maps\JsonPropertyMap.cs" />
     <Compile Include="ModelBinders\JsonModelBinder.cs" />
+    <Compile Include="Models\OrderItemsParameters\OrderItemsParametersModel.cs" />
     <Compile Include="OAuth\Attributes\BearerTokenAuthorizeAttribute.cs" />
     <Compile Include="Constants\ViewNames.cs" />
     <Compile Include="JSON\ContractResolvers\DynamicContractResolver.cs" />
@@ -176,12 +179,12 @@
     <Compile Include="DTOs\Categories\CategoriesRootObject.cs" />
     <Compile Include="DTOs\Categories\CategoryDto.cs" />
     <Compile Include="DTOs\Customers\BaseCustomerDto.cs" />
-    <Compile Include="DTOs\Customers\ISerializableObject.cs" />
+    <Compile Include="DTOs\ISerializableObject.cs" />
     <Compile Include="DTOs\ProductCategoryMappings\ProductCategoryMappingsCountRootObject.cs" />
     <Compile Include="DTOs\ProductCategoryMappings\ProductCategoryMappingsDto.cs" />
     <Compile Include="DTOs\ProductCategoryMappings\ProductCategoryMappingsRootObject.cs" />
     <Compile Include="DTOs\Orders\OrderDto.cs" />
-    <Compile Include="DTOs\Orders\OrderItemDto.cs" />
+    <Compile Include="DTOs\OrderItems\OrderItemDto.cs" />
     <Compile Include="DTOs\Orders\OrdersCountRootObject.cs" />
     <Compile Include="DTOs\Orders\OrdersRootObject.cs" />
     <Compile Include="DTOs\Orders\SingleOrderRootObject.cs" />
@@ -255,6 +258,7 @@
     <Compile Include="Services\ClientService.cs" />
     <Compile Include="Services\CustomerApiService.cs" />
     <Compile Include="Services\ICategoryApiService.cs" />
+    <Compile Include="Services\IOrderItemApiService.cs" />
     <Compile Include="Services\IProductCategoryMappingsApiService.cs" />
     <Compile Include="Services\IClientService.cs" />
     <Compile Include="Services\ICustomerApiService.cs" />
@@ -262,6 +266,7 @@
     <Compile Include="Services\IProductApiService.cs" />
     <Compile Include="Services\IShoppingCartItemApiService.cs" />
     <Compile Include="Services\OrderApiService.cs" />
+    <Compile Include="Services\OrderItemApiService.cs" />
     <Compile Include="Services\ProductApiService.cs" />
     <Compile Include="Services\ProductCategoryMappingsApiService.cs" />
     <Compile Include="Services\ShoppingCartItemApiService.cs" />

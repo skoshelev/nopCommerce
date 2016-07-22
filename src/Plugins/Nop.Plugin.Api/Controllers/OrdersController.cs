@@ -15,6 +15,7 @@ using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Delta;
 using Nop.Plugin.Api.DTOs;
+using Nop.Plugin.Api.DTOs.OrderItems;
 using Nop.Plugin.Api.DTOs.Orders;
 using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.JSON.ActionResults;
@@ -95,7 +96,7 @@ namespace Nop.Plugin.Api.Controllers
         [ResponseType(typeof(OrdersRootObject))]
         public IHttpActionResult GetOrders(OrdersParametersModel parameters)
         {
-            if (parameters.Page <= Configurations.DefaultPageValue)
+            if (parameters.Page < Configurations.DefaultPageValue)
             {
                 return Error(HttpStatusCode.BadRequest, "page", "Invalid page parameter");
             }

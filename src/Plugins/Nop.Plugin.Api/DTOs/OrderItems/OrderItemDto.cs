@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Nop.Plugin.Api.DTOs.Products;
 
-namespace Nop.Plugin.Api.DTOs.Orders
+namespace Nop.Plugin.Api.DTOs.OrderItems
 {
     [JsonObject(Title = "order_items")]
     public class OrderItemDto

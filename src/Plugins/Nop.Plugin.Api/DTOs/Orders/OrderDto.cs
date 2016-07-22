@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FluentValidation.Attributes;
 using Newtonsoft.Json;
 using Nop.Plugin.Api.DTOs.Customers;
+using Nop.Plugin.Api.DTOs.OrderItems;
 using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.Orders

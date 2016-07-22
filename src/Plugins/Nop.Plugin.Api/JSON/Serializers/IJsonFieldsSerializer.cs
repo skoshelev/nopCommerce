@@ -1,4 +1,4 @@
-﻿using Nop.Plugin.Api.DTOs.Customers;
+﻿using Nop.Plugin.Api.DTOs;
 
 namespace Nop.Plugin.Api.Serializers
 {
