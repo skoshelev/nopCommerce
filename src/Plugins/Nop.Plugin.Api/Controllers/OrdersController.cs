@@ -393,7 +393,7 @@ namespace Nop.Plugin.Api.Controllers
             
             customer.BillingAddress = currentOrder.BillingAddress;
             customer.ShippingAddress = currentOrder.ShippingAddress;
-            
+
             _orderService.UpdateOrder(currentOrder);
 
             _customerActivityService.InsertActivity("UpdateOrder",
