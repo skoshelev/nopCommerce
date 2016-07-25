@@ -13,14 +13,7 @@ namespace Nop.Plugin.Api.Services
 
             return new ApiList<OrderItem>(orderItems, page - 1, limit);
         }
-
-        public OrderItem GetOrderItemForOrderById(Order order, int orderItemId)
-        {
-            OrderItem orderItem = order.OrderItems.FirstOrDefault(item => item.Id == orderItemId);
-
-            return orderItem;
-        }
-
+        
         public int GetOrderItemsCount(Order order)
         {
             var orderItemsCount = order.OrderItems.Count();
