@@ -527,7 +527,7 @@ namespace Nop.Plugin.Api.Controllers
 
             foreach (var orderItem in orderItems)
             {
-                var orderItemDtoValidator = new OrderItemDtoValidator();
+                var orderItemDtoValidator = new OrderItemDtoValidator("post", null);
                 ValidationResult validation = orderItemDtoValidator.Validate(orderItem);
 
                 if (validation.IsValid)

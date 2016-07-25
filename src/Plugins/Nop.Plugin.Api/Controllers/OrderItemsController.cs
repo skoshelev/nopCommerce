@@ -1,17 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.ModelBinding;
+using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
+using Nop.Plugin.Api.Delta;
 using Nop.Plugin.Api.DTOs.OrderItems;
+using Nop.Plugin.Api.DTOs.Orders;
 using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.MappingExtensions;
+using Nop.Plugin.Api.ModelBinders;
 using Nop.Plugin.Api.Models.OrderItemsParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
+using Nop.Services.Catalog;
 using Nop.Services.Customers;
 using Nop.Services.Discounts;
 using Nop.Services.Localization;
@@ -19,6 +26,7 @@ using Nop.Services.Logging;
 using Nop.Services.Orders;
 using Nop.Services.Security;
 using Nop.Services.Stores;
+using Nop.Services.Tax;
 
 namespace Nop.Plugin.Api.Controllers
 {
@@ -28,6 +36,9 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IOrderItemApiService _orderItemApiService;
         private readonly IOrderApiService _orderApiService;
         private readonly IOrderService _orderService;
+        private readonly IProductApiService _productApiService;
+        private readonly IPriceCalculationService _priceCalculationService;
+        private readonly ITaxService _taxService;
 
         public OrderItemsController(IJsonFieldsSerializer jsonFieldsSerializer, 
             IAclService aclService, 
@@ -39,7 +50,10 @@ namespace Nop.Plugin.Api.Controllers
             ILocalizationService localizationService, 
             IOrderItemApiService orderItemApiService, 
             IOrderApiService orderApiService, 
-            IOrderService orderService) 
+            IOrderService orderService,
+            IProductApiService productApiService, 
+            IPriceCalculationService priceCalculationService, 
+            ITaxService taxService) 
             : base(jsonFieldsSerializer, 
                   aclService, 
                   customerService, 
@@ -52,6 +66,9 @@ namespace Nop.Plugin.Api.Controllers
             _orderItemApiService = orderItemApiService;
             _orderApiService = orderApiService;
             _orderService = orderService;
+            _productApiService = productApiService;
+            _priceCalculationService = priceCalculationService;
+            _taxService = taxService;
         }
         
         [HttpGet]
@@ -142,6 +159,80 @@ namespace Nop.Plugin.Api.Controllers
             return new RawJsonActionResult(json);
         }
 
+        [HttpPost]
+        [ResponseType(typeof (OrderItemsRootObject))]
+        public IHttpActionResult CreateOrderItem(int orderId,
+            [ModelBinder(typeof (JsonModelBinder<OrderItemDto>))] Delta<OrderItemDto> orderItemDelta)
+        {
+            // Here we display the errors if the validation has failed at some point.
+            if (!ModelState.IsValid)
+            {
+                return Error();
+            }
+
+            Order order = _orderApiService.GetOrderById(orderId);
+
+            if (order == null)
+            {
+                return Error(HttpStatusCode.NotFound, "order", "not found");
+            }
+
+            Product product = null;
+
+            if (orderItemDelta.Dto.ProductId.HasValue)
+            {
+                int productId = orderItemDelta.Dto.ProductId.Value;
+
+                product = _productApiService.GetProductById(productId);
+            }
+
+            if (product == null)
+            {
+                return Error(HttpStatusCode.NotFound, "product", "not found");
+            }
+
+            if (product.IsRental)
+            {
+                if (orderItemDelta.Dto.RentalStartDateUtc == null)
+                {
+                    return Error(HttpStatusCode.BadRequest, "rental_start_date_utc", "required");
+                }
+
+                if (orderItemDelta.Dto.RentalEndDateUtc == null)
+                {
+                    return Error(HttpStatusCode.BadRequest, "rental_end_date_utc", "required");
+                }
+
+                if (orderItemDelta.Dto.RentalStartDateUtc > orderItemDelta.Dto.RentalEndDateUtc)
+                {
+                    return Error(HttpStatusCode.BadRequest, "rental_start_date_utc", "should be before rental_end_date_utc");
+                }
+
+                if (orderItemDelta.Dto.RentalStartDateUtc < DateTime.UtcNow)
+                {
+                    return Error(HttpStatusCode.BadRequest, "rental_start_date_utc", "should be a future date");
+                }
+            }
+            
+            OrderItem newOrderItem = PrepareDefaultOrderItemFromProduct(order, product);
+            orderItemDelta.Merge(newOrderItem);
+            
+            order.OrderItems.Add(newOrderItem);
+
+            _orderService.UpdateOrder(order);
+
+            _customerActivityService.InsertActivity("AddNewOrderItem",
+               _localizationService.GetResource("ActivityLog.AddNewOrderItem"), newOrderItem.Id);
+
+            var orderItemsRootObject = new OrderItemsRootObject();
+
+            orderItemsRootObject.OrderItems.Add(newOrderItem.ToDto());
+
+            var json = _jsonFieldsSerializer.Serialize(orderItemsRootObject, string.Empty);
+
+            return new RawJsonActionResult(json);
+        }
+        
         [HttpDelete]
         [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult DeleteOrderItemById(int orderId, int orderItemId)
@@ -178,6 +269,31 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             return new RawJsonActionResult("{}");
+        }
+
+        private OrderItem PrepareDefaultOrderItemFromProduct(Order order, Product product)
+        {
+            var presetQty = 1;
+            var presetPrice = _priceCalculationService.GetFinalPrice(product, order.Customer, decimal.Zero, true, presetQty);
+
+            decimal taxRate;
+            decimal presetPriceInclTax = _taxService.GetProductPrice(product, presetPrice, true, order.Customer, out taxRate);
+            decimal presetPriceExclTax = _taxService.GetProductPrice(product, presetPrice, false, order.Customer, out taxRate);
+
+            OrderItem orderItem = new OrderItem()
+            {
+                OrderItemGuid = new Guid(),
+                UnitPriceExclTax = presetPriceExclTax,
+                UnitPriceInclTax = presetPriceInclTax,
+                PriceInclTax = presetPriceInclTax,
+                PriceExclTax = presetPriceExclTax,
+                OriginalProductCost = _priceCalculationService.GetProductCost(product, null),
+                Quantity = presetQty,
+                Product = product,
+                Order = order
+            };
+
+            return orderItem;
         }
     }
 }

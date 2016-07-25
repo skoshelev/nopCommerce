@@ -17,5 +17,7 @@ namespace Nop.Plugin.Api.Services
             string vendorName = null, int? categoryId = null);
 
         Product GetProductById(int productId);
+
+        Product GetProductByIdNoTracking(int productId);
     }
 }
