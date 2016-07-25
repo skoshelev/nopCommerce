@@ -73,6 +73,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductsRootObjectDto))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetProducts(ProductsParametersModel parameters)
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
@@ -116,6 +117,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductsCountRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetProductsCount(ProductsCountParametersModel parameters)
         {
             int allProductsCount = _productApiService.GetProductsCount(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.UpdatedAtMin,
@@ -140,6 +142,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ProductsRootObjectDto))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetProductById(int id, string fields = "")
         {
             if (id <= 0)
@@ -344,6 +347,7 @@ namespace Nop.Plugin.Api.Controllers
         }
 
         [HttpDelete]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult DeleteProduct(int id)
         {
             if (id <= 0)

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Nop.Plugin.Api.DTOs.OrderItems;
 using Nop.Plugin.Api.DTOs.Orders;
 
 namespace Nop.Plugin.Api.Validators

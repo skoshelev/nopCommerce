@@ -66,13 +66,23 @@ namespace Nop.Plugin.Api.Controllers
             {
                 var errorMessages = item.Value.Errors.Select(x => x.ErrorMessage);
 
-                if (errors.ContainsKey(item.Key))
+                List<string> validErrorMessages = new List<string>();
+
+                if (errorMessages != null)
                 {
-                    errors[item.Key].AddRange(errorMessages);
+                    validErrorMessages.AddRange(errorMessages.Where(message => !string.IsNullOrEmpty(message)));
                 }
-                else
+
+                if (validErrorMessages.Count > 0)
                 {
-                    errors.Add(item.Key, errorMessages.ToList());
+                    if (errors.ContainsKey(item.Key))
+                    {
+                        errors[item.Key].AddRange(validErrorMessages);
+                    }
+                    else
+                    {
+                        errors.Add(item.Key, validErrorMessages.ToList());
+                    }
                 }
             }
 

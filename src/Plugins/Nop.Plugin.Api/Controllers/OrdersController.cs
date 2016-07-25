@@ -15,6 +15,7 @@ using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Delta;
 using Nop.Plugin.Api.DTOs;
+using Nop.Plugin.Api.DTOs.OrderItems;
 using Nop.Plugin.Api.DTOs.Orders;
 using Nop.Plugin.Api.Factories;
 using Nop.Plugin.Api.JSON.ActionResults;
@@ -93,9 +94,10 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(OrdersRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetOrders(OrdersParametersModel parameters)
         {
-            if (parameters.Page <= Configurations.DefaultPageValue)
+            if (parameters.Page < Configurations.DefaultPageValue)
             {
                 return Error(HttpStatusCode.BadRequest, "page", "Invalid page parameter");
             }
@@ -127,6 +129,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(OrdersCountRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetOrdersCount(OrdersCountParametersModel parameters)
         {
             int ordersCount = _orderApiService.GetOrdersCount(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.Status,
@@ -150,6 +153,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(OrdersRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetOrderById(int id, string fields = "")
         {
             if (id <= 0)
@@ -182,6 +186,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(OrdersRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetOrdersByCustomerId(int customerId)
         {
             IList<OrderDto> ordersForCustomer = _orderApiService.GetOrdersByCustomerId(customerId).Select(x => x.ToDto()).ToList();
@@ -304,6 +309,7 @@ namespace Nop.Plugin.Api.Controllers
         }
 
         [HttpDelete]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult DeleteOrder(int id)
         {
             if (id <= 0)

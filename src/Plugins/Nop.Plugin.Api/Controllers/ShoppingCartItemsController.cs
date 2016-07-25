@@ -73,6 +73,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ShoppingCartItemsRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetShoppingCartItems(ShoppingCartItemsParametersModel parameters)
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
@@ -115,6 +116,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(ShoppingCartItemsRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetShoppingCartItemsByCustomerId(int customerId, ShoppingCartItemsForCustomerParametersModel parameters)
         {
             if (customerId <= Configurations.DefaultCustomerId)
@@ -283,6 +285,7 @@ namespace Nop.Plugin.Api.Controllers
         }
 
         [HttpDelete]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult DeleteShoppingCartItem(int id)
         {
             if (id <= 0)

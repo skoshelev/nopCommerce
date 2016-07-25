@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
@@ -85,6 +84,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(CustomersRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetCustomers(CustomersParametersModel parameters)
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
@@ -119,6 +119,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(CustomersRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetCustomerById(int id, string fields = "")
         {
             if (id <= 0)
@@ -365,6 +366,7 @@ namespace Nop.Plugin.Api.Controllers
         }
 
         [HttpDelete]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult DeleteCustomer(int id)
         {
             if (id <= 0)

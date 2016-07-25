@@ -70,6 +70,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(CategoriesRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetCategories(CategoriesParametersModel parameters)
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
@@ -114,6 +115,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(CategoriesCountRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetCategoriesCount(CategoriesCountParametersModel parameters)
         {
             var allCategoriesCount = _categoryApiService.GetCategoriesCount(parameters.CreatedAtMin, parameters.CreatedAtMax,
@@ -138,6 +140,7 @@ namespace Nop.Plugin.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [ResponseType(typeof(CategoriesRootObject))]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult GetCategoryById(int id, string fields = "")
         {
             if (id <= 0)
@@ -319,6 +322,7 @@ namespace Nop.Plugin.Api.Controllers
         }
 
         [HttpDelete]
+        [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult DeleteCategory(int id)
         {
             if (id <= 0)

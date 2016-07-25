@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Nop.Plugin.Api.DTOs.Customers;
+using Nop.Plugin.Api.DTOs;
 using Nop.Plugin.Api.Helpers;
 
 namespace Nop.Plugin.Api.Serializers
