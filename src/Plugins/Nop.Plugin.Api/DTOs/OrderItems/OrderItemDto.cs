@@ -1,10 +1,14 @@
 ﻿using System;
+using FluentValidation.Attributes;
 using Newtonsoft.Json;
+using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.DTOs.Products;
+using Nop.Plugin.Api.Validators;
 
 namespace Nop.Plugin.Api.DTOs.OrderItems
 {
-    [JsonObject(Title = "order_items")]
+    [Validator(typeof(OrderItemDtoValidator))]
+    [JsonObject(Title = "order_item")]
     public class OrderItemDto
     {
         /// <summary>
@@ -102,6 +106,7 @@ namespace Nop.Plugin.Api.DTOs.OrderItems
         /// Gets the product
         /// </summary>
         [JsonProperty("product")]
+        [DoNotMap]
         public ProductDto Product { get; set; }
 
         [JsonProperty("product_id")]

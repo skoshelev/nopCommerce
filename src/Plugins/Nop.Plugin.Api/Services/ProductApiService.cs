@@ -59,6 +59,14 @@ namespace Nop.Plugin.Api.Services
             return _productRepository.Table.FirstOrDefault(product => product.Id == productId && !product.Deleted);
         }
 
+        public Product GetProductByIdNoTracking(int productId)
+        {
+            if (productId == 0)
+                return null;
+
+            return _productRepository.TableNoTracking.FirstOrDefault(product => product.Id == productId && !product.Deleted);
+        }
+
         private IQueryable<Product> GetProductsQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, 
             DateTime? updatedAtMin = null, DateTime? updatedAtMax = null, string vendorName = null, 
             bool? publishedStatus = null, IList<int> ids = null, int? categoryId = null)

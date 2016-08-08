@@ -313,6 +313,12 @@ namespace Nop.Plugin.Api
                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) });
 
             config.Routes.MapHttpRoute(
+                name: "CreateOrderItem",
+                routeTemplate: "api/orders/{orderId}/order_items",
+                defaults: new { controller = "OrderItems", action = "CreateOrderItem" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post) });
+
+            config.Routes.MapHttpRoute(
                name: "deleteOrderItemForOrderById",
                routeTemplate: "api/orders/{orderId}/order_items/{orderItemId}",
                defaults: new { controller = "OrderItems", action = "DeleteOrderItemById" },
