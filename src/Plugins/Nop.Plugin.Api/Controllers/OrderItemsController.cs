@@ -177,14 +177,7 @@ namespace Nop.Plugin.Api.Controllers
                 return Error(HttpStatusCode.NotFound, "order", "not found");
             }
 
-            Product product = null;
-
-            if (orderItemDelta.Dto.ProductId.HasValue)
-            {
-                int productId = orderItemDelta.Dto.ProductId.Value;
-
-                product = _productApiService.GetProductById(productId);
-            }
+            Product product = GetProduct(orderItemDelta.Dto.ProductId);
 
             if (product == null)
             {
@@ -232,7 +225,57 @@ namespace Nop.Plugin.Api.Controllers
 
             return new RawJsonActionResult(json);
         }
-        
+
+        [HttpPut]
+        [ResponseType(typeof(OrderItemsRootObject))]
+        public IHttpActionResult UpdateOrderItem(int orderId, int orderItemId,
+          [ModelBinder(typeof(JsonModelBinder<OrderItemDto>))] Delta<OrderItemDto> orderItemDelta)
+        {
+            // Here we display the errors if the validation has failed at some point.
+            if (!ModelState.IsValid)
+            {
+                return Error();
+            }
+
+            OrderItem orderItemToUpdate = _orderService.GetOrderItemById(orderItemId);
+
+            if (orderItemToUpdate == null)
+            {
+                return Error(HttpStatusCode.NotFound, "order_item", "not found");
+            }
+
+            Order order = _orderApiService.GetOrderById(orderId);
+
+            if (order == null)
+            {
+                return Error(HttpStatusCode.NotFound, "order", "not found");
+            }
+
+            // This is needed because those fields shouldn't be updatable. That is why we save them and after the merge set them back.
+            int? productId = orderItemToUpdate.ProductId;
+            DateTime? rentalStartDate = orderItemToUpdate.RentalStartDateUtc;
+            DateTime? rentalEndDate = orderItemToUpdate.RentalEndDateUtc;
+
+            orderItemDelta.Merge(orderItemToUpdate);
+
+            orderItemToUpdate.ProductId = productId ?? 0;
+            orderItemToUpdate.RentalStartDateUtc = rentalStartDate;
+            orderItemToUpdate.RentalEndDateUtc = rentalEndDate;
+
+            _orderService.UpdateOrder(order);
+
+            _customerActivityService.InsertActivity("UpdateOrderItem",
+               _localizationService.GetResource("ActivityLog.UpdateOrderItem"), orderItemToUpdate.Id);
+
+            var orderItemsRootObject = new OrderItemsRootObject();
+
+            orderItemsRootObject.OrderItems.Add(orderItemToUpdate.ToDto());
+
+            var json = _jsonFieldsSerializer.Serialize(orderItemsRootObject, string.Empty);
+
+            return new RawJsonActionResult(json);
+        }
+
         [HttpDelete]
         [GetRequestsErrorInterceptorActionFilter]
         public IHttpActionResult DeleteOrderItemById(int orderId, int orderItemId)
@@ -269,6 +312,19 @@ namespace Nop.Plugin.Api.Controllers
             }
 
             return new RawJsonActionResult("{}");
+        }
+
+        private Product GetProduct(int? productId)
+        {
+            Product product = null;
+
+            if (productId.HasValue)
+            {
+                int id = productId.Value;
+
+                product = _productApiService.GetProductById(id);
+            }
+            return product;
         }
 
         private OrderItem PrepareDefaultOrderItemFromProduct(Order order, Product product)
