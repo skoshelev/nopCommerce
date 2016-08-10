@@ -70,7 +70,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         [Test]
         public void WhenIdEqualsToExistingCategoryId_ShouldSerializeThatCategory()
         {
-            Maps.CreateMap<Category, CategoryDto>();
+            MappingExtensions.Maps.CreateMap<Category, CategoryDto>();
 
             int existingCategoryId = 5;
             var existingCategory = new Category() { Id = existingCategoryId };
@@ -98,7 +98,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         [Test]
         public void WhenIdEqualsToExistingCategoryIdAndFieldsSet_ShouldReturnJsonForThatCategoryWithSpecifiedFields()
         {
-            Maps.CreateMap<Category, CategoryDto>();
+            MappingExtensions.Maps.CreateMap<Category, CategoryDto>();
 
             int existingCategoryId = 5;
             var existingCategory = new Category() { Id = existingCategoryId, Name = "some category name" };

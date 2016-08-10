@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Results;
+using AutoMock;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.ShoppingCarts;
-using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models.ShoppingCartsParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
@@ -23,14 +23,11 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
         {
             // Arange
             var parameters = new ShoppingCartItemsForCustomerParametersModel();
-
-            IShoppingCartItemApiService shoppingCartItemsApiServiceStub = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new ShoppingCartItemsController(shoppingCartItemsApiServiceStub, jsonFieldsSerializer);
+            
+            var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
 
             // Act
-            IHttpActionResult result = cut.GetShoppingCartItemsByCustomerId(nonPositiveCustomerId, parameters);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetShoppingCartItemsByCustomerId(nonPositiveCustomerId, parameters);
 
             // Assert
             Assert.IsInstanceOf<NotFoundResult>(result);
@@ -43,19 +40,16 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
         {
             // Arange
             var parameters = new ShoppingCartItemsForCustomerParametersModel();
+            
+            var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
 
-            IShoppingCartItemApiService shoppingCartItemsApiServiceStub = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            jsonFieldsSerializer.Stub(x => x.Serialize(null, null)).Return(string.Empty);
-
-            var cut = new ShoppingCartItemsController(shoppingCartItemsApiServiceStub, jsonFieldsSerializer);
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(null, null)).Return(string.Empty);
 
             // Act
-            cut.GetShoppingCartItemsByCustomerId(negativeShoppingCartItemsId, parameters);
+            autoMocker.ClassUnderTest.GetShoppingCartItemsByCustomerId(negativeShoppingCartItemsId, parameters);
 
             // Assert
-            shoppingCartItemsApiServiceStub.AssertWasNotCalled(x => x.GetShoppingCartItems(negativeShoppingCartItemsId));
+            autoMocker.Get<IShoppingCartItemApiService>().AssertWasNotCalled(x => x.GetShoppingCartItems(negativeShoppingCartItemsId));
         }
 
         [Test]
@@ -65,15 +59,12 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             var parameters = new ShoppingCartItemsForCustomerParametersModel();
 
             // Arange
-            IShoppingCartItemApiService shoppingCartItemsApiServiceStub = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-            shoppingCartItemsApiServiceStub.Stub(x => x.GetShoppingCartItems(nonExistingShoppingCartItemId)).Return(null);
+            var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new ShoppingCartItemsController(shoppingCartItemsApiServiceStub, jsonFieldsSerializer);
+            autoMocker.Get<IShoppingCartItemApiService>().Stub(x => x.GetShoppingCartItems(nonExistingShoppingCartItemId)).Return(null);
 
             // Act
-            IHttpActionResult result = cut.GetShoppingCartItemsByCustomerId(nonExistingShoppingCartItemId, parameters);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetShoppingCartItemsByCustomerId(nonExistingShoppingCartItemId, parameters);
 
             // Assert
             Assert.IsInstanceOf<NotFoundResult>(result);
@@ -82,7 +73,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
         [Test]
         public void WhenIdEqualsToExistingShoppingCartItemId_ShouldSerializeThatShoppingCartItem()
         {
-            Maps.CreateMap<ShoppingCartItem, ShoppingCartItemDto>();
+            MappingExtensions.Maps.CreateMap<ShoppingCartItem, ShoppingCartItemDto>();
 
             int existingShoppingCartItemId = 5;
             var existingShoppingCartItems = new List<ShoppingCartItem>()
@@ -93,30 +84,27 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             var parameters = new ShoppingCartItemsForCustomerParametersModel();
 
             // Arange
-            IShoppingCartItemApiService shoppingCartItemsApiServiceStub = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-            shoppingCartItemsApiServiceStub.Stub(x => x.GetShoppingCartItems(existingShoppingCartItemId)).Return(existingShoppingCartItems);
+            var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new ShoppingCartItemsController(shoppingCartItemsApiServiceStub, jsonFieldsSerializer);
+            autoMocker.Get<IShoppingCartItemApiService>().Stub(x => x.GetShoppingCartItems(existingShoppingCartItemId)).Return(existingShoppingCartItems);
 
             // Act
-            cut.GetShoppingCartItemsByCustomerId(existingShoppingCartItemId, parameters);
+            autoMocker.ClassUnderTest.GetShoppingCartItemsByCustomerId(existingShoppingCartItemId, parameters);
 
             // Assert
-            jsonFieldsSerializer.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(
                     Arg<ShoppingCartItemsRootObject>.Matches(
                         objectToSerialize =>
                                objectToSerialize.ShoppingCartItems.Count == 1 &&
-                               objectToSerialize.ShoppingCartItems[0].Id == existingShoppingCartItemId),
+                               objectToSerialize.ShoppingCartItems[0].Id == existingShoppingCartItemId.ToString()),
                     Arg<string>.Is.Equal("")));
         }
 
         [Test]
         public void WhenIdEqualsToExistingShoppingCartItemIdAndFieldsSet_ShouldReturnJsonForThatShoppingCartItemWithSpecifiedFields()
         {
-            Maps.CreateMap<ShoppingCartItem, ShoppingCartItemDto>();
+            MappingExtensions.Maps.CreateMap<ShoppingCartItem, ShoppingCartItemDto>();
 
             int existingShoppingCartItemId = 5;
             var existingShoppingCartItems = new List<ShoppingCartItem>()
@@ -130,20 +118,17 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             };
 
             // Arange
-            IShoppingCartItemApiService shoppingCartItemsApiServiceStub = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-            shoppingCartItemsApiServiceStub.Stub(x => x.GetShoppingCartItems(existingShoppingCartItemId)).Return(existingShoppingCartItems);
+            var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new ShoppingCartItemsController(shoppingCartItemsApiServiceStub, jsonFieldsSerializer);
+            autoMocker.Get<IShoppingCartItemApiService>().Stub(x => x.GetShoppingCartItems(existingShoppingCartItemId)).Return(existingShoppingCartItems);
 
             // Act
-            cut.GetShoppingCartItemsByCustomerId(existingShoppingCartItemId, parameters);
+            autoMocker.ClassUnderTest.GetShoppingCartItemsByCustomerId(existingShoppingCartItemId, parameters);
 
             // Assert
-            jsonFieldsSerializer.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(
-                    Arg<ShoppingCartItemsRootObject>.Matches(objectToSerialize => objectToSerialize.ShoppingCartItems[0].Id == existingShoppingCartItemId),
+                    Arg<ShoppingCartItemsRootObject>.Matches(objectToSerialize => objectToSerialize.ShoppingCartItems[0].Id == existingShoppingCartItemId.ToString()),
                     Arg<string>.Matches(fieldsParameter => fieldsParameter == parameters.Fields)));
         }
     }

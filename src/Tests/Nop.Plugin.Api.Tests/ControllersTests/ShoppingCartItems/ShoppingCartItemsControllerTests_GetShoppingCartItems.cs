@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Results;
+using AutoMock;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.ShoppingCarts;
-using Nop.Plugin.Api.MappingExtensions;
+using Nop.Plugin.Api.Maps;
 using Nop.Plugin.Api.Models.ShoppingCartsParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
@@ -28,14 +29,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             };
 
             //Arange
-            IShoppingCartItemApiService shoppingCartItemsApiServiceStub = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new ShoppingCartItemsController(shoppingCartItemsApiServiceStub, jsonFieldsSerializerStub);
-
+            var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
+           
             //Act
-            IHttpActionResult result = cut.GetShoppingCartItems(parameters);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetShoppingCartItems(parameters);
 
             //Assert
             Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
@@ -52,14 +49,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             };
 
             //Arange
-            IShoppingCartItemApiService shoppingCartItemsApiServiceStub = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new ShoppingCartItemsController(shoppingCartItemsApiServiceStub, jsonFieldsSerializerStub);
+            var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
 
             //Act
-            IHttpActionResult result = cut.GetShoppingCartItems(parameters);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetShoppingCartItems(parameters);
 
             //Assert
             Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
@@ -71,22 +64,18 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             var parameters = new ShoppingCartItemsParametersModel();
 
             //Arange
-            IShoppingCartItemApiService shoppingCartItemsApiServiceMock = MockRepository.GenerateMock<IShoppingCartItemApiService>();
+            var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
 
-            shoppingCartItemsApiServiceMock.Expect(x => x.GetShoppingCartItems(0, parameters.CreatedAtMin,
+            autoMocker.Get<IShoppingCartItemApiService>().Expect(x => x.GetShoppingCartItems(0, parameters.CreatedAtMin,
                                                                                parameters.CreatedAtMax, parameters.UpdatedAtMin,
-                                                                               parameters.UpdatedAtMax, parameters.Limit, 
+                                                                               parameters.UpdatedAtMax, parameters.Limit,
                                                                                parameters.Page)).Return(new List<ShoppingCartItem>());
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new ShoppingCartItemsController(shoppingCartItemsApiServiceMock, jsonFieldsSerializer);
-
             //Act
-            cut.GetShoppingCartItems(parameters);
+            autoMocker.ClassUnderTest.GetShoppingCartItems(parameters);
 
             //Assert
-            shoppingCartItemsApiServiceMock.VerifyAllExpectations();
+            autoMocker.Get<IShoppingCartItemApiService>().VerifyAllExpectations();
         }
 
         [Test]
@@ -97,18 +86,15 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             var parameters = new ShoppingCartItemsParametersModel();
 
             //Arange
-            IShoppingCartItemApiService shoppingCartItemsApiServiceMock = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-            shoppingCartItemsApiServiceMock.Stub(x => x.GetShoppingCartItems()).Return(returnedShoppingCartItemsCollection).IgnoreArguments();
+            var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new ShoppingCartItemsController(shoppingCartItemsApiServiceMock, jsonFieldsSerializerMock);
+            autoMocker.Get<IShoppingCartItemApiService>().Stub(x => x.GetShoppingCartItems()).Return(returnedShoppingCartItemsCollection).IgnoreArguments();
 
             //Act
-            cut.GetShoppingCartItems(parameters);
+            autoMocker.ClassUnderTest.GetShoppingCartItems(parameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(Arg<ShoppingCartItemsRootObject>.Matches(r => r.ShoppingCartItems.Count == returnedShoppingCartItemsCollection.Count),
                 Arg<string>.Is.Equal(parameters.Fields)));
         }
@@ -122,25 +108,21 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             };
 
             //Arange
-            IShoppingCartItemApiService shoppingCartItemsApiServiceStub = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-            shoppingCartItemsApiServiceStub.Stub(x => x.GetShoppingCartItems()).Return(new List<ShoppingCartItem>()).IgnoreArguments();
-
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new ShoppingCartItemsController(shoppingCartItemsApiServiceStub, jsonFieldsSerializerMock);
+            var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
+            autoMocker.Get<IShoppingCartItemApiService>().Stub(x => x.GetShoppingCartItems()).Return(new List<ShoppingCartItem>()).IgnoreArguments();
 
             //Act
-            cut.GetShoppingCartItems(parameters);
+            autoMocker.ClassUnderTest.GetShoppingCartItems(parameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(Arg<ShoppingCartItemsRootObject>.Is.Anything, Arg<string>.Is.Equal(parameters.Fields)));
         }
 
         [Test]
         public void WhenSomeProductsExist_ShouldCallTheSerializerWithTheseProducts()
         {
-            Maps.CreateMap<ShoppingCartItem, ShoppingCartItemDto>();
+            MappingExtensions.Maps.CreateMap<ShoppingCartItem, ShoppingCartItemDto>();
 
             var returnedShoppingCartItemsDtoCollection = new List<ShoppingCartItem>()
             {
@@ -151,18 +133,14 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             var parameters = new ShoppingCartItemsParametersModel();
 
             //Arange
-            IShoppingCartItemApiService shoppingCartItemsApiServiceStub = MockRepository.GenerateStub<IShoppingCartItemApiService>();
-            shoppingCartItemsApiServiceStub.Stub(x => x.GetShoppingCartItems()).Return(returnedShoppingCartItemsDtoCollection).IgnoreArguments();
-
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new ShoppingCartItemsController(shoppingCartItemsApiServiceStub, jsonFieldsSerializerMock);
-
+            var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
+            
+            autoMocker.Get<IShoppingCartItemApiService>().Stub(x => x.GetShoppingCartItems()).Return(returnedShoppingCartItemsDtoCollection).IgnoreArguments();
             //Act
-            cut.GetShoppingCartItems(parameters);
+            autoMocker.ClassUnderTest.GetShoppingCartItems(parameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(Arg<ShoppingCartItemsRootObject>.Matches(r => r.ShoppingCartItems.Count == returnedShoppingCartItemsDtoCollection.Count),
                 Arg<string>.Is.Equal(parameters.Fields)));
         }

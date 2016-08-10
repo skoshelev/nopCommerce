@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Results;
+using AutoMock;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.Customers;
@@ -21,17 +22,13 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             var defaultParametersModel = new CustomersSearchParametersModel();
 
             //Arange
-            ICustomerApiService customerApiServiceMock = MockRepository.GenerateMock<ICustomerApiService>();
-           
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            CustomersController cut = new CustomersController(customerApiServiceMock, jsonFieldsSerializer);
+            var autoMocker = new RhinoAutoMocker<CustomersController>();
 
             //Act
-            cut.Search(defaultParametersModel);
+            autoMocker.ClassUnderTest.Search(defaultParametersModel);
 
             //Assert
-            customerApiServiceMock.AssertWasCalled(x => x.Search(defaultParametersModel.Query,
+            autoMocker.Get<ICustomerApiService>().AssertWasCalled(x => x.Search(defaultParametersModel.Query,
                                                     defaultParametersModel.Order,
                                                     defaultParametersModel.Page,
                                                     defaultParametersModel.Limit));
@@ -54,19 +51,16 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             var defaultParameters = new CustomersSearchParametersModel();
 
             //Arange
-            ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
-            customerApiServiceStub.Stub(x => x.Search()).Return(expectedCustomersCollection);
+            var autoMocker = new RhinoAutoMocker<CustomersController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-            jsonFieldsSerializerMock.Expect(x => x.Serialize(expectedRootObject, defaultParameters.Fields));
-
-            CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerMock);
+            autoMocker.Get<IJsonFieldsSerializer>().Expect(x => x.Serialize(expectedRootObject, defaultParameters.Fields));
+            autoMocker.Get<ICustomerApiService>().Stub(x => x.Search()).Return(expectedCustomersCollection);
 
             //Act
-            cut.Search(defaultParameters);
+            autoMocker.ClassUnderTest.Search(defaultParameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(x => x.Serialize(Arg<CustomersRootObject>.Is.TypeOf,
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(x => x.Serialize(Arg<CustomersRootObject>.Is.TypeOf,
                 Arg<string>.Is.Equal(defaultParameters.Fields)));
         }
 
@@ -83,19 +77,16 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             var defaultParameters = new CustomersSearchParametersModel();
 
             //Arange
-            ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
-            customerApiServiceStub.Stub(x => x.Search()).Return(expectedCustomersCollection);
+            var autoMocker = new RhinoAutoMocker<CustomersController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-            jsonFieldsSerializerMock.Expect(x => x.Serialize(expectedRootObject, defaultParameters.Fields));
-
-            CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerMock);
+            autoMocker.Get<IJsonFieldsSerializer>().Expect(x => x.Serialize(expectedRootObject, defaultParameters.Fields));
+            autoMocker.Get<ICustomerApiService>().Stub(x => x.Search()).Return(expectedCustomersCollection);
 
             //Act
-            cut.Search(defaultParameters);
+            autoMocker.ClassUnderTest.Search(defaultParameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(x => x.Serialize(Arg<CustomersRootObject>.Is.TypeOf,
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(x => x.Serialize(Arg<CustomersRootObject>.Is.TypeOf,
                 Arg<string>.Is.Equal(defaultParameters.Fields)));
         }
 
@@ -108,17 +99,13 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             };
 
             //Arange
-            ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerMock);
+            var autoMocker = new RhinoAutoMocker<CustomersController>();
 
             //Act
-            cut.Search(defaultParametersModel);
+            autoMocker.ClassUnderTest.Search(defaultParametersModel);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(Arg<CustomersRootObject>.Is.Anything, Arg<string>.Is.Equal(defaultParametersModel.Fields)));
         }
 
@@ -134,14 +121,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             };
 
             //Arange
-            ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerStub);
+            var autoMocker = new RhinoAutoMocker<CustomersController>();
 
             //Act
-            IHttpActionResult result = cut.Search(parametersModel);
+            IHttpActionResult result = autoMocker.ClassUnderTest.Search(parametersModel);
 
             //Assert
             Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
@@ -158,14 +141,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             };
 
             //Arange
-            ICustomerApiService customerApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            CustomersController cut = new CustomersController(customerApiServiceStub, jsonFieldsSerializerStub);
+            var autoMocker = new RhinoAutoMocker<CustomersController>();
 
             //Act
-            IHttpActionResult result = cut.Search(parametersModel);
+            IHttpActionResult result = autoMocker.ClassUnderTest.Search(parametersModel);
 
             //Assert
             Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);

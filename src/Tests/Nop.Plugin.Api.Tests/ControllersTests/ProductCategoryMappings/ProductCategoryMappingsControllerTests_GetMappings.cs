@@ -129,7 +129,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
         [Test]
         public void WhenSomeProductCategoryMappingsExist_ShouldCallTheSerializerWithTheseProductCategoryMappings()
         {
-            Maps.CreateMap<ProductCategory, ProductCategoryMappingDto>();
+            MappingExtensions.Maps.CreateMap<ProductCategory, ProductCategoryMappingDto>();
 
             var returnedMappingsDtoCollection = new List<ProductCategory>()
             {
