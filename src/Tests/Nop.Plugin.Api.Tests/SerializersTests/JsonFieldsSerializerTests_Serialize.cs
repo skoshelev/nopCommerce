@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using Newtonsoft.Json;
-using Nop.Plugin.Api.DTOs.Customers;
+using Nop.Plugin.Api.DTOs;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Tests.SerializersTests.DummyObjects;
 using Rhino.Mocks;

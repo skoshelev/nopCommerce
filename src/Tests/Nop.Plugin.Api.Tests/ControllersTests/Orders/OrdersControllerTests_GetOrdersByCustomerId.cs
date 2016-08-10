@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using AutoMock;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.Controllers;
-using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 using NUnit.Framework;
 using Rhino.Mocks;
@@ -19,18 +19,15 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
         public void WhenCustomerIdIsPassed_ShouldCallTheServiceWithThePassedParameters(int customerId)
         {
             // Arange
-            IOrderApiService orderApiServiceMock = MockRepository.GenerateMock<IOrderApiService>();
-            orderApiServiceMock.Expect(x => x.GetOrdersByCustomerId(customerId)).Return(new List<Order>());
+            var autoMocker = new RhinoAutoMocker<OrdersController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new OrdersController(orderApiServiceMock, jsonFieldsSerializer);
+            autoMocker.Get<IOrderApiService>().Expect(x => x.GetOrdersByCustomerId(customerId)).Return(new List<Order>());
 
             // Act
-            cut.GetOrdersByCustomerId(customerId);
+            autoMocker.ClassUnderTest.GetOrdersByCustomerId(customerId);
 
             // Assert
-            orderApiServiceMock.VerifyAllExpectations();
+            autoMocker.Get<IOrderApiService>().VerifyAllExpectations();
         }
     }
 }

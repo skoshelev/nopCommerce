@@ -1,5 +1,6 @@
 ﻿using System.Web.Http;
 using System.Web.Http.Results;
+using AutoMock;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.Orders;
@@ -19,15 +20,12 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
             int nonExistingOrderId = 5;
 
             // Arange
-            IOrderApiService orderApiServiceStub = MockRepository.GenerateStub<IOrderApiService>();
-            orderApiServiceStub.Stub(x => x.GetOrderById(nonExistingOrderId)).Return(null);
+            var autoMocker = new RhinoAutoMocker<OrdersController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new OrdersController(orderApiServiceStub, jsonFieldsSerializer);
+            autoMocker.Get<IOrderApiService>().Stub(x => x.GetOrderById(nonExistingOrderId)).Return(null);
 
             // Act
-            IHttpActionResult result = cut.GetOrderById(nonExistingOrderId);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetOrderById(nonExistingOrderId);
 
             // Assert
             Assert.IsInstanceOf<NotFoundResult>(result);
@@ -39,13 +37,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
         public void WhenIdEqualsToZeroOrLess_ShouldReturn404NotFound(int nonPositiveOrderId)
         {
             // Arange
-            IOrderApiService orderApiServiceStub = MockRepository.GenerateStub<IOrderApiService>();
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new OrdersController(orderApiServiceStub, jsonFieldsSerializer);
+            var autoMocker = new RhinoAutoMocker<OrdersController>();
 
             // Act
-            IHttpActionResult result = cut.GetOrderById(nonPositiveOrderId);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetOrderById(nonPositiveOrderId);
 
             // Assert
             Assert.IsInstanceOf<NotFoundResult>(result);
@@ -57,16 +52,13 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
         public void WhenIdEqualsToZeroOrLess_ShouldNotCallOrderApiService(int negativeOrderId)
         {
             // Arange
-            IOrderApiService orderApiServiceMock = MockRepository.GenerateMock<IOrderApiService>();
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new OrdersController(orderApiServiceMock, jsonFieldsSerializer);
+            var autoMocker = new RhinoAutoMocker<OrdersController>();
 
             // Act
-            cut.GetOrderById(negativeOrderId);
+            autoMocker.ClassUnderTest.GetOrderById(negativeOrderId);
 
             // Assert
-            orderApiServiceMock.AssertWasNotCalled(x => x.GetOrderById(negativeOrderId));
+            autoMocker.Get<IOrderApiService>().AssertWasNotCalled(x => x.GetOrderById(negativeOrderId));
         }
 
         [Test]
@@ -76,20 +68,17 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
             var existingOrderDto = new Order() { Id = existingOrderId };
 
             // Arange
-            IOrderApiService orderApiServiceStub = MockRepository.GenerateStub<IOrderApiService>();
-            orderApiServiceStub.Stub(x => x.GetOrderById(existingOrderId)).Return(existingOrderDto);
+            var autoMocker = new RhinoAutoMocker<OrdersController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new OrdersController(orderApiServiceStub, jsonFieldsSerializer);
+            autoMocker.Get<IOrderApiService>().Stub(x => x.GetOrderById(existingOrderId)).Return(existingOrderDto);
 
             // Act
-            cut.GetOrderById(existingOrderId);
+            autoMocker.ClassUnderTest.GetOrderById(existingOrderId);
 
             // Assert
-            jsonFieldsSerializer.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(
-                    Arg<OrdersRootObject>.Matches(objectToSerialize => objectToSerialize.Orders[0].Id == existingOrderDto.Id),
+                    Arg<OrdersRootObject>.Matches(objectToSerialize => objectToSerialize.Orders[0].Id == existingOrderDto.Id.ToString()),
                 Arg<string>.Matches(fields => fields == "")));
         }
     }

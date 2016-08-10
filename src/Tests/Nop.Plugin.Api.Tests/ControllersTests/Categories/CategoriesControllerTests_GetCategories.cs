@@ -8,7 +8,6 @@ using Nop.Core.Domain.Stores;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.Categories;
-using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models.CategoriesParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
@@ -91,7 +90,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         [Test]
         public void WhenSomeCategoriesExist_ShouldCallTheSerializerWithTheseCategories()
         {
-            Maps.CreateMap<Category, CategoryDto>();
+            MappingExtensions.Maps.CreateMap<Category, CategoryDto>();
 
             var returnedCategoriesCollection = new List<Category>()
             {

@@ -67,7 +67,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
         [Test]
         public void WhenIdEqualsToExistingMappingId_ShouldSerializeThatMapping()
         {
-            Maps.CreateMap<ProductCategory, ProductCategoryMappingDto>();
+            MappingExtensions.Maps.CreateMap<ProductCategory, ProductCategoryMappingDto>();
 
             int existingMappingId = 5;
             var existingMapping = new ProductCategory() { Id = existingMappingId };
@@ -93,7 +93,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
         [Test]
         public void WhenIdEqualsToExistingProductCategoryMappingIdAndFieldsSet_ShouldReturnJsonForThatProductCategoryMappingWithSpecifiedFields()
         {
-            Maps.CreateMap<ProductCategory, ProductCategoryMappingDto>();
+            MappingExtensions.Maps.CreateMap<ProductCategory, ProductCategoryMappingDto>();
 
             int existingMappingId = 5;
             var existingMapping = new ProductCategory() { Id = existingMappingId };

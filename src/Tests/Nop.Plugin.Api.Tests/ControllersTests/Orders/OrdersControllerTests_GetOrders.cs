@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Results;
+using AutoMock;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Controllers;
@@ -31,23 +32,20 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
             };
 
             //Arange
-            IOrderApiService orderApiServiceMock = MockRepository.GenerateMock<IOrderApiService>();
-            orderApiServiceMock.Expect(x => x.GetOrders(parameters.Ids,
+            var autoMocker = new RhinoAutoMocker<OrdersController>();
+
+            autoMocker.Get<IOrderApiService>().Expect(x => x.GetOrders(parameters.Ids,
                                                     parameters.CreatedAtMin,
                                                     parameters.CreatedAtMax,
                                                     parameters.Limit,
                                                     parameters.Page,
                                                     parameters.SinceId)).Return(new List<Order>());
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new OrdersController(orderApiServiceMock, jsonFieldsSerializer);
-
             //Act
-            cut.GetOrders(parameters);
+            autoMocker.ClassUnderTest.GetOrders(parameters);
 
             //Assert
-            orderApiServiceMock.VerifyAllExpectations();
+            autoMocker.Get<IOrderApiService>().VerifyAllExpectations();
         }
 
         [Test]
@@ -62,18 +60,15 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
             var parameters = new OrdersParametersModel();
 
             //Arange
-            IOrderApiService orderApiServiceStub = MockRepository.GenerateStub<IOrderApiService>();
-            orderApiServiceStub.Stub(x => x.GetOrders()).IgnoreArguments().Return(returnedOrdersCollection);
+            var autoMocker = new RhinoAutoMocker<OrdersController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new OrdersController(orderApiServiceStub, jsonFieldsSerializerMock);
+            autoMocker.Get<IOrderApiService>().Stub(x => x.GetOrders()).IgnoreArguments().Return(returnedOrdersCollection);
 
             //Act
-            cut.GetOrders(parameters);
+            autoMocker.ClassUnderTest.GetOrders(parameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(Arg<OrdersRootObject>.Matches(r => r.Orders.Count == returnedOrdersCollection.Count),
                 Arg<string>.Is.Equal(parameters.Fields)));
         }
@@ -86,18 +81,15 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
             var parameters = new OrdersParametersModel();
 
             //Arange
-            IOrderApiService orderApiServiceStub = MockRepository.GenerateStub<IOrderApiService>();
-            orderApiServiceStub.Stub(x => x.GetOrders()).IgnoreArguments().Return(returnedOrdersDtoCollection);
+            var autoMocker = new RhinoAutoMocker<OrdersController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-            
-            var cut = new OrdersController(orderApiServiceStub, jsonFieldsSerializerMock);
+            autoMocker.Get<IOrderApiService>().Stub(x => x.GetOrders()).IgnoreArguments().Return(returnedOrdersDtoCollection);
 
             //Act
-            cut.GetOrders(parameters);
+            autoMocker.ClassUnderTest.GetOrders(parameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(Arg<OrdersRootObject>.Matches(r => r.Orders.Count == returnedOrdersDtoCollection.Count),
                 Arg<string>.Is.Equal(parameters.Fields)));
         }
@@ -113,18 +105,14 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
             var returnedOrdersDtoCollection = new List<Order>();
 
             //Arange
-            IOrderApiService orderApiServiceStub = MockRepository.GenerateStub<IOrderApiService>();
-            orderApiServiceStub.Stub(x => x.GetOrders()).IgnoreArguments().Return(returnedOrdersDtoCollection);
-
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new OrdersController(orderApiServiceStub, jsonFieldsSerializerMock);
+            var autoMocker = new RhinoAutoMocker<OrdersController>();
+            autoMocker.Get<IOrderApiService>().Stub(x => x.GetOrders()).IgnoreArguments().Return(returnedOrdersDtoCollection);
 
             //Act
-            cut.GetOrders(parameters);
+            autoMocker.ClassUnderTest.GetOrders(parameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(Arg<OrdersRootObject>.Is.Anything, Arg<string>.Is.Equal(parameters.Fields)));
         }
 
@@ -139,14 +127,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
             };
 
             //Arange
-            IOrderApiService orderApiServiceStub = MockRepository.GenerateStub<IOrderApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new OrdersController(orderApiServiceStub, jsonFieldsSerializerStub);
+            var autoMocker = new RhinoAutoMocker<OrdersController>();
 
             //Act
-            IHttpActionResult result = cut.GetOrders(parameters);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetOrders(parameters);
 
             //Assert
             Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
@@ -163,14 +147,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
             };
 
             //Arange
-            IOrderApiService orderApiServiceStub = MockRepository.GenerateStub<IOrderApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new OrdersController(orderApiServiceStub, jsonFieldsSerializerStub);
+            var autoMocker = new RhinoAutoMocker<OrdersController>();
 
             //Act
-            IHttpActionResult result = cut.GetOrders(parameters);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetOrders(parameters);
 
             //Assert
             Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);

@@ -1,13 +1,10 @@
 ﻿using System.Web.Http;
 using System.Web.Http.Results;
-using AutoMapper;
-using Nop.Core.Domain.Customers;
+using AutoMock;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.Customers;
-using Nop.Plugin.Api.Models.CustomersParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
-using Nop.Services.Customers;
 using NUnit.Framework;
 using Rhino.Mocks;
 
@@ -20,16 +17,13 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
         public void WhenNoCustomersExist_ShouldReturnOKResultWithCountEqualToZero()
         {
             // arrange
-            var customersApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
-            customersApiServiceStub.Stub(x => x.GetCustomersCount()).Return(0);
+            var autoMocker = new RhinoAutoMocker<CustomersController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            jsonFieldsSerializer.Stub(x => x.Serialize(null, null)).Return(string.Empty);
-
-            CustomersController cut = new CustomersController(customersApiServiceStub,jsonFieldsSerializer);
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(null, null)).Return(string.Empty);
+            autoMocker.Get<ICustomerApiService>().Stub(x => x.GetCustomersCount()).Return(0);
 
             // act
-            IHttpActionResult result = cut.GetCustomersCount();
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetCustomersCount();
 
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<CustomersCountRootObject>>(result);
@@ -40,16 +34,13 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
         public void WhenSingleCustomerExists_ShouldReturnOKWithCountEqualToOne()
         {
             // arrange
-            var customersApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
-            customersApiServiceStub.Stub(x => x.GetCustomersCount()).Return(1);
+            var autoMocker = new RhinoAutoMocker<CustomersController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            jsonFieldsSerializer.Stub(x => x.Serialize(null, null)).Return(string.Empty);
-
-            CustomersController cut = new CustomersController(customersApiServiceStub,jsonFieldsSerializer);
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(null, null)).Return(string.Empty);
+            autoMocker.Get<ICustomerApiService>().Stub(x => x.GetCustomersCount()).Return(1);
 
             // act
-            IHttpActionResult result = cut.GetCustomersCount();
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetCustomersCount();
 
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<CustomersCountRootObject>>(result);
@@ -60,16 +51,13 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
         public void WhenCertainNumberOfCustomersExist_ShouldReturnOKWithCountEqualToSameNumberOfCustomers()
         {
             // arrange
-            var customersApiServiceStub = MockRepository.GenerateStub<ICustomerApiService>();
-            customersApiServiceStub.Stub(x => x.GetCustomersCount()).Return(20000);
+            var autoMocker = new RhinoAutoMocker<CustomersController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-            jsonFieldsSerializer.Stub(x => x.Serialize(null, null)).Return(string.Empty);
-
-            CustomersController cut = new CustomersController(customersApiServiceStub,jsonFieldsSerializer);
+            autoMocker.Get<ICustomerApiService>().Stub(x => x.GetCustomersCount()).Return(20000);
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(null, null)).Return(string.Empty);
 
             // act
-            IHttpActionResult result = cut.GetCustomersCount();
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetCustomersCount();
             
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<CustomersCountRootObject>>(result);
