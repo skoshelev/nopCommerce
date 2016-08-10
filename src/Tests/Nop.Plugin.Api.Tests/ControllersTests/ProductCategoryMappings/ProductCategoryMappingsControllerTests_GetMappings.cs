@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Results;
+using AutoMock;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.ProductCategoryMappings;
-using Nop.Plugin.Api.DTOs.Products;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Models.ProductCategoryMappingsParameters;
-using Nop.Plugin.Api.Models.ProductsParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 using NUnit.Framework;
@@ -30,22 +29,19 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
             };
 
             //Arange
-            IProductCategoryMappingsApiService productCategoryMappingApiServiceMock = MockRepository.GenerateMock<IProductCategoryMappingsApiService>();
-            productCategoryMappingApiServiceMock.Expect(x => x.GetMappings(parameters.ProductId,
+            var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
+
+            autoMocker.Get<IProductCategoryMappingsApiService>().Expect(x => x.GetMappings(parameters.ProductId,
                                                                            parameters.CategoryId,
                                                                            parameters.Limit,
                                                                            parameters.Page,
                                                                            parameters.SinceId)).Return(new List<ProductCategory>());
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new ProductCategoryMappingsController(productCategoryMappingApiServiceMock, jsonFieldsSerializer);
-
             //Act
-            cut.GetMappings(parameters);
+            autoMocker.ClassUnderTest.GetMappings(parameters);
 
             //Assert
-            productCategoryMappingApiServiceMock.VerifyAllExpectations();
+            autoMocker.Get<IProductCategoryMappingsApiService>().VerifyAllExpectations();
         }
 
         [Test]
@@ -59,14 +55,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
             };
 
             //Arange
-            IProductCategoryMappingsApiService productCategoryMappingApiServiceStub = MockRepository.GenerateStub<IProductCategoryMappingsApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new ProductCategoryMappingsController(productCategoryMappingApiServiceStub, jsonFieldsSerializerStub);
+            var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
 
             //Act
-            IHttpActionResult result = cut.GetMappings(parameters);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetMappings(parameters);
 
             //Assert
             Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
@@ -83,14 +75,10 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
             };
 
             //Arange
-            IProductCategoryMappingsApiService productCategoryMappingApiServiceStub = MockRepository.GenerateStub<IProductCategoryMappingsApiService>();
-
-            IJsonFieldsSerializer jsonFieldsSerializerStub = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new ProductCategoryMappingsController(productCategoryMappingApiServiceStub, jsonFieldsSerializerStub);
+            var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
 
             //Act
-            IHttpActionResult result = cut.GetMappings(parameters);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetMappings(parameters);
 
             //Assert
             Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
@@ -104,18 +92,15 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
             var parameters = new ProductCategoryMappingsParametersModel();
 
             //Arange
-            IProductCategoryMappingsApiService productCategoryMappingApiServiceStub = MockRepository.GenerateStub<IProductCategoryMappingsApiService>();
-            productCategoryMappingApiServiceStub.Stub(x => x.GetMappings()).IgnoreArguments().Return(returnedMappingsCollection);
+            var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new ProductCategoryMappingsController(productCategoryMappingApiServiceStub, jsonFieldsSerializerMock);
+            autoMocker.Get<IProductCategoryMappingsApiService>().Stub(x => x.GetMappings()).IgnoreArguments().Return(returnedMappingsCollection);
 
             //Act
-            cut.GetMappings(parameters);
+            autoMocker.ClassUnderTest.GetMappings(parameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(
+            autoMocker.Get< IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(Arg<ProductCategoryMappingsRootObject>.Matches(r => r.ProductCategoryMappingDtos.Count == returnedMappingsCollection.Count),
                 Arg<string>.Is.Equal(parameters.Fields)));
         }
@@ -129,18 +114,15 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
             };
 
             //Arange
-            IProductCategoryMappingsApiService productCategoryMappingApiServiceStub = MockRepository.GenerateStub<IProductCategoryMappingsApiService>();
-            productCategoryMappingApiServiceStub.Stub(x => x.GetMappings()).Return(new List<ProductCategory>());
+            var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new ProductCategoryMappingsController(productCategoryMappingApiServiceStub, jsonFieldsSerializerMock);
+            autoMocker.Get<IProductCategoryMappingsApiService>().Stub(x => x.GetMappings()).Return(new List<ProductCategory>());
 
             //Act
-            cut.GetMappings(parameters);
+            autoMocker.ClassUnderTest.GetMappings(parameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(Arg<ProductCategoryMappingsRootObject>.Is.Anything, Arg<string>.Is.Equal(parameters.Fields)));
         }
 
@@ -158,18 +140,15 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
             var parameters = new ProductCategoryMappingsParametersModel();
 
             //Arange
-            IProductCategoryMappingsApiService productCategoryMappingApiServiceStub = MockRepository.GenerateStub<IProductCategoryMappingsApiService>();
-            productCategoryMappingApiServiceStub.Stub(x => x.GetMappings()).Return(returnedMappingsDtoCollection);
+            var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializerMock = MockRepository.GenerateMock<IJsonFieldsSerializer>();
-
-            var cut = new ProductCategoryMappingsController(productCategoryMappingApiServiceStub, jsonFieldsSerializerMock);
+            autoMocker.Get<IProductCategoryMappingsApiService>().Stub(x => x.GetMappings()).Return(returnedMappingsDtoCollection);
 
             //Act
-            cut.GetMappings(parameters);
+            autoMocker.ClassUnderTest.GetMappings(parameters);
 
             //Assert
-            jsonFieldsSerializerMock.AssertWasCalled(
+            autoMocker.Get<IJsonFieldsSerializer>().AssertWasCalled(
                 x => x.Serialize(Arg<ProductCategoryMappingsRootObject>.Matches(r => r.ProductCategoryMappingDtos.Count == returnedMappingsDtoCollection.Count),
                 Arg<string>.Is.Equal(parameters.Fields)));
         }

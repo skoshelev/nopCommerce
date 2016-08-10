@@ -1,12 +1,17 @@
-﻿using System.Web.Http;
+﻿using System.Collections.Generic;
+using System.Web.Http;
 using System.Web.Http.Results;
 using AutoMock;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Security;
+using Nop.Core.Domain.Stores;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.Categories;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
+using Nop.Services.Security;
+using Nop.Services.Stores;
 using NUnit.Framework;
 using Rhino.Mocks;
 
@@ -73,6 +78,8 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             // Arange
             var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
             autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoryById(existingCategoryId)).Return(existingCategory);
+            autoMocker.Get<IAclService>().Stub(x => x.GetAclRecords(new Category())).IgnoreArguments().Return(new List<AclRecord>());
+            autoMocker.Get<IStoreMappingService>().Stub(x => x.GetStoreMappings(new Category())).IgnoreArguments().Return(new List<StoreMapping>());
 
             // Act
             autoMocker.ClassUnderTest.GetCategoryById(existingCategoryId);
@@ -100,6 +107,8 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
             // Arange
             var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
             autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoryById(existingCategoryId)).Return(existingCategory);
+            autoMocker.Get<IAclService>().Stub(x => x.GetAclRecords(new Category())).IgnoreArguments().Return(new List<AclRecord>());
+            autoMocker.Get<IStoreMappingService>().Stub(x => x.GetStoreMappings(new Category())).IgnoreArguments().Return(new List<StoreMapping>());
 
             // Act
             autoMocker.ClassUnderTest.GetCategoryById(existingCategoryId, fields);

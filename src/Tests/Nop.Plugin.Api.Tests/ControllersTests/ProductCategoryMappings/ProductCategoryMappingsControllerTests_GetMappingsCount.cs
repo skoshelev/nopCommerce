@@ -1,11 +1,9 @@
 ﻿using System.Web.Http;
 using System.Web.Http.Results;
+using AutoMock;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.ProductCategoryMappings;
-using Nop.Plugin.Api.DTOs.Products;
 using Nop.Plugin.Api.Models.ProductCategoryMappingsParameters;
-using Nop.Plugin.Api.Models.ProductsParameters;
-using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 using NUnit.Framework;
 using Rhino.Mocks;
@@ -21,15 +19,12 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
             var parameters = new ProductCategoryMappingsCountParametersModel();
 
             // arrange
-            var productCategoryMappingsApiServiceStub = MockRepository.GenerateStub<IProductCategoryMappingsApiService>();
-            productCategoryMappingsApiServiceStub.Stub(x => x.GetMappingsCount()).IgnoreArguments().Return(0);
+            var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new ProductCategoryMappingsController(productCategoryMappingsApiServiceStub, jsonFieldsSerializer);
+            autoMocker.Get<IProductCategoryMappingsApiService>().Stub(x => x.GetMappingsCount()).IgnoreArguments().Return(0);
 
             // act
-            IHttpActionResult result = cut.GetMappingsCount(parameters);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetMappingsCount(parameters);
 
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<ProductCategoryMappingsCountRootObject>>(result);
@@ -42,15 +37,11 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
             var parameters = new ProductCategoryMappingsCountParametersModel();
 
             // arrange
-            var productCategoryMappingsApiServiceStub = MockRepository.GenerateStub<IProductCategoryMappingsApiService>();
-            productCategoryMappingsApiServiceStub.Stub(x => x.GetMappingsCount()).IgnoreArguments().Return(1);
+            var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new ProductCategoryMappingsController(productCategoryMappingsApiServiceStub, jsonFieldsSerializer);
-
+            autoMocker.Get<IProductCategoryMappingsApiService>().Stub(x => x.GetMappingsCount()).IgnoreArguments().Return(1);
             // act
-            IHttpActionResult result = cut.GetMappingsCount(parameters);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetMappingsCount(parameters);
 
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<ProductCategoryMappingsCountRootObject>>(result);
@@ -64,15 +55,12 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
             int mappingsCount = 20;
 
             // arrange
-            var productCategoryMappingsApiServiceStub = MockRepository.GenerateStub<IProductCategoryMappingsApiService>();
-            productCategoryMappingsApiServiceStub.Stub(x => x.GetMappingsCount()).IgnoreArguments().Return(mappingsCount);
+            var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
 
-            IJsonFieldsSerializer jsonFieldsSerializer = MockRepository.GenerateStub<IJsonFieldsSerializer>();
-
-            var cut = new ProductCategoryMappingsController(productCategoryMappingsApiServiceStub, jsonFieldsSerializer);
+            autoMocker.Get<IProductCategoryMappingsApiService>().Stub(x => x.GetMappingsCount()).IgnoreArguments().Return(mappingsCount);
 
             // act
-            IHttpActionResult result = cut.GetMappingsCount(mappingsCountParametersModel);
+            IHttpActionResult result = autoMocker.ClassUnderTest.GetMappingsCount(mappingsCountParametersModel);
 
             // assert
             Assert.IsInstanceOf<OkNegotiatedContentResult<ProductCategoryMappingsCountRootObject>>(result);
