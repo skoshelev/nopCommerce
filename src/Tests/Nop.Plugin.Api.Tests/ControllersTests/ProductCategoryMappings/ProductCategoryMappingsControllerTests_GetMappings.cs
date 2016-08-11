@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Net;
+using System.Threading;
 using System.Web.Http;
 using System.Web.Http.Results;
 using AutoMock;
@@ -57,11 +59,17 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
             //Arange
             var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
 
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<ProductCategoryMappingsRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                 .IgnoreArguments()
+                                                 .Return(string.Empty);
+
             //Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetMappings(parameters);
 
             //Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, statusCode);
         }
 
         [Test]
@@ -77,11 +85,17 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
             //Arange
             var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
 
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<ProductCategoryMappingsRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                .IgnoreArguments()
+                                                .Return(string.Empty);
+
             //Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetMappings(parameters);
 
             //Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, statusCode);
         }
 
         [Test]

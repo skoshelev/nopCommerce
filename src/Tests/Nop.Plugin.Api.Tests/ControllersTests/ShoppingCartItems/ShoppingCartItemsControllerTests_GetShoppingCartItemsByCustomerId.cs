@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Net;
+using System.Threading;
 using System.Web.Http;
 using System.Web.Http.Results;
 using AutoMock;
@@ -19,18 +21,24 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
         [Test]
         [TestCase(0)]
         [TestCase(-20)]
-        public void WhenIdEqualsToZeroOrLess_ShouldReturn404NotFound(int nonPositiveCustomerId)
+        public void WhenIdEqualsToZeroOrLess_ShouldReturnBadRequest(int nonPositiveCustomerId)
         {
             // Arange
             var parameters = new ShoppingCartItemsForCustomerParametersModel();
             
             var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
 
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<ShoppingCartItemsRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                       .IgnoreArguments()
+                                                       .Return(string.Empty);
+
             // Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetShoppingCartItemsByCustomerId(nonPositiveCustomerId, parameters);
 
             // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, statusCode);
         }
 
         [Test]
@@ -63,11 +71,17 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
 
             autoMocker.Get<IShoppingCartItemApiService>().Stub(x => x.GetShoppingCartItems(nonExistingShoppingCartItemId)).Return(null);
 
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<ShoppingCartItemsRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                       .IgnoreArguments()
+                                                       .Return(string.Empty);
+
             // Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetShoppingCartItemsByCustomerId(nonExistingShoppingCartItemId, parameters);
 
             // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, statusCode);
         }
 
         [Test]

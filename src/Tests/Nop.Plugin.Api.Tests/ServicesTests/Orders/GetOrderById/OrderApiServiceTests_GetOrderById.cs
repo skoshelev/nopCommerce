@@ -1,4 +1,6 @@
-﻿using Nop.Core.Data;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Nop.Core.Data;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.Services;
 using NUnit.Framework;
@@ -16,8 +18,9 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Orders.GetOrderById
             
             // Arange
             var orderRepo = MockRepository.GenerateStub<IRepository<Order>>();
+            orderRepo.Stub(x => x.Table).Return((new List<Order>()).AsQueryable());
             orderRepo.Stub(x => x.GetById(orderId)).Return(null);
-            
+
             // Act  
             var cut = new OrderApiService(orderRepo);
             var result = cut.GetOrderById(orderId);
@@ -50,6 +53,11 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Orders.GetOrderById
 
             // Arange
             var orderRepo = MockRepository.GenerateStub<IRepository<Order>>();
+
+            var list = new List<Order>();
+            list.Add(order);
+
+            orderRepo.Stub(x => x.Table).Return(list.AsQueryable());
             orderRepo.Stub(x => x.GetById(orderId)).Return(order);
             
             // Act

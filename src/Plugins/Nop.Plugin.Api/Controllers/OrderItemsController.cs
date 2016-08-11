@@ -11,7 +11,6 @@ using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Delta;
 using Nop.Plugin.Api.DTOs.OrderItems;
-using Nop.Plugin.Api.DTOs.Orders;
 using Nop.Plugin.Api.JSON.ActionResults;
 using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.ModelBinders;

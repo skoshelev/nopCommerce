@@ -7,6 +7,7 @@ using System.Web.Http.ModelBinding;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Directory;
+using Nop.Core.Infrastructure;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Delta;
@@ -43,7 +44,23 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IMappingHelper _mappingHelper;
         private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
         private readonly IFactory<Customer> _factory;
-        private readonly CustomerSettings _customerSettings;
+
+        // We resolve the customer settings this way because of the tests.
+        // The auto mocking does not support concreate types as dependencies. It supports only interfaces.
+        private CustomerSettings _customerSettings;
+
+        private CustomerSettings CustomerSettings
+        {
+            get
+            {
+                if (_customerSettings == null)
+                {
+                    _customerSettings = EngineContext.Current.Resolve<CustomerSettings>();
+                }
+
+                return _customerSettings;
+            }
+        }
 
         public CustomersController(
             ICustomerApiService customerApiService, 
@@ -59,7 +76,6 @@ namespace Nop.Plugin.Api.Controllers
             IGenericAttributeService genericAttributeService,
             IEncryptionService encryptionService,
             IFactory<Customer> factory, 
-            CustomerSettings customerSettings, 
             ICountryService countryService, 
             IMappingHelper mappingHelper, 
             INewsLetterSubscriptionService newsLetterSubscriptionService) : 
@@ -67,7 +83,6 @@ namespace Nop.Plugin.Api.Controllers
         {
             _customerApiService = customerApiService;
             _factory = factory;
-            _customerSettings = customerSettings;
             _countryService = countryService;
             _mappingHelper = mappingHelper;
             _newsLetterSubscriptionService = newsLetterSubscriptionService;
@@ -452,7 +467,7 @@ namespace Nop.Plugin.Api.Controllers
         private void AddPassword(string newPassword, Customer customer)
         {
             // TODO: call this method before inserting the customer.
-            switch (_customerSettings.DefaultPasswordFormat)
+            switch (CustomerSettings.DefaultPasswordFormat)
             {
                 case PasswordFormat.Clear:
                     {
@@ -468,12 +483,12 @@ namespace Nop.Plugin.Api.Controllers
                     {
                         string saltKey = _encryptionService.CreateSaltKey(5);
                         customer.PasswordSalt = saltKey;
-                        customer.Password = _encryptionService.CreatePasswordHash(newPassword, saltKey, _customerSettings.HashedPasswordFormat);
+                        customer.Password = _encryptionService.CreatePasswordHash(newPassword, saltKey, CustomerSettings.HashedPasswordFormat);
                     }
                     break;
             }
             
-            customer.PasswordFormat = _customerSettings.DefaultPasswordFormat;
+            customer.PasswordFormat = CustomerSettings.DefaultPasswordFormat;
 
             // TODO: remove this.
             _customerService.UpdateCustomer(customer);

@@ -1,4 +1,6 @@
-﻿using Nop.Core.Data;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.Services;
 using NUnit.Framework;
@@ -16,6 +18,7 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategoryById
             
             // Arange
             var categoryRepo = MockRepository.GenerateStub<IRepository<Category>>();
+            categoryRepo.Stub(x => x.Table).Return((new List<Category>()).AsQueryable());
             categoryRepo.Stub(x => x.GetById(categoryId)).Return(null);
 
             var productCategoryRepo = MockRepository.GenerateStub<IRepository<ProductCategory>>();
@@ -53,6 +56,12 @@ namespace Nop.Plugin.Api.Tests.ServicesTests.Categories.GetCategoryById
 
             // Arange
             var categoryRepo = MockRepository.GenerateStub<IRepository<Category>>();
+
+            var list = new List<Category>();
+            list.Add(category);
+
+            categoryRepo.Stub(x => x.Table).Return(list.AsQueryable());
+
             categoryRepo.Stub(x => x.GetById(categoryId)).Return(category);
 
             var productCategoryRepo = MockRepository.GenerateStub<IRepository<ProductCategory>>();

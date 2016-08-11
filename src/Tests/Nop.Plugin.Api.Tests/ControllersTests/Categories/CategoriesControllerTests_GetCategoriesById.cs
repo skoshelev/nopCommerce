@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Net;
+using System.Threading;
 using System.Web.Http;
 using System.Web.Http.Results;
 using AutoMock;
@@ -7,7 +9,6 @@ using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Stores;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.Categories;
-using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 using Nop.Services.Security;
@@ -23,16 +24,22 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
         [Test]
         [TestCase(0)]
         [TestCase(-20)]
-        public void WhenIdEqualsToZeroOrLess_ShouldReturn404NotFound(int nonPositiveCategoryId)
+        public void WhenIdEqualsToZeroOrLess_ShouldReturnBadRequest(int nonPositiveCategoryId)
         {
             // Arange
             var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
+
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<CategoriesRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                           .IgnoreArguments()
+                                                           .Return(string.Empty);
 
             // Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetCategoryById(nonPositiveCategoryId);
 
             // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, statusCode);
         }
 
         [Test]
@@ -58,13 +65,20 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Categories
 
             // Arange
             var autoMocker = new RhinoAutoMocker<CategoriesApiController>();
+
             autoMocker.Get<ICategoryApiService>().Stub(x => x.GetCategoryById(nonExistingCategoryId)).Return(null);
+
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<CategoriesRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                           .IgnoreArguments()
+                                                           .Return(string.Empty);
 
             // Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetCategoryById(nonExistingCategoryId);
 
             // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, statusCode);
         }
 
         [Test]
