@@ -1,10 +1,11 @@
-﻿using System.Web.Http;
+﻿using System.Net;
+using System.Threading;
+using System.Web.Http;
 using System.Web.Http.Results;
 using AutoMock;
 using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.ProductCategoryMappings;
-using Nop.Plugin.Api.MappingExtensions;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
 using NUnit.Framework;
@@ -18,16 +19,22 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
         [Test]
         [TestCase(0)]
         [TestCase(-20)]
-        public void WhenIdEqualsToZeroOrLess_ShouldReturn404NotFound(int nonPositiveProductCategoryMappingId)
+        public void WhenIdEqualsToZeroOrLess_ShouldReturnBadRequest(int nonPositiveProductCategoryMappingId)
         {
             // Arange
             var autoMocker = new RhinoAutoMocker<ProductCategoryMappingsController>();
+
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<ProductCategoryMappingsRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                   .IgnoreArguments()
+                                                   .Return(string.Empty);
 
             // Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetMappingById(nonPositiveProductCategoryMappingId);
 
             // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, statusCode);
         }
 
         [Test]
@@ -57,11 +64,17 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ProductCategoryMappings
 
             autoMocker.Get<IProductCategoryMappingsApiService>().Stub(x => x.GetById(nonExistingMappingId)).Return(null);
 
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<ProductCategoryMappingsRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                   .IgnoreArguments()
+                                                   .Return(string.Empty);
+
             // Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetMappingById(nonExistingMappingId);
 
             // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, statusCode);
         }
 
         [Test]

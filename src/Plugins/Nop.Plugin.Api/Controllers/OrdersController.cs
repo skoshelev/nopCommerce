@@ -11,6 +11,7 @@ using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Shipping;
+using Nop.Core.Infrastructure;
 using Nop.Plugin.Api.Attributes;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Delta;
@@ -50,8 +51,24 @@ namespace Nop.Plugin.Api.Controllers
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IShippingService _shippingService;
         private readonly IStoreContext _storeContext;
-        private readonly OrderSettings _orderSettings;
         private readonly IFactory<Order> _factory;
+
+        // We resolve the order settings this way because of the tests.
+        // The auto mocking does not support concreate types as dependencies. It supports only interfaces.
+        private OrderSettings _orderSettings;
+
+        private OrderSettings OrderSettings
+        {
+            get
+            {
+                if (_orderSettings == null)
+                {
+                    _orderSettings = EngineContext.Current.Resolve<OrderSettings>();
+                }
+
+                return _orderSettings;
+            }
+        }
 
         public OrdersController(IOrderApiService orderApiService,
             IJsonFieldsSerializer jsonFieldsSerializer,
@@ -64,7 +81,6 @@ namespace Nop.Plugin.Api.Controllers
             ILocalizationService localizationService,
             IProductService productService,
             IFactory<Order> factory,
-            OrderSettings orderSettings,
             IOrderProcessingService orderProcessingService,
             IOrderService orderService,
             IShoppingCartService shoppingCartService,
@@ -76,7 +92,6 @@ namespace Nop.Plugin.Api.Controllers
         {
             _orderApiService = orderApiService;
             _factory = factory;
-            _orderSettings = orderSettings;
             _orderProcessingService = orderProcessingService;
             _orderService = orderService;
             _shoppingCartService = shoppingCartService;
@@ -258,7 +273,7 @@ namespace Nop.Plugin.Api.Controllers
                 }
             }
 
-            if (!_orderSettings.DisableBillingAddressCheckoutStep)
+            if (!OrderSettings.DisableBillingAddressCheckoutStep)
             {
                 bool isValid = ValidateAddress(orderDelta.Dto.BillingAddress, "billing_address");
 
@@ -383,7 +398,7 @@ namespace Nop.Plugin.Api.Controllers
                 }
             }
 
-            if (!_orderSettings.DisableBillingAddressCheckoutStep && orderDelta.Dto.BillingAddress != null)
+            if (!OrderSettings.DisableBillingAddressCheckoutStep && orderDelta.Dto.BillingAddress != null)
             {
                 bool isValid = ValidateAddress(orderDelta.Dto.BillingAddress, "billing_address");
 

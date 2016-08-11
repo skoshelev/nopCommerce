@@ -1,4 +1,6 @@
-﻿using System.Web.Http;
+﻿using System.Net;
+using System.Threading;
+using System.Web.Http;
 using System.Web.Http.Results;
 using AutoMock;
 using Nop.Plugin.Api.Controllers;
@@ -23,26 +25,38 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
 
             autoMocker.Get<ICustomerApiService>().Stub(x => x.GetCustomerById(nonExistingCustomerId)).Return(null);
 
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<CustomersRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                .IgnoreArguments()
+                                                .Return(string.Empty);
+
             // Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetCustomerById(nonExistingCustomerId);
 
             // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, statusCode);
         }
 
         [Test]
         [TestCase(0)]
         [TestCase(-20)]
-        public void WhenIdEqualsToZeroOrLess_ShouldReturn404NotFound(int nonPositiveCustomerId)
+        public void WhenIdEqualsToZeroOrLess_ShouldReturnBadRequest(int nonPositiveCustomerId)
         {
             // Arange
             var autoMocker = new RhinoAutoMocker<CustomersController>();
+
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<CustomersRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                            .IgnoreArguments()
+                                                            .Return(string.Empty);
 
             // Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetCustomerById(nonPositiveCustomerId);
 
             // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, statusCode);
         }
 
         [Test]

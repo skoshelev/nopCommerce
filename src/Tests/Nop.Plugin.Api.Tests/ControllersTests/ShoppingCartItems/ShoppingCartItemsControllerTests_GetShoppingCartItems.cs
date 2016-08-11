@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Net;
+using System.Runtime.Serialization;
+using System.Threading;
 using System.Web.Http;
 using System.Web.Http.Results;
 using AutoMock;
@@ -6,10 +9,10 @@ using Nop.Core.Domain.Orders;
 using Nop.Plugin.Api.Constants;
 using Nop.Plugin.Api.Controllers;
 using Nop.Plugin.Api.DTOs.ShoppingCarts;
-using Nop.Plugin.Api.Maps;
 using Nop.Plugin.Api.Models.ShoppingCartsParameters;
 using Nop.Plugin.Api.Serializers;
 using Nop.Plugin.Api.Services;
+using Nop.Plugin.Api.Tests.ModelBinderTests.DummyObjects;
 using NUnit.Framework;
 using Rhino.Mocks;
 
@@ -30,12 +33,17 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
 
             //Arange
             var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
-           
+
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<ShoppingCartItemsRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                        .IgnoreArguments()
+                                                        .Return(string.Empty);
             //Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetShoppingCartItems(parameters);
 
             //Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, statusCode);
         }
 
         [Test]
@@ -51,11 +59,17 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             //Arange
             var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
 
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<ShoppingCartItemsRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                        .IgnoreArguments()
+                                                        .Return(string.Empty);
+
             //Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetShoppingCartItems(parameters);
 
             //Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, statusCode);
         }
 
         [Test]
@@ -66,7 +80,7 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.ShoppingCartItems
             //Arange
             var autoMocker = new RhinoAutoMocker<ShoppingCartItemsController>();
 
-            autoMocker.Get<IShoppingCartItemApiService>().Expect(x => x.GetShoppingCartItems(0, parameters.CreatedAtMin,
+            autoMocker.Get<IShoppingCartItemApiService>().Expect(x => x.GetShoppingCartItems(null, parameters.CreatedAtMin,
                                                                                parameters.CreatedAtMax, parameters.UpdatedAtMin,
                                                                                parameters.UpdatedAtMax, parameters.Limit,
                                                                                parameters.Page)).Return(new List<ShoppingCartItem>());

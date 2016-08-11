@@ -1,4 +1,6 @@
-﻿using System.Web.Http;
+﻿using System.Net;
+using System.Threading;
+using System.Web.Http;
 using System.Web.Http.Results;
 using AutoMock;
 using Nop.Core.Domain.Orders;
@@ -18,32 +20,44 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Orders
         public void WhenIdIsPositiveNumberButNoSuchOrderWithSuchIdExists_ShouldReturn404NotFound()
         {
             int nonExistingOrderId = 5;
-
+            
             // Arange
             var autoMocker = new RhinoAutoMocker<OrdersController>();
-
+            
             autoMocker.Get<IOrderApiService>().Stub(x => x.GetOrderById(nonExistingOrderId)).Return(null);
+
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<OrdersRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                       .IgnoreArguments()
+                                                       .Return(string.Empty);
 
             // Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetOrderById(nonExistingOrderId);
 
             // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, statusCode);
         }
 
         [Test]
         [TestCase(0)]
         [TestCase(-20)]
-        public void WhenIdEqualsToZeroOrLess_ShouldReturn404NotFound(int nonPositiveOrderId)
+        public void WhenIdEqualsToZeroOrLess_ShouldReturnBadRequest(int nonPositiveOrderId)
         {
             // Arange
             var autoMocker = new RhinoAutoMocker<OrdersController>();
+
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<OrdersRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                     .IgnoreArguments()
+                                                     .Return(string.Empty);
 
             // Act
             IHttpActionResult result = autoMocker.ClassUnderTest.GetOrderById(nonPositiveOrderId);
 
             // Assert
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, statusCode);
         }
 
         [Test]

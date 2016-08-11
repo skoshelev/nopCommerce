@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Net;
+using System.Threading;
 using System.Web.Http;
 using System.Web.Http.Results;
 using AutoMock;
@@ -123,11 +125,17 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             //Arange
             var autoMocker = new RhinoAutoMocker<CustomersController>();
 
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<CustomersRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                                        .IgnoreArguments()
+                                                                        .Return(string.Empty);
+
             //Act
             IHttpActionResult result = autoMocker.ClassUnderTest.Search(parametersModel);
 
             //Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, statusCode);
         }
 
         [Test]
@@ -143,11 +151,17 @@ namespace Nop.Plugin.Api.Tests.ControllersTests.Customers
             //Arange
             var autoMocker = new RhinoAutoMocker<CustomersController>();
 
+            autoMocker.Get<IJsonFieldsSerializer>().Stub(x => x.Serialize(Arg<CustomersRootObject>.Is.Anything, Arg<string>.Is.Anything))
+                                                                        .IgnoreArguments()
+                                                                        .Return(string.Empty);
+
             //Act
             IHttpActionResult result = autoMocker.ClassUnderTest.Search(parametersModel);
 
             //Assert
-            Assert.IsInstanceOf<BadRequestErrorMessageResult>(result);
+            var statusCode = result.ExecuteAsync(new CancellationToken()).Result.StatusCode;
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, statusCode);
         }
     }
 }
