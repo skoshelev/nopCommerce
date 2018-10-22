@@ -1,0 +1,11 @@
+language: csharp
+mono: none
+dotnet: 2.1
+
+install:
+ - dotnet restore ./src/NopCommerce.sln
+ 
+script:
+ - dotnet build ./src/NopCommerce.sln
+ - dotnet test ./src/Tests/Nop.Core.Tests/Nop.Core.Tests.csproj
+ - dotnet test ./src/Tests/Nop.Web.MVC.Tests/Nop.Web.MVC.Tests.csproj
